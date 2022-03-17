@@ -1,6 +1,10 @@
 {
   "dependencies": [
     {
+      "name": "@aws-cdk/assert",
+      "type": "build"
+    },
+    {
       "name": "@types/jest",
       "type": "build"
     },
@@ -21,7 +25,11 @@
     },
     {
       "name": "aws-cdk-lib",
-      "version": "2.1.0",
+      "version": "2.11.0",
+      "type": "build"
+    },
+    {
+      "name": "cdk-dia",
       "type": "build"
     },
     {
@@ -98,8 +106,16 @@
       "type": "build"
     },
     {
+      "name": "@types/lodash",
+      "type": "bundled"
+    },
+    {
+      "name": "lodash",
+      "type": "bundled"
+    },
+    {
       "name": "aws-cdk-lib",
-      "version": "^2.1.0",
+      "version": "^2.11.0",
       "type": "peer"
     },
     {

@@ -31,6 +31,9 @@ jspm_packages/
 *.tgz
 .yarn-integrity
 .cache
+cdk.context.json
+cdk.out/
+*.dot
 !/.projenrc.js
 /test-reports/
 junit.xml
@@ -50,4 +53,5 @@ junit.xml
 .jsii
 tsconfig.json
 !/API.md
+/.idea
 !/.github/workflows/upgrade-main.yml
