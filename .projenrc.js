@@ -4,7 +4,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   authorAddress: 'biju.joseph@semanticbits.com',
   cdkVersion: '2.11.0',
   defaultReleaseBranch: 'main',
-  name: '@savvytools/ez-constructs',
+  name: 'ez-constructs',
   repositoryUrl: 'https://github.com/SavvyTools/ez-constructs.git',
   license: 'Apache-2.0',
   gitignore: [
