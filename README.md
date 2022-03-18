@@ -11,3 +11,6 @@ A collection of heaviliy opinionated AWS CDK highlevel constructs.
 
 ## Libraries
 1. Utils - A collection of utility functions
+
+## Aspects
+1. [PermissionsBoundaryAspect](src/aspects) - A custom aspect that can be used to apply a permission boundary to all roles created in the contex. 
