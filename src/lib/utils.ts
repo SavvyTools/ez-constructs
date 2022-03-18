@@ -19,4 +19,17 @@ export class Utils {
 
     return newName;
   }
+
+  /**
+   * Will wrap the given string using the given delimiter.
+   * @param str - the string to wrap
+   * @param delimiter - the delimiter to use
+   * @returns the wrapped string
+   */
+  public static wrap(str:string, delimiter:string): string {
+    let newStr = str;
+    if (!_.startsWith(str, delimiter)) newStr = `${delimiter}${newStr}`;
+    if (!_.endsWith(str, delimiter)) newStr = `${newStr}${delimiter}`;
+    return newStr;
+  }
 }

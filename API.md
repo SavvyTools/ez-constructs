@@ -542,6 +542,7 @@ new Utils()
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#ez-constructs.Utils.appendIfNecessary">appendIfNecessary</a></code> | Will append the suffix to the given name if the name do not contain the suffix. |
+| <code><a href="#ez-constructs.Utils.wrap">wrap</a></code> | Will wrap the given string using the given delimiter. |
 
 ---
 
@@ -568,6 +569,32 @@ a string.
 - *Type:* string
 
 the string to append.
+
+---
+
+##### `wrap` <a name="wrap" id="ez-constructs.Utils.wrap"></a>
+
+```typescript
+import { Utils } from 'ez-constructs'
+
+Utils.wrap(str: string, delimiter: string)
+```
+
+Will wrap the given string using the given delimiter.
+
+###### `str`<sup>Required</sup> <a name="str" id="ez-constructs.Utils.wrap.parameter.str"></a>
+
+- *Type:* string
+
+the string to wrap.
+
+---
+
+###### `delimiter`<sup>Required</sup> <a name="delimiter" id="ez-constructs.Utils.wrap.parameter.delimiter"></a>
+
+- *Type:* string
+
+the delimiter to use.
 
 ---
 
