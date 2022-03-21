@@ -2,26 +2,8 @@ import { Duration, Stack } from 'aws-cdk-lib';
 import { BlockPublicAccess, Bucket, BucketEncryption, BucketProps, StorageClass } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import * as _ from 'lodash';
+import { EzConstruct } from '../index';
 import { Utils } from '../lib/utils';
-
-/**
- * Properties for a bucket
- */
-export interface SecureBucketProps extends BucketProps {
-
-  /**
-     * The number of days that object will be kept.
-     * @default 3650 - 10 years
-     */
-  readonly objectsExpireInDays?: number;
-
-  /**
-     * Use only for buckets that have archiving data.
-     * CAUTION, once the object is archived, a temporary bucket to store the data.
-     * @default false
-     */
-  readonly moveToGlacierDeepArchive?: boolean;
-}
 
 /**
  * Will create a secure bucket with the following features:
@@ -32,33 +14,89 @@ export interface SecureBucketProps extends BucketProps {
  * - Object expiration max limit to 10 years
  * - Object will transition to IA after 60 days and later to deep archive after 365 days
  */
-export class SecureBucket extends Construct {
+export class SecureBucket extends EzConstruct {
 
-  public readonly bucket: Bucket;
+  private _bucket: Bucket | undefined;
+  private _bucketName: string | undefined;
+  private _props: BucketProps | undefined;
+
+  private _moveToGlacierDeepArchive = false;
+  private _objectsExpireInDays = 3650;
+  private readonly scope: Construct;
+  // @ts-ignore
+  private readonly id: string;
 
   /**
-   *
+   * Creates the SecureBucket
    * @param scope - the stack in which the construct is defined.
    * @param id - a unique identifier for the construct.
-   * @param props - the customized set of properies. The `bucketName` property must be set.
    */
-  constructor(scope: Construct, id: string, props: SecureBucketProps) {
+  constructor(scope: Construct, id: string) {
     super(scope, id);
+    this.id = id;
+    this.scope = scope;
+  }
+
+  /**
+   * The underlying S3 bucket created by this construct.
+   */
+  get bucket(): Bucket | undefined {
+    return this._bucket;
+  }
+
+  /**
+   * The name of the bucket. Internally the bucket name will be modified to include the account and region.
+   * @param name - the name of the bucket to use
+   */
+  bucketName(name:string): SecureBucket {
+    this._bucketName = name;
+    return this;
+  }
+
+  /**
+   * Use only for buckets that have archiving data.
+   * CAUTION, once the object is archived, a temporary bucket to store the data.
+   * @default false
+   * @returns SecureBucket
+   */
+  moveToGlacierDeepArchive(move?:boolean): SecureBucket {
+    this._moveToGlacierDeepArchive = move??false;
+    return this;
+  }
+
+  /**
+   * The number of days that object will be kept.
+   * @default 3650 - 10 years
+   * @returns SecureBucket
+   */
+  objectsExpireInDays(expiryInDays: number): SecureBucket {
+    this._objectsExpireInDays = expiryInDays;
+    return this;
+  }
+
+  /**
+   * This function allows users to override the defaults calculated by this construct and is only recommended for advanced usecases.
+   * The values supplied via props superseeds the defaults that are calculated.
+   * @param props - The customized set of properties
+   * @returns SecureBucket
+   */
+  overrideBucketProperties(props: BucketProps): SecureBucket {
 
     // canonicalize the bucket name
-    const stack = Stack.of(scope);
-    let bucketName = Utils.appendIfNecessary(_.toLower(props.bucketName), stack.account, stack.region);
+    let currentScope = this.scope;
+    const stack = Stack.of(currentScope);
+    let bucketName = Utils.appendIfNecessary(_.toLower(this._bucketName), stack.account, stack.region);
 
     // create the defaults
-    let encryption = props.encryption ?? BucketEncryption.S3_MANAGED;
-    let versioned = props.versioned ?? true;
-    let enforceSSL = props.enforceSSL ?? true;
-    let publicReadAccess = props.publicReadAccess ?? false;
-    let objectsExpireInDays = props.objectsExpireInDays ?? 3650; // 10 years
-    let moveToGlacierDeepArchive = props.moveToGlacierDeepArchive ?? false;
+    let encryption = BucketEncryption.S3_MANAGED;
+    let versioned = true;
+    let enforceSSL = true;
+    let publicReadAccess = false;
+    let objectsExpireInDays = this._objectsExpireInDays ?? 3650; // 10 years
+    let moveToGlacierDeepArchive = this._moveToGlacierDeepArchive ?? false;
 
     // block access if necessary
-    let blockPublicAccess = props.blockPublicAccess ?? (!publicReadAccess ? BlockPublicAccess.BLOCK_ALL : undefined);
+    let blockPublicAccess = (!publicReadAccess ? BlockPublicAccess.BLOCK_ALL : undefined);
 
     // will add transitions if expiry set on object is >90 days.
     let transitions = [];
@@ -72,7 +110,7 @@ export class SecureBucket extends Construct {
       transitions.push({ storageClass: StorageClass.DEEP_ARCHIVE, transitionAfter: Duration.days(90) });
     }
 
-    let lifecycleRules = props.lifecycleRules || [
+    let lifecycleRules = [
       {
         expiration: Duration.days(objectsExpireInDays),
         abortIncompleteMultipartUploadAfter: Duration.days(30),
@@ -81,7 +119,7 @@ export class SecureBucket extends Construct {
     ];
 
     // override bucket props with defaults
-    let bucketProps = Object.assign({}, props, {
+    let bucketProps = Object.assign({}, {
       bucketName,
       encryption,
       versioned,
@@ -89,8 +127,25 @@ export class SecureBucket extends Construct {
       publicReadAccess,
       blockPublicAccess,
       lifecycleRules,
-    });
+    }, props);
 
-    this.bucket = new Bucket(this, id, bucketProps);
+    this._props = bucketProps;
+    return this;
   }
+
+  /**
+   * Creates the underlying S3 bucket.
+   */
+  assemble(): SecureBucket {
+
+    if (this._props === undefined) {
+      this.overrideBucketProperties({});
+    }
+
+    this._bucket = new Bucket(this, 'Bucket', this._props);
+
+    return this;
+  }
+
+
 }

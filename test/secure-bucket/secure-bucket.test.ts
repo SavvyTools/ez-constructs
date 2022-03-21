@@ -22,9 +22,7 @@ describe('SecureBucket Construct', () => {
     test('default bucket parameters', () => {
 
       // WHEN
-      new SecureBucket(mystack, 'secureBucket', {
-        bucketName: 'mybucket',
-      });
+      new SecureBucket(mystack, 'secureBucket').bucketName('mybucket').assemble();
 
       // THEN should have correct name
       expect(mystack).toHaveResourceLike('AWS::S3::Bucket', {
@@ -103,10 +101,10 @@ describe('SecureBucket Construct', () => {
 
     test('bucket version disabled', () => {
       // WHEN
-      new SecureBucket(mystack, 'secureBucket', {
-        bucketName: 'mybucket',
-        versioned: false,
-      });
+      new SecureBucket(mystack, 'secureBucket')
+        .bucketName('mybucket')
+        .overrideBucketProperties({ versioned: false })
+        .assemble();
 
 
       expect(mystack).not.toHaveResourceLike('AWS::S3::Bucket', {
@@ -136,10 +134,10 @@ describe('SecureBucket Construct', () => {
 
     test('bucket that override expiration', () => {
       // WHEN
-      new SecureBucket(mystack, 'secureBucket', {
-        bucketName: 'mybucket',
-        objectsExpireInDays: 500,
-      });
+      new SecureBucket(mystack, 'secureBucket')
+        .bucketName('mybucket')
+        .objectsExpireInDays(500)
+        .assemble();
 
       // THEN
       expect(mystack).toHaveResourceLike('AWS::S3::Bucket', {
@@ -176,10 +174,10 @@ describe('SecureBucket Construct', () => {
     });
     test('bucket that override expiration below 90 days', () => {
       // WHEN
-      new SecureBucket(mystack, 'secureBucket', {
-        bucketName: 'mybucket',
-        objectsExpireInDays: 89,
-      });
+      new SecureBucket(mystack, 'secureBucket')
+        .bucketName('mybucket')
+        .objectsExpireInDays(89)
+        .assemble();
 
       // THEN no transition should be present
       expect(mystack).toHaveResourceLike('AWS::S3::Bucket', {
@@ -201,11 +199,10 @@ describe('SecureBucket Construct', () => {
     });
     test('bucket that override expiration below 60 days', () => {
       // WHEN
-      new SecureBucket(mystack, 'secureBucket', {
-        bucketName: 'mybucket',
-        objectsExpireInDays: 59,
-      });
-
+      new SecureBucket(mystack, 'secureBucket')
+        .bucketName('mybucket')
+        .objectsExpireInDays(59)
+        .assemble();
 
       // THEN has the correct object expiration added
       expect(mystack).toHaveResourceLike('AWS::S3::Bucket', {
@@ -237,11 +234,11 @@ describe('SecureBucket Construct', () => {
     });
     test('bucket that is not SSL enabled', () => {
       // WHEN
-      new SecureBucket(mystack, 'secureBucket', {
-        bucketName: 'mybucket',
-        objectsExpireInDays: 500,
-        enforceSSL: false,
-      });
+      new SecureBucket(mystack, 'secureBucket')
+        .bucketName('mybucket')
+        .objectsExpireInDays(500)
+        .overrideBucketProperties({ enforceSSL: false })
+        .assemble();
 
       // THEN
       expect(mystack).not.toHaveResourceLike('AWS::S3::BucketPolicy', {
