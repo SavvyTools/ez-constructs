@@ -1,13 +1,7 @@
-import { Construct } from 'constructs';
-
+export * from './ez-construct';
+export * from './secure-bucket';
+export * from './codebuild-ci';
 export * from './lib/utils';
-
-/**
- * A marker base class for EzConstructs
- */
-export class EzConstruct extends Construct {
-  constructor(scope: Construct, id: string) {
-    super(scope, id);
-  }
-}
+export * from './lib/custom-synthesizer';
+export * from './aspects/permission-boundary-aspect';
 

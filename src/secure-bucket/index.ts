@@ -2,7 +2,7 @@ import { Duration, Stack } from 'aws-cdk-lib';
 import { BlockPublicAccess, Bucket, BucketEncryption, BucketProps, StorageClass } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import * as _ from 'lodash';
-import { EzConstruct } from '../index';
+import { EzConstruct } from '../ez-construct';
 import { Utils } from '../lib/utils';
 
 /**

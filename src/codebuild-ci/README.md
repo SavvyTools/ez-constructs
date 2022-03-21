@@ -12,7 +12,7 @@ Also, they might want:
 
 However, there can be additional organizational retention policies, for example retaining logs for a particular period of time.
 
-With this construct, you can easily create a basic CodeBuild project with many opinated defaults that are compliant with FISMA and NISTThis construct provides an easy way to create basic CodeBuild project with a lot of opinated defaults that are in compliance with FISMA and NIST.
+With this construct, you can easily create a basic CodeBuild project with many opinated defaults that are compliant with FISMA and NIST.
 
 Example, creates a project named `my-project`, with artifacts going to my-project-artifacts-<accountId>-<region>
  and logs going to `/aws/codebuild/my-project` log group with a retention period of 90 days and 14 months respectively.

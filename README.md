@@ -1,5 +1,6 @@
 # EZ Constructs 
-A collection of heaviliy opinionated AWS CDK highlevel constructs.
+A collection of heaviliy opinionated AWS CDK highlevel constructs. 
+[construct.dev](https://constructs.dev/packages/ez-constructs/) || [npmjs](https://www.npmjs.com/package/ez-constructs)
 
 ## Installation
 > The library requires AWS CDK version >= 2.7.0.
@@ -15,4 +16,4 @@ A collection of heaviliy opinionated AWS CDK highlevel constructs.
 2. CustomSynthesizer - A custom CDK synthesizer that will alter the default service roles that CDK uses. 
 
 ## Aspects
-1. [PermissionsBoundaryAspect](src/aspects) - A custom aspect that can be used to apply a permission boundary to all roles created in the contex. 
+1. [PermissionsBoundaryAspect](src/aspects) - A custom aspect that can be used to apply a permission boundary to all roles created in the contex.
