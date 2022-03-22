@@ -154,6 +154,9 @@ export class SecureBucket extends EzConstruct {
 
     this._bucket = new Bucket(this, 'Bucket', this._props);
 
+    // disable s3 access log enfocement
+    Utils.suppressNagRule(this._bucket, 'AwsSolutions-S1');
+
     return this;
   }
 

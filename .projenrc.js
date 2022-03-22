@@ -20,6 +20,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'aws-cdk-lib',
   ],
   deps: [
+    'cdk-nag',
   ],
   bundledDeps: [
     'lodash',

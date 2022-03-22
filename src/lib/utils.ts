@@ -1,5 +1,7 @@
 import { Stack } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
+import { NagSuppressions } from 'cdk-nag';
+import { IConstruct } from 'constructs';
 import * as _ from 'lodash';
 
 /**
@@ -98,6 +100,19 @@ export class Utils {
   public static prettyPrintStack(stack: Stack): void {
     let t = Template.fromStack(stack);
     console.log(JSON.stringify(t.toJSON(), null, 2));
+  }
+
+  /**
+   * Will disable the CDK NAG rule for the given construct and its children.
+   * @param scope - the scope to disable the rule for
+   * @param ruleId - the rule id to disable
+   * @param reason - reason for disabling the rule.
+   */
+  public static suppressNagRule(scope: IConstruct, ruleId: string, reason?: string) {
+    NagSuppressions.addResourceSuppressions(scope, [{
+      id: ruleId,
+      reason: reason || `${ruleId} is not needed in this context (${scope.node.id}).`,
+    }], true);
   }
 
 }
