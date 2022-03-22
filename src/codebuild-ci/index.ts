@@ -195,7 +195,7 @@ export class SimpleCodebuildProject extends EzConstruct {
       // @ts-ignore
       defaults.environment = {
         buildImage: LinuxBuildImage.STANDARD_5_0, // default to Amazon Linux 5.0
-        privileged: true,
+        privileged: false,
         computeType: ComputeType.MEDIUM,
         environmentVariables: this._envVariables,
       };
@@ -255,6 +255,10 @@ export class SimpleCodebuildProject extends EzConstruct {
       });
     }
     this._project = project;
+
+    Utils.suppressNagRule(this._project, 'AwsSolutions-CB4', 'Artifacts produced by this project are encrypted using `aws/s3` key, and also at rest by S3.');
+    Utils.suppressNagRule(this._project, 'AwsSolutions-IAM5', 'There is an artifact bucket per project. The wild card IAM policies are scoped to this project and only used to manage artifacts produced by the project.');
+
     return this;
   }
 

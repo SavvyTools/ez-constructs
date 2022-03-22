@@ -1,7 +1,9 @@
-import { App, Stack } from 'aws-cdk-lib';
+import { App, Aspects, Stack } from 'aws-cdk-lib';
 import '@aws-cdk/assert/jest';
 import { Schedule } from 'aws-cdk-lib/aws-events';
-import { GitEvent, SimpleCodebuildProject } from '../../src/codebuild-ci';
+import { AwsSolutionsChecks } from 'cdk-nag';
+import { GitEvent, SimpleCodebuildProject } from '../../src';
+import { SynthUtils } from '@aws-cdk/assert';
 
 describe('SimpleCodebuildProject Construct', () => {
 
@@ -122,6 +124,30 @@ describe('SimpleCodebuildProject Construct', () => {
         ScheduleExpression: 'cron(0 10 * * ? *)',
         State: 'ENABLED',
       });
+
+    });
+  });
+
+
+  describe('Nagging Rules', () => {
+    test('should not have nag errors', () => {
+      // GIVEN
+      const myapp = new App();
+      const mystack = new Stack(myapp, 'mystack', { env: { account: '111111111111', region: 'us-east-1' } });
+      // WHEN
+      new SimpleCodebuildProject(mystack, 'myproject')
+        .projectName('myproject')
+        .gitRepoUrl('https://github.cms.gov/qpp/qpp-integration-test-infrastructure-cdk.git')
+        .gitBaseBranch('main')
+        .assemble();
+
+      // THEN should not have any errors
+
+      Aspects.of(mystack).add(new AwsSolutionsChecks());
+
+      // THEN
+      const messages = SynthUtils.synthesize(mystack).messages;
+      expect(messages.length).toEqual(0);
 
     });
   });

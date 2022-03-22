@@ -898,6 +898,7 @@ new Utils()
 | <code><a href="#ez-constructs.Utils.parseGithubUrl">parseGithubUrl</a></code> | Splits a given Github URL and extracts the owner and repo name. |
 | <code><a href="#ez-constructs.Utils.prettyPrintStack">prettyPrintStack</a></code> | A utility function that will print the content of a CDK stack. |
 | <code><a href="#ez-constructs.Utils.startsWith">startsWith</a></code> | Will check if the given string starts with the given prefix. |
+| <code><a href="#ez-constructs.Utils.suppressNagRule">suppressNagRule</a></code> | Will disable the CDK NAG rule for the given construct and its children. |
 | <code><a href="#ez-constructs.Utils.wrap">wrap</a></code> | Will wrap the given string using the given delimiter. |
 
 ---
@@ -1045,6 +1046,40 @@ a string.
 - *Type:* string
 
 the prefix to check.
+
+---
+
+##### `suppressNagRule` <a name="suppressNagRule" id="ez-constructs.Utils.suppressNagRule"></a>
+
+```typescript
+import { Utils } from 'ez-constructs'
+
+Utils.suppressNagRule(scope: IConstruct, ruleId: string, reason?: string)
+```
+
+Will disable the CDK NAG rule for the given construct and its children.
+
+###### `scope`<sup>Required</sup> <a name="scope" id="ez-constructs.Utils.suppressNagRule.parameter.scope"></a>
+
+- *Type:* constructs.IConstruct
+
+the scope to disable the rule for.
+
+---
+
+###### `ruleId`<sup>Required</sup> <a name="ruleId" id="ez-constructs.Utils.suppressNagRule.parameter.ruleId"></a>
+
+- *Type:* string
+
+the rule id to disable.
+
+---
+
+###### `reason`<sup>Optional</sup> <a name="reason" id="ez-constructs.Utils.suppressNagRule.parameter.reason"></a>
+
+- *Type:* string
+
+reason for disabling the rule.
 
 ---
 

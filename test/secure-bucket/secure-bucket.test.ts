@@ -1,6 +1,8 @@
-import { App, Stack } from 'aws-cdk-lib';
-import { SecureBucket } from '../../src/secure-bucket';
+import { SynthUtils } from '@aws-cdk/assert';
 import '@aws-cdk/assert/jest';
+import { App, Aspects, Stack } from 'aws-cdk-lib';
+import { AwsSolutionsChecks } from 'cdk-nag';
+import { SecureBucket } from '../../src';
 
 describe('SecureBucket Construct', () => {
 
@@ -248,6 +250,26 @@ describe('SecureBucket Construct', () => {
           ],
         },
       });
+
+    });
+  });
+
+
+  describe('S3 Bucket Nagging', () => {
+
+    test('should not throw error for s3 bucket access log', () => {
+      // GIVEN
+      const myapp = new App();
+      const mystack = new Stack(myapp, 'mystack', { env: { account: '123456789012', region: 'us-east-1' } });
+      // WHEN
+      new SecureBucket(mystack, 'secureBucket')
+        .bucketName('mybucket')
+        .objectsExpireInDays(500)
+        .assemble();
+      Aspects.of(mystack).add(new AwsSolutionsChecks());
+      // THEN
+      const messages = SynthUtils.synthesize(mystack).messages;
+      expect(messages.length).toEqual(0);
 
     });
   });
