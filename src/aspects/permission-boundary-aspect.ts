@@ -8,6 +8,12 @@ import { IConstruct } from 'constructs';
  * AWS CDK high level constructs and patterns encapsulates the role creation from end users.
  * So it is a laborious and at times impossible to get a handle of newly created roles within a stack.
  * This aspect will scan all roles within the given scope and will attach the right permission boundary and path to them.
+ * Example:
+ * ```ts
+ *    const app = new App();
+ *    const mystack = new MyStack(app, 'MyConstruct'); // assuming this will create a role by name `myCodeBuildRole` with admin access.
+ *    Aspects.of(app).add(new PermissionsBoundaryAspect('/my/devroles/', 'boundary/dev-max'));
+ * ```
  */
 export class PermissionsBoundaryAspect implements IAspect {
   /**

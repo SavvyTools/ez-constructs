@@ -56,7 +56,7 @@ Returns a string representation of this construct.
 
 Will create a secure bucket with the following features: - Bucket name will be modified to include account and region.
 
-Access limited to the owner - Object Versioning - Encryption at rest - Object expiration max limit to 10 years - Object will transition to IA after 60 days and later to deep archive after 365 days
+Access limited to the owner - Object Versioning - Encryption at rest - Object expiration max limit to 10 years - Object will transition to IA after 60 days and later to deep archive after 365 days  Example:  ```ts     let aBucket = new SecureBucket(mystack, 'secureBucket', {       bucketName: 'mybucket',       objectsExpireInDays: 500,       enforceSSL: false,      }); ```
 
 #### Initializers <a name="Initializers" id="ez-constructs.SecureBucket.Initializer"></a>
 
@@ -210,7 +210,7 @@ The underlying S3 bucket created by this construct.
 
 Most of the cases,a developer will use CodeBuild setup to perform simple CI tasks such as: - Build and test your code on a PR - Run a specific script based on a cron schedule.
 
-Also, they might want: - artifacts like testcase reports to be available via Reports UI and/or S3. - logs to be available via CloudWatch Logs.  However, there can be additional organizational retention policies, for example retaining logs for a particular period of time. With this construct, you can easily create a basic CodeBuild project with many opinated defaults that are compliant with FISMA and NIST.  Example, creates a project named `my-project`, with artifacts going to my-project-artifacts-<accountId>-<region>   and logs going to `/aws/codebuild/my-project` log group with a retention period of 90 days and 14 months respectively.      new SimpleCodebuildProject(stack, 'MyProject')       .projectName('myproject')       .gitRepoUrl('https://github.com/bijujoseph/cloudbiolinux.git')       .gitBaseBranch('main')       .triggerEvent(GitEvent.PULL_REQUEST)       .buildSpecPath('buildspecs/my-pr-checker.yml')       .assemble();
+Also, they might want: - artifacts like testcase reports to be available via Reports UI and/or S3. - logs to be available via CloudWatch Logs.  However, there can be additional organizational retention policies, for example retaining logs for a particular period of time. With this construct, you can easily create a basic CodeBuild project with many opinated defaults that are compliant with FISMA and NIST.  Example, creates a project named `my-project`, with artifacts going to my-project-artifacts-<accountId>-<region>   and logs going to `/aws/codebuild/my-project` log group with a retention period of 90 days and 14 months respectively.  ```ts     new SimpleCodebuildProject(stack, 'MyProject')       .projectName('myproject')       .gitRepoUrl('https://github.com/bijujoseph/cloudbiolinux.git')       .gitBaseBranch('main')       .triggerEvent(GitEvent.PULL_REQUEST)       .buildSpecPath('buildspecs/my-pr-checker.yml')       .assemble(); ```
 
 #### Initializers <a name="Initializers" id="ez-constructs.SimpleCodebuildProject.Initializer"></a>
 
@@ -290,7 +290,7 @@ The environment variable name.
 
 The environment variable value Example:.
 
-project .addEnvironmentVariable('MY_ENV_VAR', {value: 'abcd}) .addEnvironmentVariable('MY_ENV_VAR', {value: '/dev/thatkey, type: BuildEnvironmentVariableType.PARAMETER_STORE}) .addEnvironmentVariable('MY_ENV_VAR', {value: 'arn:of:secret, type: BuildEnvironmentVariableType.SECRETS_MANAGER});
+```ts project .addEnvironmentVariable('MY_ENV_VAR', {value: 'abcd}) .addEnvironmentVariable('MY_ENV_VAR', {value: '/dev/thatkey, type: BuildEnvironmentVariableType.PARAMETER_STORE}) .addEnvironmentVariable('MY_ENV_VAR', {value: 'arn:of:secret, type: BuildEnvironmentVariableType.SECRETS_MANAGER}); ```
 
 ---
 
@@ -465,7 +465,23 @@ As a best practice organizations enforce policies which require all custom IAM R
 
 In order to adhere with such compliance requirements, the CDK bootstrapping is often customized (refer: https://docs.aws.amazon.com/cdk/v2/guide/bootstrapping.html#bootstrapping-customizing). So, we need to ensure that parallel customization is applied during synthesis phase. This Custom Synthesizer is used to modify the default path of the following IAM Roles internally used by CDK:   - deploy role   - file-publishing-role   - image-publishing-role   - cfn-exec-role   - lookup-role
 
-> [PermissionsBoundaryAspect](PermissionsBoundaryAspect)
+> [PermissionsBoundaryAspect
+
+Example Usage:
+```ts
+new DbStack(app, config.id('apiDbStack'), {
+env: {account: '123456789012', region: 'us-east-1'},
+synthesizer: new CustomSynthesizer('/banking/dev/'),
+});
+```](PermissionsBoundaryAspect
+
+Example Usage:
+```ts
+new DbStack(app, config.id('apiDbStack'), {
+env: {account: '123456789012', region: 'us-east-1'},
+synthesizer: new CustomSynthesizer('/banking/dev/'),
+});
+```)
 
 #### Initializers <a name="Initializers" id="ez-constructs.CustomSynthesizer.Initializer"></a>
 
@@ -763,7 +779,7 @@ Default ARN qualifier.
 
 As a best practice organizations enforce policies which require all custom IAM Roles created to be defined under a specific path and permission boundary.
 
-Well, this allows better governance and also prevents unintended privilege escalation. AWS CDK high level constructs and patterns encapsulates the role creation from end users. So it is a laborious and at times impossible to get a handle of newly created roles within a stack. This aspect will scan all roles within the given scope and will attach the right permission boundary and path to them.
+Well, this allows better governance and also prevents unintended privilege escalation. AWS CDK high level constructs and patterns encapsulates the role creation from end users. So it is a laborious and at times impossible to get a handle of newly created roles within a stack. This aspect will scan all roles within the given scope and will attach the right permission boundary and path to them. Example: ```ts     const app = new App();     const mystack = new MyStack(app, 'MyConstruct'); // assuming this will create a role by name `myCodeBuildRole` with admin access.     Aspects.of(app).add(new PermissionsBoundaryAspect('/my/devroles/', 'boundary/dev-max')); ```
 
 #### Initializers <a name="Initializers" id="ez-constructs.PermissionsBoundaryAspect.Initializer"></a>
 

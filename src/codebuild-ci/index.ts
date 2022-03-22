@@ -40,6 +40,7 @@ export enum GitEvent {
  * Example, creates a project named `my-project`, with artifacts going to my-project-artifacts-<accountId>-<region>
  *  and logs going to `/aws/codebuild/my-project` log group with a retention period of 90 days and 14 months respectively.
  *
+ * ```ts
  *    new SimpleCodebuildProject(stack, 'MyProject')
  *      .projectName('myproject')
  *      .gitRepoUrl('https://github.com/bijujoseph/cloudbiolinux.git')
@@ -47,7 +48,7 @@ export enum GitEvent {
  *      .triggerEvent(GitEvent.PULL_REQUEST)
  *      .buildSpecPath('buildspecs/my-pr-checker.yml')
  *      .assemble();
- *
+ * ```
  *
  */
 export class SimpleCodebuildProject extends EzConstruct {
@@ -93,11 +94,12 @@ export class SimpleCodebuildProject extends EzConstruct {
    * @param envVar - The environment variable value
    *Example:
    *
+   * ```ts
    *  project
    *    .addEnvironmentVariable('MY_ENV_VAR', {value: 'abcd})
    *    .addEnvironmentVariable('MY_ENV_VAR', {value: '/dev/thatkey, type: BuildEnvironmentVariableType.PARAMETER_STORE})
    *    .addEnvironmentVariable('MY_ENV_VAR', {value: 'arn:of:secret, type: BuildEnvironmentVariableType.SECRETS_MANAGER});
-   *
+   * ```
    */
   addEnv(name: string, envVar: BuildEnvironmentVariable): SimpleCodebuildProject {
     this._envVariables[name] = envVar;

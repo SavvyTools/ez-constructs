@@ -13,17 +13,20 @@ import { Utils } from './utils';
  *  - image-publishing-role
  *  - cfn-exec-role
  *  - lookup-role
-
  * @see PermissionsBoundaryAspect
+ *
+ * Example Usage:
+ * ```ts
+ *    new DbStack(app, config.id('apiDbStack'), {
+ *      env: {account: '123456789012', region: 'us-east-1'},
+ *      synthesizer: new CustomSynthesizer('/banking/dev/'),
+ *     });
+ * ```
  */
 export class CustomSynthesizer extends DefaultStackSynthesizer {
 
   private static qualifiedRole(roleName: string, rolePath: string): string {
-    return 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role' +
-      Utils.wrap(rolePath, '/') +
-      'cdk-${Qualifier}-' +
-      roleName +
-      '-${AWS::AccountId}-${AWS::Region}';
+    return 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role' + Utils.wrap(rolePath, '/') + 'cdk-${Qualifier}-' + roleName + '-${AWS::AccountId}-${AWS::Region}';
   }
 
   constructor(rolePath: string) {

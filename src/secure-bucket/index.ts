@@ -13,6 +13,16 @@ import { Utils } from '../lib/utils';
  * - Encryption at rest
  * - Object expiration max limit to 10 years
  * - Object will transition to IA after 60 days and later to deep archive after 365 days
+ *
+ * Example:
+ *
+ * ```ts
+ *    let aBucket = new SecureBucket(mystack, 'secureBucket', {
+ *      bucketName: 'mybucket',
+ *      objectsExpireInDays: 500,
+ *      enforceSSL: false,
+ *     });
+ * ```
  */
 export class SecureBucket extends EzConstruct {
 
