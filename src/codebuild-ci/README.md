@@ -18,12 +18,14 @@ Example, creates a project named `my-project`, with artifacts going to my-projec
  and logs going to `/aws/codebuild/my-project` log group with a retention period of 90 days and 14 months respectively.
 
 ```ts
+import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 
-new SimpleCodebuildProject(stack, 'MyProject')
-   .projectName('myproject')
-   .gitRepoUrl('https://github.com/bijujoseph/cloudbiolinux.git')
-   .gitBaseBranch('main')
-   .triggerEvent(GitEvent.PULL_REQUEST)
-   .buildSpecPath('buildspecs/my-pr-checker.yml')
-   .assemble();
+let cb = new SimpleCodebuildProject(stack, 'MyProject')
+        .projectName('myproject')
+        .gitRepoUrl('https://github.com/bijujoseph/cloudbiolinux.git')
+        .gitBaseBranch('main')
+        .triggerEvent(GitEvent.PULL_REQUEST)
+        .buildSpecPath('buildspecs/my-pr-checker.yml')
+        .computeType(ComputeType.LARGE)
+        .assemble();
 ```

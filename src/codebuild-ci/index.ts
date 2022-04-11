@@ -63,6 +63,7 @@ export class SimpleCodebuildProject extends EzConstruct {
   private _triggerOnGitEvent?: GitEvent;
   private _triggerOnSchedule?: Schedule;
   private _artifactBucket?: Bucket | string;
+  private _computType: ComputeType = ComputeType.MEDIUM;
   private _envVariables: {
     [name: string]: BuildEnvironmentVariable;
   } = {};
@@ -121,6 +122,16 @@ export class SimpleCodebuildProject extends EzConstruct {
    */
   projectDescription(projectDescription: string): SimpleCodebuildProject {
     this._projectDescription = projectDescription;
+    return this;
+  }
+
+  /**
+   * The compute type to use
+   * @see https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html
+   * @param computeType
+   */
+  computeType(computeType: ComputeType): SimpleCodebuildProject {
+    this._computType = computeType;
     return this;
   }
 
@@ -196,7 +207,7 @@ export class SimpleCodebuildProject extends EzConstruct {
       defaults.environment = {
         buildImage: LinuxBuildImage.STANDARD_5_0, // default to Amazon Linux 5.0
         privileged: false,
-        computeType: ComputeType.MEDIUM,
+        computeType: this._computType,
         environmentVariables: this._envVariables,
       };
     }
