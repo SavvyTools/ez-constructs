@@ -248,6 +248,7 @@ new SimpleCodebuildProject(scope: Construct, id: string)
 | <code><a href="#ez-constructs.SimpleCodebuildProject.artifactBucket">artifactBucket</a></code> | The name of the bucket to store the artifacts. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.assemble">assemble</a></code> | *No description.* |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.buildSpecPath">buildSpecPath</a></code> | The build spec file path. |
+| <code><a href="#ez-constructs.SimpleCodebuildProject.computeType">computeType</a></code> | The compute type to use. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.gitBaseBranch">gitBaseBranch</a></code> | The main branch of the github project. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.gitRepoUrl">gitRepoUrl</a></code> | The github or enterprise github repository url. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.overrideProjectProps">overrideProjectProps</a></code> | *No description.* |
@@ -331,6 +332,22 @@ The build spec file path.
 - *Type:* string
 
 relative location of the build spec file.
+
+---
+
+##### `computeType` <a name="computeType" id="ez-constructs.SimpleCodebuildProject.computeType"></a>
+
+```typescript
+public computeType(computeType: ComputeType): SimpleCodebuildProject
+```
+
+The compute type to use.
+
+> [https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html](https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html)
+
+###### `computeType`<sup>Required</sup> <a name="computeType" id="ez-constructs.SimpleCodebuildProject.computeType.parameter.computeType"></a>
+
+- *Type:* aws-cdk-lib.aws_codebuild.ComputeType
 
 ---
 

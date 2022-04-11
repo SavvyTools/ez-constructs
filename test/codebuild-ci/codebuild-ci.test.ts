@@ -1,9 +1,10 @@
+import { SynthUtils } from '@aws-cdk/assert';
 import { App, Aspects, Stack } from 'aws-cdk-lib';
 import '@aws-cdk/assert/jest';
 import { Schedule } from 'aws-cdk-lib/aws-events';
 import { AwsSolutionsChecks } from 'cdk-nag';
 import { GitEvent, SimpleCodebuildProject } from '../../src';
-import { SynthUtils } from '@aws-cdk/assert';
+
 
 describe('SimpleCodebuildProject Construct', () => {
 
