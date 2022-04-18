@@ -251,9 +251,9 @@ export class SimpleCodebuildProject extends EzConstruct {
   }
 
 
-  assemble(): SimpleCodebuildProject {
+  assemble(defaultProps?:ProjectProps): SimpleCodebuildProject {
     // create the default project properties
-    this.overrideProjectProps({});
+    this.overrideProjectProps(defaultProps??{});
 
     // create a codebuild project
     let project = new Project(this.scope, 'Project', this._props);
