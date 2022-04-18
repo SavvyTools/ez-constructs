@@ -354,8 +354,14 @@ a valid existing Bucket reference or bucket name to use.
 ##### `assemble` <a name="assemble" id="ez-constructs.SimpleCodebuildProject.assemble"></a>
 
 ```typescript
-public assemble(): SimpleCodebuildProject
+public assemble(defaultProps?: ProjectProps): SimpleCodebuildProject
 ```
+
+###### `defaultProps`<sup>Optional</sup> <a name="defaultProps" id="ez-constructs.SimpleCodebuildProject.assemble.parameter.defaultProps"></a>
+
+- *Type:* aws-cdk-lib.aws_codebuild.ProjectProps
+
+---
 
 ##### `buildSpecPath` <a name="buildSpecPath" id="ez-constructs.SimpleCodebuildProject.buildSpecPath"></a>
 
