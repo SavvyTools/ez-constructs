@@ -11,7 +11,7 @@ import { BuildEnvironmentVariable } from 'aws-cdk-lib/aws-codebuild/lib/project'
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
 import { CodeBuildProject } from 'aws-cdk-lib/aws-events-targets';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { Bucket } from 'aws-cdk-lib/aws-s3';
+import { IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { EzConstruct } from '../ez-construct';
 import { Utils } from '../lib/utils';
@@ -62,7 +62,7 @@ export class SimpleCodebuildProject extends EzConstruct {
   private _grantReportGroupPermissions = true;
   private _triggerOnGitEvent?: GitEvent;
   private _triggerOnSchedule?: Schedule;
-  private _artifactBucket?: Bucket | string;
+  private _artifactBucket?: IBucket | string;
   private _computType: ComputeType = ComputeType.MEDIUM;
   private _envVariables: {
     [name: string]: BuildEnvironmentVariable;
@@ -186,7 +186,7 @@ export class SimpleCodebuildProject extends EzConstruct {
    * This function can be used to ovrride the default behavior.
    * @param artifactBucket - a valid existing Bucket reference or bucket name to use.
    */
-  artifactBucket(artifactBucket: Bucket | string): SimpleCodebuildProject {
+  artifactBucket(artifactBucket: IBucket | string): SimpleCodebuildProject {
     this._artifactBucket = artifactBucket;
     return this;
   }
@@ -278,12 +278,12 @@ export class SimpleCodebuildProject extends EzConstruct {
    * @param bucketName - the s3 bucket
    * @private
    */
-  private createBucket(bucketName: string): Bucket {
+  private createBucket(bucketName: string): IBucket {
     return new SecureBucket(this, 'ProjectArtifactBucket')
       .bucketName(bucketName)
       .objectsExpireInDays(90)
       .assemble()
-      .bucket as Bucket;
+      .bucket as IBucket;
   }
 
   /**
@@ -291,8 +291,8 @@ export class SimpleCodebuildProject extends EzConstruct {
    * @param artifactBucket - a bucket object or bucket name
    * @private
    */
-  private createArtifacts(artifactBucket: Bucket | string): Artifacts {
-    let theBucket: Bucket = (typeof artifactBucket === 'string') ? this.createBucket(artifactBucket) : artifactBucket;
+  private createArtifacts(artifactBucket: IBucket | string): Artifacts {
+    let theBucket: IBucket = (typeof artifactBucket === 'string') ? this.createBucket(artifactBucket) : artifactBucket;
     return Artifacts.s3({
       bucket: theBucket,
       includeBuildId: true,

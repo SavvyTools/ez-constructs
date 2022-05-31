@@ -21,11 +21,19 @@ export class MyStack extends Stack {
       bucketName: 'mybucket',
       objectsExpireInDays: 500,
       enforceSSL: false,
-    });
+    })
+      .assemble();
     
     // incase if you want to access the bucket created. 
     let bucket = aBucket.bucket;
-    
+
+
+    let anotherBucket = new SecureBucket(mystack, 'anotherSecureBucket')
+      .bucketName('another-bucket')
+      .objectsExpireInDays(500) // expiry
+      .restrictAccessToIpOrCidrs(['10.10.10.1/32']) // restricting access, only allowing the given CIDR range
+      .restrictAccessToVpcs(['vpc-123456']) // restricting access, only allowing traffic from the vpc
+      .assemble();
     
   }
 }

@@ -113,6 +113,8 @@ a unique identifier for the construct.
 | <code><a href="#ez-constructs.SecureBucket.moveToGlacierDeepArchive">moveToGlacierDeepArchive</a></code> | Use only for buckets that have archiving data. |
 | <code><a href="#ez-constructs.SecureBucket.objectsExpireInDays">objectsExpireInDays</a></code> | The number of days that object will be kept. |
 | <code><a href="#ez-constructs.SecureBucket.overrideBucketProperties">overrideBucketProperties</a></code> | This function allows users to override the defaults calculated by this construct and is only recommended for advanced usecases. |
+| <code><a href="#ez-constructs.SecureBucket.restrictAccessToIpOrCidrs">restrictAccessToIpOrCidrs</a></code> | Adds access restrictions so that the access is allowed from the following IP ranges. |
+| <code><a href="#ez-constructs.SecureBucket.restrictAccessToVpcs">restrictAccessToVpcs</a></code> | Adds access restrictions so that the access is allowed from the following VPCs. |
 
 ---
 
@@ -195,6 +197,34 @@ The values supplied via props superseeds the defaults that are calculated.
 - *Type:* aws-cdk-lib.aws_s3.BucketProps
 
 The customized set of properties.
+
+---
+
+##### `restrictAccessToIpOrCidrs` <a name="restrictAccessToIpOrCidrs" id="ez-constructs.SecureBucket.restrictAccessToIpOrCidrs"></a>
+
+```typescript
+public restrictAccessToIpOrCidrs(ipsOrCidrs: string[]): SecureBucket
+```
+
+Adds access restrictions so that the access is allowed from the following IP ranges.
+
+###### `ipsOrCidrs`<sup>Required</sup> <a name="ipsOrCidrs" id="ez-constructs.SecureBucket.restrictAccessToIpOrCidrs.parameter.ipsOrCidrs"></a>
+
+- *Type:* string[]
+
+---
+
+##### `restrictAccessToVpcs` <a name="restrictAccessToVpcs" id="ez-constructs.SecureBucket.restrictAccessToVpcs"></a>
+
+```typescript
+public restrictAccessToVpcs(vpcIds: string[]): SecureBucket
+```
+
+Adds access restrictions so that the access is allowed from the following VPCs.
+
+###### `vpcIds`<sup>Required</sup> <a name="vpcIds" id="ez-constructs.SecureBucket.restrictAccessToVpcs.parameter.vpcIds"></a>
+
+- *Type:* string[]
 
 ---
 
@@ -335,7 +365,7 @@ project
 ##### `artifactBucket` <a name="artifactBucket" id="ez-constructs.SimpleCodebuildProject.artifactBucket"></a>
 
 ```typescript
-public artifactBucket(artifactBucket: string | Bucket): SimpleCodebuildProject
+public artifactBucket(artifactBucket: string | IBucket): SimpleCodebuildProject
 ```
 
 The name of the bucket to store the artifacts.
@@ -345,7 +375,7 @@ This function can be used to ovrride the default behavior.
 
 ###### `artifactBucket`<sup>Required</sup> <a name="artifactBucket" id="ez-constructs.SimpleCodebuildProject.artifactBucket.parameter.artifactBucket"></a>
 
-- *Type:* string | aws-cdk-lib.aws_s3.Bucket
+- *Type:* string | aws-cdk-lib.aws_s3.IBucket
 
 a valid existing Bucket reference or bucket name to use.
 

@@ -234,6 +234,75 @@ describe('SecureBucket Construct', () => {
         },
       });
     });
+
+    test('bucket that bucket access can be restricted by from VPC', () => {
+      // WHEN
+      new SecureBucket(mystack, 'secureBucket')
+        .bucketName('mybucket')
+        .objectsExpireInDays(500)
+        .overrideBucketProperties({ enforceSSL: false })
+        .restrictAccessToVpcs(['vpc-123456'])
+        .assemble();
+
+
+      // THEN
+      expect(mystack).toHaveResourceLike('AWS::S3::BucketPolicy', {
+        PolicyDocument: {
+          Statement: [
+            {
+              Action: 's3:*',
+              Condition: {
+                0: {
+                  StringNotEquals: {
+                    'aws:SourceVpce': [
+                      'vpc-123456',
+                    ],
+                  },
+                },
+              },
+              Effect: 'Deny',
+              Principal: '*',
+            },
+          ],
+        },
+      });
+
+    });
+
+    test('bucket that bucket access can be restricted by from IP', () => {
+      // WHEN
+      new SecureBucket(mystack, 'secureBucket')
+        .bucketName('mybucket')
+        .objectsExpireInDays(500)
+        .overrideBucketProperties({ enforceSSL: false })
+        .restrictAccessToIpOrCidrs(['10.10.10.1/32'])
+        .assemble();
+
+
+      // THEN
+      expect(mystack).toHaveResourceLike('AWS::S3::BucketPolicy', {
+        PolicyDocument: {
+          Statement: [
+            {
+              Action: 's3:*',
+              Condition: {
+                0: {
+                  NotIpAddress: {
+                    'aws:SourceIp': [
+                      '10.10.10.1/32',
+                    ],
+                  },
+                },
+              },
+              Effect: 'Deny',
+              Principal: '*',
+            },
+          ],
+        },
+      });
+
+    });
+
     test('bucket that is not SSL enabled', () => {
       // WHEN
       new SecureBucket(mystack, 'secureBucket')

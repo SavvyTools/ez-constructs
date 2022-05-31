@@ -1,4 +1,6 @@
 import { Duration, Stack } from 'aws-cdk-lib';
+import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { StarPrincipal } from 'aws-cdk-lib/aws-iam/lib/principals';
 import { BlockPublicAccess, Bucket, BucketEncryption, BucketProps, StorageClass } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import * as _ from 'lodash';
@@ -35,6 +37,8 @@ export class SecureBucket extends EzConstruct {
   private readonly scope: Construct;
   // @ts-ignore
   private readonly id: string;
+  private _restrictToIpOrCidrs: Array<string> = [];
+  private _restrictToVpcIds: Array<string> = [];
 
   /**
    * Creates the SecureBucket
@@ -55,10 +59,27 @@ export class SecureBucket extends EzConstruct {
   }
 
   /**
+   * Adds access restrictions so that the access is allowed from the following IP ranges
+   * @param ipsOrCidrs
+   */
+  restrictAccessToIpOrCidrs(ipsOrCidrs: Array<string>): SecureBucket {
+    this._restrictToIpOrCidrs.push(...ipsOrCidrs);
+    return this;
+  }
+  /**
+   * Adds access restrictions so that the access is allowed from the following VPCs
+   * @param vpcIds
+   */
+  restrictAccessToVpcs(vpcIds: Array<string>): SecureBucket {
+    this._restrictToVpcIds.push(...vpcIds);
+    return this;
+  }
+
+  /**
    * The name of the bucket. Internally the bucket name will be modified to include the account and region.
    * @param name - the name of the bucket to use
    */
-  bucketName(name:string): SecureBucket {
+  bucketName(name: string): SecureBucket {
     this._bucketName = name;
     return this;
   }
@@ -69,8 +90,8 @@ export class SecureBucket extends EzConstruct {
    * @default false
    * @returns SecureBucket
    */
-  moveToGlacierDeepArchive(move?:boolean): SecureBucket {
-    this._moveToGlacierDeepArchive = move??false;
+  moveToGlacierDeepArchive(move?: boolean): SecureBucket {
+    this._moveToGlacierDeepArchive = move ?? false;
     return this;
   }
 
@@ -83,6 +104,42 @@ export class SecureBucket extends EzConstruct {
     this._objectsExpireInDays = expiryInDays;
     return this;
   }
+
+  /**
+   * Adds restriction to the bucket based on IP/CIDRs or VPC IDs specified.
+   * @param bucket - the bucket
+   */
+  private addRestrictionPolicy(bucket:Bucket): void {
+    let conditions:Array<any> = [];
+
+    if (this._restrictToIpOrCidrs.length > 0) {
+      conditions.push({
+        NotIpAddress: {
+          'aws:SourceIp': this._restrictToIpOrCidrs,
+        },
+      });
+    }
+
+    if (this._restrictToVpcIds.length > 0) {
+      conditions.push({
+        StringNotEquals: {
+          'aws:SourceVpce': this._restrictToVpcIds,
+        },
+      });
+    }
+
+    if (conditions.length <= 0) return;
+
+    bucket.addToResourcePolicy(new PolicyStatement({
+      effect: Effect.DENY,
+      principals: [new StarPrincipal()],
+      actions: ['s3:*'],
+      resources: [`${bucket.bucketArn}/*`],
+      conditions: conditions,
+    }));
+
+  }
+
 
   /**
    * This function allows users to override the defaults calculated by this construct and is only recommended for advanced usecases.
@@ -111,13 +168,22 @@ export class SecureBucket extends EzConstruct {
     // will add transitions if expiry set on object is >90 days.
     let transitions = [];
     if (objectsExpireInDays >= 60) {
-      transitions.push({ storageClass: StorageClass.INFREQUENT_ACCESS, transitionAfter: Duration.days(30) });
+      transitions.push({
+        storageClass: StorageClass.INFREQUENT_ACCESS,
+        transitionAfter: Duration.days(30),
+      });
     }
     if (objectsExpireInDays >= 90) {
-      transitions.push({ storageClass: StorageClass.INTELLIGENT_TIERING, transitionAfter: Duration.days(60) });
+      transitions.push({
+        storageClass: StorageClass.INTELLIGENT_TIERING,
+        transitionAfter: Duration.days(60),
+      });
     }
     if (moveToGlacierDeepArchive && objectsExpireInDays >= 365) {
-      transitions.push({ storageClass: StorageClass.DEEP_ARCHIVE, transitionAfter: Duration.days(90) });
+      transitions.push({
+        storageClass: StorageClass.DEEP_ARCHIVE,
+        transitionAfter: Duration.days(90),
+      });
     }
 
     let lifecycleRules = [
@@ -152,7 +218,10 @@ export class SecureBucket extends EzConstruct {
       this.overrideBucketProperties({});
     }
 
-    this._bucket = new Bucket(this, 'Bucket', this._props);
+    let newBucket = new Bucket(this, 'Bucket', this._props);
+    // add restrictions as needed.
+    this.addRestrictionPolicy(newBucket);
+    this._bucket = newBucket;
 
     // disable s3 access log enfocement
     Utils.suppressNagRule(this._bucket, 'AwsSolutions-S1');
