@@ -1,6 +1,5 @@
 import { Duration, Stack } from 'aws-cdk-lib';
-import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { StarPrincipal } from 'aws-cdk-lib/aws-iam/lib/principals';
+import { Effect, PolicyStatement, StarPrincipal } from 'aws-cdk-lib/aws-iam';
 import { BlockPublicAccess, Bucket, BucketEncryption, BucketProps, StorageClass } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import * as _ from 'lodash';
