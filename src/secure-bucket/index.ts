@@ -109,25 +109,17 @@ export class SecureBucket extends EzConstruct {
    * @param bucket - the bucket
    */
   private addRestrictionPolicy(bucket:Bucket): void {
-    let conditions:Array<any> = [];
+    let conditions: { [key: string]: any } = {};
 
     if (this._restrictToIpOrCidrs.length > 0) {
-      conditions.push({
-        NotIpAddress: {
-          'aws:SourceIp': this._restrictToIpOrCidrs,
-        },
-      });
+      conditions.NotIpAddress = { 'aws:SourceIp': this._restrictToIpOrCidrs };
     }
 
     if (this._restrictToVpcIds.length > 0) {
-      conditions.push({
-        StringNotEquals: {
-          'aws:SourceVpce': this._restrictToVpcIds,
-        },
-      });
+      conditions.StringNotEquals = { 'aws:SourceVpce': this._restrictToVpcIds };
     }
 
-    if (conditions.length <= 0) return;
+    if (_.isEmpty(conditions)) return;
 
     bucket.addToResourcePolicy(new PolicyStatement({
       effect: Effect.DENY,

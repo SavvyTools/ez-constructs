@@ -252,12 +252,10 @@ describe('SecureBucket Construct', () => {
             {
               Action: 's3:*',
               Condition: {
-                0: {
-                  StringNotEquals: {
-                    'aws:SourceVpce': [
-                      'vpc-123456',
-                    ],
-                  },
+                StringNotEquals: {
+                  'aws:SourceVpce': [
+                    'vpc-123456',
+                  ],
                 },
               },
               Effect: 'Deny',
@@ -286,12 +284,10 @@ describe('SecureBucket Construct', () => {
             {
               Action: 's3:*',
               Condition: {
-                0: {
-                  NotIpAddress: {
-                    'aws:SourceIp': [
-                      '10.10.10.1/32',
-                    ],
-                  },
+                NotIpAddress: {
+                  'aws:SourceIp': [
+                    '10.10.10.1/32',
+                  ],
                 },
               },
               Effect: 'Deny',
@@ -329,7 +325,12 @@ describe('SecureBucket Construct', () => {
     test('should not throw error for s3 bucket access log', () => {
       // GIVEN
       const myapp = new App();
-      const mystack = new Stack(myapp, 'mystack', { env: { account: '123456789012', region: 'us-east-1' } });
+      const mystack = new Stack(myapp, 'mystack', {
+        env: {
+          account: '123456789012',
+          region: 'us-east-1',
+        },
+      });
       // WHEN
       new SecureBucket(mystack, 'secureBucket')
         .bucketName('mybucket')
