@@ -33,6 +33,7 @@ jspm_packages/
 cdk.context.json
 cdk.out/
 *.dot
+/tmp
 !/.projenrc.js
 /test-reports/
 junit.xml

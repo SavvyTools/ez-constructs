@@ -1118,7 +1118,7 @@ Splits a given Github URL and extracts the owner and repo name.
 ```typescript
 import { Utils } from 'ez-constructs'
 
-Utils.prettyPrintStack(stack: Stack)
+Utils.prettyPrintStack(stack: Stack, persist?: boolean)
 ```
 
 A utility function that will print the content of a CDK stack.
@@ -1128,6 +1128,12 @@ A utility function that will print the content of a CDK stack.
 - *Type:* aws-cdk-lib.Stack
 
 a valid stack.
+
+---
+
+###### `persist`<sup>Optional</sup> <a name="persist" id="ez-constructs.Utils.prettyPrintStack.parameter.persist"></a>
+
+- *Type:* boolean
 
 ---
 

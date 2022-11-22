@@ -1,9 +1,11 @@
 import { SynthUtils } from '@aws-cdk/assert';
 import { App, Aspects, Stack } from 'aws-cdk-lib';
 import '@aws-cdk/assert/jest';
+import { ComputeType, LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 import { Schedule } from 'aws-cdk-lib/aws-events';
 import { AwsSolutionsChecks } from 'cdk-nag';
 import { GitEvent, SimpleCodebuildProject } from '../../src';
+import { Utils } from '../../src/lib/utils';
 
 
 describe('SimpleCodebuildProject Construct', () => {
@@ -127,6 +129,53 @@ describe('SimpleCodebuildProject Construct', () => {
       });
 
     });
+
+    test('project environment privileged mode simple way', () => {
+      // WHEN
+      new SimpleCodebuildProject(mystack, 'myproject')
+        .projectName('myproject')
+        .gitRepoUrl('https://github.cms.gov/qpp/qpp-integration-test-infrastructure-cdk.git')
+        .gitBaseBranch('main')
+        .privileged(true)
+        .assemble();
+
+      expect(mystack).toHaveResourceLike('AWS::CodeBuild::Project', {
+        Environment: {
+          PrivilegedMode: true,
+        },
+      });
+
+    });
+
+
+    test('project environment privileged mode via overrides', () => {
+      // WHEN
+      new SimpleCodebuildProject(mystack, 'myproject')
+        .projectName('myproject')
+        .gitRepoUrl('https://github.cms.gov/qpp/qpp-integration-test-infrastructure-cdk.git')
+        .gitBaseBranch('main')
+        .privileged(true)
+        .assemble({
+          environment: {
+            buildImage: LinuxBuildImage.STANDARD_5_0, // default to Amazon Linux 5.0
+            privileged: true,
+            computeType: ComputeType.MEDIUM,
+            environmentVariables: {
+              TIER: { value: 'QA' },
+              CYPRESS_REPORTS: { value: true },
+            },
+          },
+        });
+
+      Utils.prettyPrintStack(mystack);
+
+      expect(mystack).toHaveResourceLike('AWS::CodeBuild::Project', {
+        Environment: {
+          PrivilegedMode: true,
+        },
+      });
+
+    });
   });
 
 
@@ -134,7 +183,12 @@ describe('SimpleCodebuildProject Construct', () => {
     test('should not have nag errors', () => {
       // GIVEN
       const myapp = new App();
-      const mystack = new Stack(myapp, 'mystack', { env: { account: '111111111111', region: 'us-east-1' } });
+      const mystack = new Stack(myapp, 'mystack', {
+        env: {
+          account: '111111111111',
+          region: 'us-east-1',
+        },
+      });
       // WHEN
       new SimpleCodebuildProject(mystack, 'myproject')
         .projectName('myproject')
