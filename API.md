@@ -314,6 +314,7 @@ new SimpleCodebuildProject(scope: Construct, id: string)
 | <code><a href="#ez-constructs.SimpleCodebuildProject.gitBaseBranch">gitBaseBranch</a></code> | The main branch of the github project. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.gitRepoUrl">gitRepoUrl</a></code> | The github or enterprise github repository url. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.overrideProjectProps">overrideProjectProps</a></code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleCodebuildProject.privileged">privileged</a></code> | Set privileged mode of execution. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.projectDescription">projectDescription</a></code> | The description of the codebuild project. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.projectName">projectName</a></code> | The name of the codebuild project. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.triggerBuildOnGitEvent">triggerBuildOnGitEvent</a></code> | The Github events that can trigger this build. |
@@ -462,6 +463,28 @@ public overrideProjectProps(props: ProjectProps): SimpleCodebuildProject
 ###### `props`<sup>Required</sup> <a name="props" id="ez-constructs.SimpleCodebuildProject.overrideProjectProps.parameter.props"></a>
 
 - *Type:* aws-cdk-lib.aws_codebuild.ProjectProps
+
+---
+
+##### `privileged` <a name="privileged" id="ez-constructs.SimpleCodebuildProject.privileged"></a>
+
+```typescript
+public privileged(p: boolean): SimpleCodebuildProject
+```
+
+Set privileged mode of execution.
+
+Usually needed if this project builds Docker images,
+and the build environment image you chose is not provided by CodeBuild with Docker support.
+By default, Docker containers do not allow access to any devices.
+Privileged mode grants a build project's Docker container access to all devices
+https://docs.aws.amazon.com/codebuild/latest/userguide/change-project-console.html#change-project-console-environment
+
+###### `p`<sup>Required</sup> <a name="p" id="ez-constructs.SimpleCodebuildProject.privileged.parameter.p"></a>
+
+- *Type:* boolean
+
+true/false.
 
 ---
 
@@ -1118,7 +1141,7 @@ Splits a given Github URL and extracts the owner and repo name.
 ```typescript
 import { Utils } from 'ez-constructs'
 
-Utils.prettyPrintStack(stack: Stack)
+Utils.prettyPrintStack(stack: Stack, persist?: boolean)
 ```
 
 A utility function that will print the content of a CDK stack.
@@ -1128,6 +1151,12 @@ A utility function that will print the content of a CDK stack.
 - *Type:* aws-cdk-lib.Stack
 
 a valid stack.
+
+---
+
+###### `persist`<sup>Optional</sup> <a name="persist" id="ez-constructs.Utils.prettyPrintStack.parameter.persist"></a>
+
+- *Type:* boolean
 
 ---
 

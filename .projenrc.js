@@ -12,6 +12,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'cdk.out/',
     '*.dot',
     '/.idea',
+    '/tmp',
   ],
   releaseToNpm: true,
   devDeps: [

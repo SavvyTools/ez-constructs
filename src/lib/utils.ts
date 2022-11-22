@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import { Stack } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
 import { NagSuppressions } from 'cdk-nag';
@@ -30,7 +31,7 @@ export class Utils {
    * @param delimiter - the delimiter to use
    * @returns the wrapped string
    */
-  public static wrap(str:string, delimiter:string): string {
+  public static wrap(str: string, delimiter: string): string {
     let newStr = str;
     if (!Utils.startsWith(str, delimiter)) newStr = `${delimiter}${newStr}`;
     if (!Utils.endsWith(str, delimiter)) newStr = `${newStr}${delimiter}`;
@@ -42,7 +43,7 @@ export class Utils {
    * @param str - a string
    * @param s - the prefix to check
    */
-  public static startsWith(str:string, s:string): boolean {
+  public static startsWith(str: string, s: string): boolean {
     return _.startsWith(str, s);
   }
 
@@ -51,7 +52,7 @@ export class Utils {
    * @param str - a string
    * @param s - suffix to check
    */
-  public static endsWith(str:string, s:string): boolean {
+  public static endsWith(str: string, s: string): boolean {
     return _.endsWith(str, s);
   }
 
@@ -77,7 +78,7 @@ export class Utils {
    */
   public static parseGithubUrl(url: string): any {
     if (Utils.isEmpty(url)) throw new TypeError('Invalid URL');
-    if (!( Utils.startsWith(url, 'https://github.cms.gov/') || Utils.startsWith(url, 'https://github.com'))) throw new TypeError('Invalid URL');
+    if (!(Utils.startsWith(url, 'https://github.cms.gov/') || Utils.startsWith(url, 'https://github.com'))) throw new TypeError('Invalid URL');
     if (!Utils.endsWith(url, '.git')) throw new TypeError('Invalid URL');
 
     // find the details from url
@@ -89,7 +90,12 @@ export class Utils {
 
     if (_.isEmpty(owner) || _.isEmpty(repo)) throw new TypeError('Invalid URL');
 
-    return { owner, repo, github, enterprise };
+    return {
+      owner,
+      repo,
+      github,
+      enterprise,
+    };
   }
 
   /**
@@ -97,9 +103,12 @@ export class Utils {
    * @warning This function is only used for debugging purpose.
    * @param stack - a valid stack
    */
-  public static prettyPrintStack(stack: Stack): void {
+  public static prettyPrintStack(stack: Stack, persist = true): void {
     let t = Template.fromStack(stack);
     console.log(JSON.stringify(t.toJSON(), null, 2));
+    if (persist) {
+      fs.writeFileSync(`tmp/${stack.stackName}.json`, JSON.stringify(t.toJSON(), null, 2));
+    }
   }
 
   /**

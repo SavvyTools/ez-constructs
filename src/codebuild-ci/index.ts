@@ -60,6 +60,7 @@ export class SimpleCodebuildProject extends EzConstruct {
   private _gitBaseBranch: string = 'develop';
   private _buildSpecPath?: string;
   private _grantReportGroupPermissions = true;
+  private _privileged = false;
   private _triggerOnGitEvent?: GitEvent;
   private _triggerOnSchedule?: Schedule;
   private _artifactBucket?: IBucket | string;
@@ -136,6 +137,19 @@ export class SimpleCodebuildProject extends EzConstruct {
   }
 
   /**
+   * Set privileged mode of execution. Usually needed if this project builds Docker images,
+   * and the build environment image you chose is not provided by CodeBuild with Docker support.
+   * By default, Docker containers do not allow access to any devices.
+   * Privileged mode grants a build project's Docker container access to all devices
+   * https://docs.aws.amazon.com/codebuild/latest/userguide/change-project-console.html#change-project-console-environment
+   * @param p - true/false
+   */
+  privileged(p: boolean): SimpleCodebuildProject {
+    this._privileged = p;
+    return this;
+  }
+
+  /**
    * The build spec file path
    * @param buildSpecPath - relative location of the build spec file
    */
@@ -206,7 +220,7 @@ export class SimpleCodebuildProject extends EzConstruct {
       // @ts-ignore
       defaults.environment = {
         buildImage: LinuxBuildImage.STANDARD_5_0, // default to Amazon Linux 5.0
-        privileged: false,
+        privileged: this._privileged,
         computeType: this._computType,
         environmentVariables: this._envVariables,
       };
