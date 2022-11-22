@@ -5,7 +5,6 @@ import { ComputeType, LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 import { Schedule } from 'aws-cdk-lib/aws-events';
 import { AwsSolutionsChecks } from 'cdk-nag';
 import { GitEvent, SimpleCodebuildProject } from '../../src';
-import { Utils } from '../../src/lib/utils';
 
 
 describe('SimpleCodebuildProject Construct', () => {
@@ -167,7 +166,6 @@ describe('SimpleCodebuildProject Construct', () => {
           },
         });
 
-      Utils.prettyPrintStack(mystack);
 
       expect(mystack).toHaveResourceLike('AWS::CodeBuild::Project', {
         Environment: {
