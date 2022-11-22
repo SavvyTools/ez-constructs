@@ -153,7 +153,6 @@ describe('SimpleCodebuildProject Construct', () => {
         .projectName('myproject')
         .gitRepoUrl('https://github.cms.gov/qpp/qpp-integration-test-infrastructure-cdk.git')
         .gitBaseBranch('main')
-        .privileged(true)
         .assemble({
           environment: {
             buildImage: LinuxBuildImage.STANDARD_5_0, // default to Amazon Linux 5.0
