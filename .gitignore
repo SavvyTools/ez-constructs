@@ -19,7 +19,6 @@ pids
 *.seed
 *.pid.lock
 lib-cov
-coverage
 *.lcov
 .nyc_output
 build/Release
@@ -30,7 +29,6 @@ jspm_packages/
 *.tgz
 .yarn-integrity
 .cache
-cdk.context.json
 cdk.out/
 *.dot
 /tmp
@@ -54,4 +52,8 @@ junit.xml
 .jsii
 tsconfig.json
 !/API.md
+cdk.out
+cdk.context.json
+yarn-error.log
+coverage
 /.idea

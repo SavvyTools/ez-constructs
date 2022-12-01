@@ -30,6 +30,13 @@ const project = new awscdk.AwsCdkConstructLibrary({
   scripts: {
     dia: 'npx cdk-dia --target-path assets/images/diagram.png',
   },
+  publishToPypi: {
+    distName: 'ez-constructs',
+    module: 'ez-constructs',
+  },
 });
-project.gitignore.exclude('/.idea');
+const common_exclude = ['cdk.out', 'cdk.context.json', 'yarn-error.log', 'coverage', '/.idea'];
+project.gitignore.exclude(...common_exclude);
+project.npmignore.exclude(...common_exclude);
+
 project.synth();
