@@ -32,7 +32,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   },
   publishToPypi: {
     distName: 'ez-constructs',
-    module: 'ez-constructs',
+    module: 'ez_constructs',
   },
 });
 const common_exclude = ['cdk.out', 'cdk.context.json', 'yarn-error.log', 'coverage', '/.idea'];
