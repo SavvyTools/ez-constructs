@@ -128,7 +128,7 @@
     "targets": {
       "python": {
         "distName": "ez-constructs",
-        "module": "ez-constructs"
+        "module": "ez_constructs"
       }
     },
     "tsc": {
