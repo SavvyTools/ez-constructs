@@ -309,8 +309,10 @@ new SimpleCodebuildProject(scope: Construct, id: string)
 | <code><a href="#ez-constructs.SimpleCodebuildProject.addEnv">addEnv</a></code> | A convenient way to set the project environment variables. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.artifactBucket">artifactBucket</a></code> | The name of the bucket to store the artifacts. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.assemble">assemble</a></code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleCodebuildProject.buildImage">buildImage</a></code> | The build image to use. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.buildSpecPath">buildSpecPath</a></code> | The build spec file path. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.computeType">computeType</a></code> | The compute type to use. |
+| <code><a href="#ez-constructs.SimpleCodebuildProject.ecrBuildImage">ecrBuildImage</a></code> | The build image to use. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.gitBaseBranch">gitBaseBranch</a></code> | The main branch of the github project. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.gitRepoUrl">gitRepoUrl</a></code> | The github or enterprise github repository url. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.overrideProjectProps">overrideProjectProps</a></code> | *No description.* |
@@ -394,6 +396,22 @@ public assemble(defaultProps?: ProjectProps): SimpleCodebuildProject
 
 ---
 
+##### `buildImage` <a name="buildImage" id="ez-constructs.SimpleCodebuildProject.buildImage"></a>
+
+```typescript
+public buildImage(buildImage: IBuildImage): SimpleCodebuildProject
+```
+
+The build image to use.
+
+> [https://docs.aws.amazon.com/cdk/api/v1/docs/](https://docs.aws.amazon.com/cdk/api/v1/docs/)
+
+###### `buildImage`<sup>Required</sup> <a name="buildImage" id="ez-constructs.SimpleCodebuildProject.buildImage.parameter.buildImage"></a>
+
+- *Type:* aws-cdk-lib.aws_codebuild.IBuildImage
+
+---
+
 ##### `buildSpecPath` <a name="buildSpecPath" id="ez-constructs.SimpleCodebuildProject.buildSpecPath"></a>
 
 ```typescript
@@ -423,6 +441,30 @@ The compute type to use.
 ###### `computeType`<sup>Required</sup> <a name="computeType" id="ez-constructs.SimpleCodebuildProject.computeType.parameter.computeType"></a>
 
 - *Type:* aws-cdk-lib.aws_codebuild.ComputeType
+
+---
+
+##### `ecrBuildImage` <a name="ecrBuildImage" id="ez-constructs.SimpleCodebuildProject.ecrBuildImage"></a>
+
+```typescript
+public ecrBuildImage(ecrRepoName: string, imageTag: string): SimpleCodebuildProject
+```
+
+The build image to use.
+
+###### `ecrRepoName`<sup>Required</sup> <a name="ecrRepoName" id="ez-constructs.SimpleCodebuildProject.ecrBuildImage.parameter.ecrRepoName"></a>
+
+- *Type:* string
+
+the ecr repository name.
+
+---
+
+###### `imageTag`<sup>Required</sup> <a name="imageTag" id="ez-constructs.SimpleCodebuildProject.ecrBuildImage.parameter.imageTag"></a>
+
+- *Type:* string
+
+the image tag.
 
 ---
 

@@ -129,6 +129,27 @@ describe('SimpleCodebuildProject Construct', () => {
 
     });
 
+    test('project custom build image', () => {
+      new SimpleCodebuildProject(mystack, 'myproject')
+        .projectName('myproject')
+        .gitRepoUrl('https://github.cms.gov/qpp/qpp-integration-test-infrastructure-cdk.git')
+        .gitBaseBranch('main')
+        .privileged(true)
+        .computeType(ComputeType.LARGE)
+        .ecrBuildImage('codebuild/images', 'latest')
+        .assemble();
+
+
+      expect(mystack).toHaveResourceLike('AWS::CodeBuild::Project', {
+        Environment: {
+          ComputeType: 'BUILD_GENERAL1_LARGE',
+          Image: {
+          },
+        },
+      });
+
+    });
+
     test('project environment privileged mode simple way', () => {
       // WHEN
       new SimpleCodebuildProject(mystack, 'myproject')

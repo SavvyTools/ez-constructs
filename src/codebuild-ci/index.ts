@@ -1,13 +1,14 @@
 import {
   Artifacts, BuildSpec, ComputeType,
   EventAction,
-  FilterGroup,
+  FilterGroup, IBuildImage,
   LinuxBuildImage,
   Project,
   ProjectProps,
   Source,
 } from 'aws-cdk-lib/aws-codebuild';
 import { BuildEnvironmentVariable } from 'aws-cdk-lib/aws-codebuild/lib/project';
+import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
 import { CodeBuildProject } from 'aws-cdk-lib/aws-events-targets';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
@@ -65,6 +66,7 @@ export class SimpleCodebuildProject extends EzConstruct {
   private _triggerOnSchedule?: Schedule;
   private _artifactBucket?: IBucket | string;
   private _computType: ComputeType = ComputeType.MEDIUM;
+  private _buildImage: IBuildImage = LinuxBuildImage.STANDARD_5_0;
   private _envVariables: {
     [name: string]: BuildEnvironmentVariable;
   } = {};
@@ -135,6 +137,29 @@ export class SimpleCodebuildProject extends EzConstruct {
     this._computType = computeType;
     return this;
   }
+
+
+  /**
+   * The build image to use
+   * @see https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html
+   * @see https://docs.aws.amazon.com/cdk/api/v1/docs/@aws-cdk_aws-codebuild.IBuildImage.html
+   * @param buildImage
+   */
+  buildImage(buildImage: IBuildImage): SimpleCodebuildProject {
+    this._buildImage = buildImage;
+    return this;
+  }
+
+  /**
+   * The build image to use
+   * @param ecrRepoName - the ecr repository name
+   * @param imageTag - the image tag
+   */
+  ecrBuildImage(ecrRepoName: string, imageTag: string): SimpleCodebuildProject {
+    let repo = Repository.fromRepositoryName(this.scope, 'ClaimsCodeBuildBaseImageRepository', ecrRepoName);
+    return this.buildImage(LinuxBuildImage.fromEcrRepository(repo, imageTag));
+  }
+
 
   /**
    * Set privileged mode of execution. Usually needed if this project builds Docker images,
@@ -219,7 +244,7 @@ export class SimpleCodebuildProject extends EzConstruct {
     if (Utils.isEmpty(props.environment)) {
       // @ts-ignore
       defaults.environment = {
-        buildImage: LinuxBuildImage.STANDARD_5_0, // default to Amazon Linux 5.0
+        buildImage: this._buildImage ? this._buildImage : LinuxBuildImage.STANDARD_5_0, // default to Amazon Linux 5.0
         privileged: this._privileged,
         computeType: this._computType,
         environmentVariables: this._envVariables,
