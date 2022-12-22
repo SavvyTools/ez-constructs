@@ -103,11 +103,11 @@ export class Utils {
    * @warning This function is only used for debugging purpose.
    * @param stack - a valid stack
    */
-  public static prettyPrintStack(stack: Stack, persist = true): void {
+  public static prettyPrintStack(stack: Stack, persist = true, path= `tmp/${stack.stackName}.json`): void {
     let t = Template.fromStack(stack);
     console.log(JSON.stringify(t.toJSON(), null, 2));
     if (persist) {
-      fs.writeFileSync(`tmp/${stack.stackName}.json`, JSON.stringify(t.toJSON(), null, 2));
+      fs.writeFileSync(path, JSON.stringify(t.toJSON(), null, 2));
     }
   }
 

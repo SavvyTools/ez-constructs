@@ -8,6 +8,7 @@ import {
   Source,
 } from 'aws-cdk-lib/aws-codebuild';
 import { BuildEnvironmentVariable } from 'aws-cdk-lib/aws-codebuild/lib/project';
+import { Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
 import { CodeBuildProject } from 'aws-cdk-lib/aws-events-targets';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
@@ -65,6 +66,7 @@ export class SimpleCodebuildProject extends EzConstruct {
   private _triggerOnSchedule?: Schedule;
   private _artifactBucket?: IBucket | string;
   private _computType: ComputeType = ComputeType.MEDIUM;
+  private _vpcId?: string;
   private _envVariables: {
     [name: string]: BuildEnvironmentVariable;
   } = {};
@@ -133,6 +135,16 @@ export class SimpleCodebuildProject extends EzConstruct {
    */
   computeType(computeType: ComputeType): SimpleCodebuildProject {
     this._computType = computeType;
+    return this;
+  }
+
+  /**
+   * The vpc network interfaces to add to the codebuild
+   * @see https://docs.aws.amazon.com/cdk/api/v1/docs/aws-codebuild-readme.html#definition-of-vpc-configuration-in-codebuild-project
+   * @param vpcId
+   */
+  inVpc(vpcId: string): SimpleCodebuildProject {
+    this._vpcId = vpcId;
     return this;
   }
 
@@ -257,6 +269,12 @@ export class SimpleCodebuildProject extends EzConstruct {
     if (Utils.isEmpty(props.buildSpec) && !Utils.isEmpty(this._buildSpecPath)) {
       // @ts-ignore
       defaults.buildSpec = this.createBuildSpec(this._buildSpecPath as string);
+    }
+
+    // create vpc interface if needed
+    if (!Utils.isEmpty(this._vpcId)) {
+      // @ts-ignore
+      defaults.vpc = Vpc.fromLookup(this, 'VPC', { vpcId: this._vpcId });
     }
 
     this._props = Object.assign({}, defaults, props);
