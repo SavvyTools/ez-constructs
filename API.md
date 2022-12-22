@@ -315,6 +315,7 @@ new SimpleCodebuildProject(scope: Construct, id: string)
 | <code><a href="#ez-constructs.SimpleCodebuildProject.ecrBuildImage">ecrBuildImage</a></code> | The build image to use. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.gitBaseBranch">gitBaseBranch</a></code> | The main branch of the github project. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.gitRepoUrl">gitRepoUrl</a></code> | The github or enterprise github repository url. |
+| <code><a href="#ez-constructs.SimpleCodebuildProject.inVpc">inVpc</a></code> | The vpc network interfaces to add to the codebuild. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.overrideProjectProps">overrideProjectProps</a></code> | *No description.* |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.privileged">privileged</a></code> | Set privileged mode of execution. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.projectDescription">projectDescription</a></code> | The description of the codebuild project. |
@@ -491,6 +492,22 @@ public gitRepoUrl(gitRepoUrl: string): SimpleCodebuildProject
 The github or enterprise github repository url.
 
 ###### `gitRepoUrl`<sup>Required</sup> <a name="gitRepoUrl" id="ez-constructs.SimpleCodebuildProject.gitRepoUrl.parameter.gitRepoUrl"></a>
+
+- *Type:* string
+
+---
+
+##### `inVpc` <a name="inVpc" id="ez-constructs.SimpleCodebuildProject.inVpc"></a>
+
+```typescript
+public inVpc(vpcId: string): SimpleCodebuildProject
+```
+
+The vpc network interfaces to add to the codebuild.
+
+> [https://docs.aws.amazon.com/cdk/api/v1/docs/aws-codebuild-readme.html#definition-of-vpc-configuration-in-codebuild-project](https://docs.aws.amazon.com/cdk/api/v1/docs/aws-codebuild-readme.html#definition-of-vpc-configuration-in-codebuild-project)
+
+###### `vpcId`<sup>Required</sup> <a name="vpcId" id="ez-constructs.SimpleCodebuildProject.inVpc.parameter.vpcId"></a>
 
 - *Type:* string
 
@@ -1183,7 +1200,7 @@ Splits a given Github URL and extracts the owner and repo name.
 ```typescript
 import { Utils } from 'ez-constructs'
 
-Utils.prettyPrintStack(stack: Stack, persist?: boolean)
+Utils.prettyPrintStack(stack: Stack, persist?: boolean, path?: string)
 ```
 
 A utility function that will print the content of a CDK stack.
@@ -1199,6 +1216,12 @@ a valid stack.
 ###### `persist`<sup>Optional</sup> <a name="persist" id="ez-constructs.Utils.prettyPrintStack.parameter.persist"></a>
 
 - *Type:* boolean
+
+---
+
+###### `path`<sup>Optional</sup> <a name="path" id="ez-constructs.Utils.prettyPrintStack.parameter.path"></a>
+
+- *Type:* string
 
 ---
 
