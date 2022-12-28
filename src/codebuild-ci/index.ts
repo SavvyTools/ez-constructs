@@ -222,7 +222,7 @@ export class SimpleCodebuildProject extends EzConstruct {
    * @param branches
    */
   triggerOnPushToBranches(branches:string[]): SimpleCodebuildProject {
-    this._triggerOnPushToBranches.push(...branches)
+    this._triggerOnPushToBranches.push(...branches);
     return this;
   }
   /**
@@ -433,12 +433,12 @@ export class SimpleCodebuildProject extends EzConstruct {
         EventAction.PULL_REQUEST_REOPENED,
         EventAction.PULL_REQUEST_MERGED);
     }
-    fgList.push(fg1)
+    fgList.push(fg1);
     branches?.forEach(branch => {
-      fgList.push(FilterGroup.inEventOf(EventAction.PUSH).andHeadRefIs(branch))
+      fgList.push(FilterGroup.inEventOf(EventAction.PUSH).andHeadRefIs(branch));
     });
 
-    return fgList
+    return fgList;
   }
 
   /**

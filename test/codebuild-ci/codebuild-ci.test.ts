@@ -117,7 +117,7 @@ describe('SimpleCodebuildProject Construct', () => {
         .gitRepoUrl('https://github.cms.gov/qpp/qpp-integration-test-infrastructure-cdk.git')
         .gitBaseBranch('main')
         .triggerBuildOnGitEvent(GitEvent.PULL_REQUEST)
-        .triggerOnPushToBranches(['main','develop'])
+        .triggerOnPushToBranches(['main', 'develop'])
         .assemble();
 
       // THEN should have a default project created
@@ -145,7 +145,7 @@ describe('SimpleCodebuildProject Construct', () => {
                 Pattern: 'main',
                 Type: 'HEAD_REF',
               },
-            ],            [
+            ], [
               {
                 Pattern: 'PUSH',
                 Type: 'EVENT',
