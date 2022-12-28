@@ -322,6 +322,7 @@ new SimpleCodebuildProject(scope: Construct, id: string)
 | <code><a href="#ez-constructs.SimpleCodebuildProject.projectName">projectName</a></code> | The name of the codebuild project. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.triggerBuildOnGitEvent">triggerBuildOnGitEvent</a></code> | The Github events that can trigger this build. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.triggerBuildOnSchedule">triggerBuildOnSchedule</a></code> | The cron schedule on which this build gets triggerd. |
+| <code><a href="#ez-constructs.SimpleCodebuildProject.triggerOnPushToBranches">triggerOnPushToBranches</a></code> | Triggers build on push to specified branches. |
 
 ---
 
@@ -604,6 +605,20 @@ The cron schedule on which this build gets triggerd.
 ###### `schedule`<sup>Required</sup> <a name="schedule" id="ez-constructs.SimpleCodebuildProject.triggerBuildOnSchedule.parameter.schedule"></a>
 
 - *Type:* aws-cdk-lib.aws_events.Schedule
+
+---
+
+##### `triggerOnPushToBranches` <a name="triggerOnPushToBranches" id="ez-constructs.SimpleCodebuildProject.triggerOnPushToBranches"></a>
+
+```typescript
+public triggerOnPushToBranches(branches: string[]): SimpleCodebuildProject
+```
+
+Triggers build on push to specified branches.
+
+###### `branches`<sup>Required</sup> <a name="branches" id="ez-constructs.SimpleCodebuildProject.triggerOnPushToBranches.parameter.branches"></a>
+
+- *Type:* string[]
 
 ---
 

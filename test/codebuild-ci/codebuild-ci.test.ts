@@ -110,6 +110,58 @@ describe('SimpleCodebuildProject Construct', () => {
 
 
     });
+    test('project Triggers On build', () => {
+      // WHEN
+      new SimpleCodebuildProject(mystack, 'myproject')
+        .projectName('myproject')
+        .gitRepoUrl('https://github.cms.gov/qpp/qpp-integration-test-infrastructure-cdk.git')
+        .gitBaseBranch('main')
+        .triggerBuildOnGitEvent(GitEvent.PULL_REQUEST)
+        .triggerOnPushToBranches(['main', 'develop'])
+        .assemble();
+
+      // THEN should have a default project created
+      expect(mystack).toHaveResourceLike('AWS::CodeBuild::Project', {
+        Name: 'myproject',
+        Triggers: {
+          Webhook: true,
+          FilterGroups: [
+            [
+              {
+                Pattern: 'PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED',
+                Type: 'EVENT',
+              },
+              {
+                Pattern: 'refs/heads/main',
+                Type: 'BASE_REF',
+              },
+            ],
+            [
+              {
+                Pattern: 'PUSH',
+                Type: 'EVENT',
+              },
+              {
+                Pattern: 'main',
+                Type: 'HEAD_REF',
+              },
+            ], [
+              {
+                Pattern: 'PUSH',
+                Type: 'EVENT',
+              },
+              {
+                Pattern: 'develop',
+                Type: 'HEAD_REF',
+              },
+            ],
+          ],
+        },
+
+      });
+
+
+    });
     test('project Scheduled build', () => {
       // WHEN
       new SimpleCodebuildProject(mystack, 'myproject')
