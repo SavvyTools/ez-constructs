@@ -1,7 +1,10 @@
 import {
-  Artifacts, BuildSpec, ComputeType,
+  Artifacts,
+  BuildSpec,
+  ComputeType,
   EventAction,
-  FilterGroup, IBuildImage,
+  FilterGroup,
+  IBuildImage,
   LinuxBuildImage,
   Project,
   ProjectProps,
@@ -65,6 +68,7 @@ export class SimpleCodebuildProject extends EzConstruct {
   private _privileged = false;
   private _triggerOnGitEvent?: GitEvent;
   private _triggerOnSchedule?: Schedule;
+  private _triggerOnPushToBranches:Array<string> = [];
   private _artifactBucket?: IBucket | string;
   private _computType: ComputeType = ComputeType.MEDIUM;
   private _vpcId?: string;
@@ -214,6 +218,14 @@ export class SimpleCodebuildProject extends EzConstruct {
   }
 
   /**
+   * Triggers build on push to specified branches
+   * @param branches
+   */
+  triggerOnPushToBranches(branches:string[]): SimpleCodebuildProject {
+    this._triggerOnPushToBranches.push(...branches)
+    return this;
+  }
+  /**
    * The Github events that can trigger this build.
    * @param event
    */
@@ -281,7 +293,8 @@ export class SimpleCodebuildProject extends EzConstruct {
       // @ts-ignore
       defaults.source = this.createSource(this._gitRepoUrl as string,
         this._gitBaseBranch,
-        this._triggerOnGitEvent);
+        this._triggerOnGitEvent,
+        this._triggerOnPushToBranches);
     }
 
     // create artifact bucket if one was not provided
@@ -364,10 +377,10 @@ export class SimpleCodebuildProject extends EzConstruct {
    * @param gitEvent - the github events that can trigger builds
    * @private
    */
-  private createSource(repoUrl: string, base?: string, gitEvent?: GitEvent): Source {
+  private createSource(repoUrl: string, base?: string, gitEvent?: GitEvent, branches?:Array<string>): Source {
     let webhook = gitEvent && true;
     let repoDetails = Utils.parseGithubUrl(repoUrl);
-    let webhookFilter = this.createWebHookFilters(base, gitEvent);
+    let webhookFilter = this.createWebHookFilters(base, gitEvent, branches);
 
     if (repoDetails.enterprise == true) {
       return Source.gitHubEnterprise({
@@ -392,33 +405,40 @@ export class SimpleCodebuildProject extends EzConstruct {
    * @param gitEvent - the github event
    * @private
    */
-  private createWebHookFilters(base?: string, gitEvent?: GitEvent): FilterGroup[] | undefined {
+  private createWebHookFilters(base?: string, gitEvent?: GitEvent, branches?:Array<string>): FilterGroup[] | undefined {
     // @ts-ignore
-    let fg: FilterGroup = null;
+    let fg1: FilterGroup = null;
+    let fgList: FilterGroup[] = [];
+
 
     if (!gitEvent) return undefined;
 
     if (gitEvent == GitEvent.PULL_REQUEST) {
-      fg = FilterGroup.inEventOf(EventAction.PULL_REQUEST_CREATED,
+      fg1 = FilterGroup.inEventOf(EventAction.PULL_REQUEST_CREATED,
         EventAction.PULL_REQUEST_UPDATED,
         EventAction.PULL_REQUEST_REOPENED);
       if (base) {
-        fg = fg.andBaseBranchIs(base);
+        fg1 = fg1.andBaseBranchIs(base);
       }
     }
 
     if (gitEvent == GitEvent.PUSH) {
-      fg = FilterGroup.inEventOf(EventAction.PUSH);
+      fg1 = FilterGroup.inEventOf(EventAction.PUSH);
     }
 
     if (gitEvent == GitEvent.ALL) {
-      fg = FilterGroup.inEventOf(EventAction.PUSH,
+      fg1 = FilterGroup.inEventOf(EventAction.PUSH,
         EventAction.PULL_REQUEST_CREATED,
         EventAction.PULL_REQUEST_UPDATED,
         EventAction.PULL_REQUEST_REOPENED,
         EventAction.PULL_REQUEST_MERGED);
     }
-    return [fg];
+    fgList.push(fg1)
+    branches?.forEach(branch => {
+      fgList.push(FilterGroup.inEventOf(EventAction.PUSH).andHeadRefIs(branch))
+    });
+
+    return fgList
   }
 
   /**
