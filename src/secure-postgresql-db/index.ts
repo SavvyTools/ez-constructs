@@ -296,7 +296,6 @@ export class SecurePostgresqlDb extends EzConstruct {
   * @returns SecurePostgresqlDb
   */
   public applyProductionDefaults(): SecurePostgresqlDb {
-    //this._props = Object.assign({}, this._productionDefaults, this._props);
     this._props = { ...this._props, ...this._productionDefaults };
     return this;
   }
