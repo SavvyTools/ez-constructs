@@ -78,7 +78,7 @@ export class SecurePostgresqlDb extends EzConstruct {
         hour: '0',
         minute: '0',
       }),
-      deleteAfter: Duration.days(60),
+      deleteAfter: Duration.days(7),
     },
     alarmProps: {
       cpuUtilizationThresholdPct: 90,
@@ -242,7 +242,7 @@ export class SecurePostgresqlDb extends EzConstruct {
         hour: '0',
         minute: '0',
       }),
-      deleteAfter: Duration.days(60),
+      deleteAfter: Duration.days(7),
     }
   * @returns SecurePostgresqlDb
   */
@@ -475,6 +475,33 @@ export class SecurePostgresqlDb extends EzConstruct {
     });
   }
 
+  private _createSSMParams() {
+    super.setParameter(
+      'DbCredentialsSecretArn',
+      `/cdk/${cdk.Stack.of(this)}/db/credentials-secret-arn`,
+      this.credentialSecret.secretArn,
+    );
+    super.setParameter(
+      'DbPort',
+      `/cdk/${cdk.Stack.of(this)}/db/port`,
+      this._props.port?.toString()!,
+    );
+    super.setParameter(
+      'DbHost',
+      `/cdk/${cdk.Stack.of(this)}/db/host`,
+      this.instance.dbInstanceEndpointAddress);
+    super.setParameter(
+      'DbId',
+      `/cdk/${cdk.Stack.of(this)}/db/id`,
+      this.instance.instanceIdentifier,
+    );
+    super.setParameter(
+      'DBSecurityGroup',
+      `/cdk/${cdk.Stack.of(this)}/db/sg-id`,
+      this.securityGroup.securityGroupId,
+    );
+  }
+
   private _suppressNagRules() {
     Utils.suppressNagRule(this.instance, 'AwsSolutions-RDS11', 'Ignore non default port(5432) usage requirement.');
     Utils.suppressNagRule(this.credentialSecret, 'AwsSolutions-SMG4', 'Ignore password automatic rotation.');
@@ -489,6 +516,7 @@ export class SecurePostgresqlDb extends EzConstruct {
     this._createDbInstance();
     this._createBackupPlan();
     this._createAlarms();
+    this._createSSMParams();
     this._suppressNagRules();
 
     this._instanceTags.forEach((tag) => {

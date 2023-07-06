@@ -55,7 +55,7 @@ describe('SecurePostgresqlDb Construct', () => {
       expect(db.alarms).toBeDefined();
 
       const template = Template.fromStack(mystack);
-      //console.log(JSON.stringify(template.toJSON()));
+
       template.resourceCountIs('AWS::KMS::Key', 1);
       template.resourceCountIs('AWS::SecretsManager::Secret', 1);
       template.resourceCountIs('AWS::EC2::SecurityGroup', 1);
@@ -66,6 +66,7 @@ describe('SecurePostgresqlDb Construct', () => {
       template.resourceCountIs('AWS::Backup::BackupVault', 1);
       template.resourceCountIs('AWS::Backup::BackupSelection', 1);
       template.resourceCountIs('AWS::CloudWatch::Alarm', 4);
+      template.resourceCountIs('AWS::SSM::Parameter', 5);
     });
 
     test('props supplied - default instance has expected properties', () => {
