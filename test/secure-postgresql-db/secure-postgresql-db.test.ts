@@ -5,6 +5,7 @@ import { InstanceClass, InstanceSize, InstanceType, SecurityGroup, Vpc } from 'a
 import { Schedule } from 'aws-cdk-lib/aws-events';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { PostgresEngineVersion } from 'aws-cdk-lib/aws-rds';
+import { Topic } from 'aws-cdk-lib/aws-sns';
 import { SecurePostgresqlDb } from '../../src/secure-postgresql-db';
 
 
@@ -300,6 +301,156 @@ describe('SecurePostgresqlDb Construct', () => {
             },
           ]),
         },
+      });
+    });
+
+    test('Alarm Props', () => {
+      // WHEN
+      new SecurePostgresqlDb(mystack, 'db')
+        .vpcId('000000')
+        .instanceType(InstanceType.of(InstanceClass.T4G, InstanceSize.LARGE))
+        .allocatedStorage(100)
+        .maxAllocatedStorage(100)
+        .alarmProps({
+          cpuUtilizationThresholdPct: 50,
+          minFreeMemoryMB: 2000,
+          maxOpenConnections: 25,
+          freeStorageThresholdPct: 50,
+        }).assemble();
+
+      const template = Template.fromStack(mystack);
+
+      // THEN
+      template.hasResourceProperties('AWS::CloudWatch::Alarm', { MetricName: 'CPUUtilization', Threshold: 50 });
+      template.hasResourceProperties('AWS::CloudWatch::Alarm', { MetricName: 'FreeableMemory', Threshold: 2000 });
+      template.hasResourceProperties('AWS::CloudWatch::Alarm', { MetricName: 'DatabaseConnections', Threshold: 25 });
+      template.hasResourceProperties('AWS::CloudWatch::Alarm', { MetricName: 'FreeStorageSpace', Threshold: 50 });
+    });
+
+    test('Snapshot ARN', () => {
+      // WHEN
+      new SecurePostgresqlDb(mystack, 'db')
+        .vpcId('000000')
+        .instanceType(InstanceType.of(InstanceClass.T4G, InstanceSize.LARGE))
+        .snapshotArn('foo::bar')
+        .assemble();
+
+      const template = Template.fromStack(mystack);
+
+      // THEN
+      template.hasResourceProperties('AWS::RDS::DBInstance', { DbSnapshotIdentifier: 'foo::bar' });
+    });
+  });
+
+  describe('Construct functions', () => {
+    test('Register alarms', () => {
+      // WHEN
+      new SecurePostgresqlDb(mystack, 'db')
+        .vpcId('000000')
+        .instanceType(InstanceType.of(InstanceClass.T4G, InstanceSize.LARGE))
+        .registerAlarms(new Topic(mystack, 'topic', {}))
+        .assemble();
+
+      const template = Template.fromStack(mystack);
+
+      // THEN
+      template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+        AlarmActions: Match.arrayWith([{ Ref: Match.anyValue() }]),
+      });
+    });
+
+    test('Register alarms after assembled', () => {
+      // WHEN
+      const db = new SecurePostgresqlDb(mystack, 'db')
+        .vpcId('000000')
+        .instanceType(InstanceType.of(InstanceClass.T4G, InstanceSize.LARGE))
+        .assemble();
+
+      db.registerAlarms(new Topic(mystack, 'topic', {}));
+
+      const template = Template.fromStack(mystack);
+
+      // THEN
+      template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+        AlarmActions: Match.arrayWith([{ Ref: Match.anyValue() }]),
+      });
+    });
+
+    test('Tag instance', () => {
+      // WHEN
+      new SecurePostgresqlDb(mystack, 'db')
+        .vpcId('000000')
+        .instanceType(InstanceType.of(InstanceClass.T4G, InstanceSize.LARGE))
+        .tag('foo', 'bar')
+        .assemble();
+
+      const template = Template.fromStack(mystack);
+
+      // THEN
+      template.hasResourceProperties('AWS::RDS::DBInstance', {
+        Tags: Match.arrayWith([{ Key: 'foo', Value: 'bar' }]),
+      });
+    });
+
+    test('Tag all', () => {
+      // WHEN
+      new SecurePostgresqlDb(mystack, 'db')
+        .vpcId('000000')
+        .instanceType(InstanceType.of(InstanceClass.T4G, InstanceSize.LARGE))
+        .tagAll('foo', 'bar')
+        .assemble();
+
+      const template = Template.fromStack(mystack);
+
+      const match = Match.arrayWith([{ Key: 'foo', Value: 'bar' }]);
+
+      // THEN
+      template.hasResourceProperties('AWS::KMS::Key', { Tags: match });
+      template.hasResourceProperties('AWS::SecretsManager::Secret', { Tags: match });
+      template.hasResourceProperties('AWS::EC2::SecurityGroup', { Tags: match });
+      template.hasResourceProperties('AWS::RDS::DBParameterGroup', { Tags: match });
+      template.hasResourceProperties('AWS::RDS::DBSubnetGroup', { Tags: match });
+      template.hasResourceProperties('AWS::RDS::DBInstance', { Tags: match });
+    });
+
+    test('Add sg', () => {
+      // WHEN
+      const sg = new SecurityGroup(mystack, 'mySg', { vpc: Vpc.fromLookup(mystack, 'vpc', {}) });
+      new SecurePostgresqlDb(mystack, 'db')
+        .vpcId('000000')
+        .instanceType(InstanceType.of(InstanceClass.T4G, InstanceSize.LARGE))
+        .allowSgIngress(sg)
+        .assemble();
+
+      const template = Template.fromStack(mystack);
+
+      // THEN
+      template.hasResourceProperties('AWS::EC2::SecurityGroupIngress', {
+        IpProtocol: 'tcp',
+        ToPort: 5432,
+        FromPort: 5432,
+        SourceSecurityGroupId: Match.anyValue(),
+      });
+    });
+
+    test('Add sg after assembly', () => {
+      // WHEN
+      const sg = new SecurityGroup(mystack, 'mySg', { vpc: Vpc.fromLookup(mystack, 'vpc', {}) });
+      const db = new SecurePostgresqlDb(mystack, 'db')
+        .vpcId('000000')
+        .instanceType(InstanceType.of(InstanceClass.T4G, InstanceSize.LARGE))
+        .assemble();
+
+      db.allowSgIngress(sg);
+
+      const template = Template.fromStack(mystack);
+
+      // THEN
+      template.hasResourceProperties('AWS::EC2::SecurityGroupIngress', {
+        IpProtocol: 'tcp',
+        ToPort: 5432,
+        FromPort: 5432,
+        SourceSecurityGroupId: Match.anyValue(),
       });
     });
   });

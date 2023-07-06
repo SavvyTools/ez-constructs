@@ -1,5 +1,5 @@
 import * as cdk from '@aws-cdk/core';
-import { Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy, Tags } from 'aws-cdk-lib';
 import { BackupPlan, BackupPlanRule, BackupPlanRuleProps, BackupResource } from 'aws-cdk-lib/aws-backup';
 import { Alarm, ComparisonOperator } from 'aws-cdk-lib/aws-cloudwatch';
 import { SnsAction } from 'aws-cdk-lib/aws-cloudwatch-actions';
@@ -17,6 +17,14 @@ import { Defaults } from '../lib/defaults';
 import { Utils } from '../lib/utils';
 
 
+interface AlarmProps {
+  cpuUtilizationThresholdPct?: number;
+  minFreeMemoryMB?: number;
+  maxOpenConnections?: number;
+  freeStorageThresholdPct?: number;
+}
+
+
 interface SecurePostgresqlDbProps {
   vpcId: string;
   cloudWatchLogRetention?: RetentionDays;
@@ -30,11 +38,7 @@ interface SecurePostgresqlDbProps {
   maxAllocatedStorage?: number;
   multiAz?: boolean;
   backupPlanRuleProps?: BackupPlanRuleProps;
-  alarmProps?: {
-    minFreeMemoryMB?: number;
-    maxOpenConnections?: number;
-    freeStorageThresholdPct?: number;
-  };
+  alarmProps?: AlarmProps;
   snapshotArn?: string | null;
 }
 
@@ -49,6 +53,11 @@ export class SecurePostgresqlDb extends EzConstruct {
 
   private _props: SecurePostgresqlDbProps;
   private _vpc: IVpc;
+  private _alarmTopic: Topic;
+  private _allowedSgs: ISecurityGroup[] = [];
+  private _assembled = false;
+  private _instanceTags: [string, string][] = [];
+  private _constructTags: [string, string][] = [];
 
   private _defaultProps: Defaults<SecurePostgresqlDbProps> = {
     cloudWatchLogRetention: RetentionDays.THREE_MONTHS,
@@ -72,6 +81,7 @@ export class SecurePostgresqlDb extends EzConstruct {
       deleteAfter: Duration.days(60),
     },
     alarmProps: {
+      cpuUtilizationThresholdPct: 90,
       minFreeMemoryMB: 1024,
       maxOpenConnections: 100,
       freeStorageThresholdPct: 20,
@@ -79,6 +89,7 @@ export class SecurePostgresqlDb extends EzConstruct {
     snapshotArn: null,
   };
 
+  // Defaults applied when calling .applyProductionDefaults()
   private _productionDefaults = {
     overrideInstanceProps: { deletionProtection: true },
     cloudWatchLogRetention: RetentionDays.ONE_YEAR,
@@ -242,16 +253,18 @@ export class SecurePostgresqlDb extends EzConstruct {
 
   /**
   * Properties for configuring alarm thresholds.
+  * @param cpuUtilizationThresholdPct - Max CPU utilization percent. Alarm triggers if value goes above threshold.
   * @param minFreeMemoryMB - Minimum free memory threshold, in MB. Alarm triggers if value goes below threshold.
   * @param maxOpenConnections - Max open connections threshold. Alarm triggers if value goes above threshold.
   * @param freeStorageThresholdPct - Free storage percent threshold. Alarm triggers if value goes below threshold.
+  * @default cpuUtilizationThresholdPct - 90
   * @default minFreeMemoryMB - 1024
   * @default maxOpenConnections - 100
   * @default freeStorageThresholdPct - 20
   * @returns SecurePostgresqlDb
   */
-  public alarmProps(minFreeMemoryMB: number, maxOpenConnections: number, freeStorageThresholdPct: number): SecurePostgresqlDb {
-    this._props.alarmProps = { minFreeMemoryMB, maxOpenConnections, freeStorageThresholdPct };
+  public alarmProps(props: AlarmProps): SecurePostgresqlDb {
+    this._props.alarmProps = props;
     return this;
   }
 
@@ -271,12 +284,9 @@ export class SecurePostgresqlDb extends EzConstruct {
   * @returns SecurePostgresqlDb
   */
   public allowSgIngress(securityGroup: ISecurityGroup): SecurePostgresqlDb {
-    this.securityGroup.addIngressRule(
-      securityGroup,
-      Port.tcp(this._props.port!),
-      `CDK generated ingress. STACK - ${cdk.Stack.of(this)}`,
-    );
+    this._allowedSgs.push(securityGroup);
 
+    if (this._assembled) { this._addSgIngress(securityGroup); }
     return this;
   }
 
@@ -297,19 +307,54 @@ export class SecurePostgresqlDb extends EzConstruct {
   * @returns SecurePostgresqlDb
   */
   public registerAlarms(topic: Topic): SecurePostgresqlDb {
+    this._alarmTopic = topic;
+
+    if (this._assembled) { this._registerAlarms(this._alarmTopic); }
+    return this;
+  }
+
+  /**
+  * Tags the database instance
+  * @param key - Tag key
+  * @param value = Tag value
+  * @returns SecurePostgresqlDb
+  */
+  public tag(key: string, value: string): SecurePostgresqlDb {
+    this._instanceTags.push([key, value]);
+    return this;
+  }
+
+  /**
+  * Tags all resources in the construct
+  * @param key - Tag key
+  * @param value = Tag value
+  * @returns SecurePostgresqlDb
+  */
+  public tagAll(key: string, value: string): SecurePostgresqlDb {
+    this._constructTags.push([key, value]);
+    return this;
+  }
+
+  private _addSgIngress(securityGroup: ISecurityGroup) {
+    this.securityGroup.addIngressRule(
+      securityGroup,
+      Port.tcp(this._props.port!),
+      `CDK generated ingress. STACK - ${cdk.Stack.of(this)}`,
+    );
+  }
+
+  private _registerAlarms(topic: Topic): void {
     this.alarms.forEach((alarm) => {
       alarm.addAlarmAction(new SnsAction(topic));
       alarm.addOkAction(new SnsAction(topic));
     });
-
-    return this;
   }
 
   private _createAlarms(): void {
     this.alarms.push(
       new Alarm(this, 'DbAlarmCpuUtilization', {
         comparisonOperator: ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
-        threshold: 90,
+        threshold: this._props.alarmProps?.cpuUtilizationThresholdPct!,
         evaluationPeriods: 2,
         metric: this.instance.metricCPUUtilization({
           statistic: 'avg',
@@ -353,6 +398,10 @@ export class SecurePostgresqlDb extends EzConstruct {
         }),
       }),
     );
+
+    if (this._alarmTopic) {
+      this._registerAlarms(this._alarmTopic);
+    }
   }
 
   private _createBackupPlan() {
@@ -420,6 +469,10 @@ export class SecurePostgresqlDb extends EzConstruct {
 
   private _createSecurityGroup() {
     this.securityGroup = new SecurityGroup(this, 'DbSecurityGroup', { vpc: this._vpc });
+
+    this._allowedSgs.forEach((sg) => {
+      this._addSgIngress(sg);
+    });
   }
 
   private _suppressNagRules() {
@@ -438,6 +491,14 @@ export class SecurePostgresqlDb extends EzConstruct {
     this._createAlarms();
     this._suppressNagRules();
 
+    this._instanceTags.forEach((tag) => {
+      Tags.of(this.instance).add(tag[0], tag[1]);
+    });
+    this._constructTags.forEach((tag) => {
+      Tags.of(this).add(tag[0], tag[1]);
+    });
+
+    this._assembled = true;
     return this;
   }
 }
