@@ -11,7 +11,6 @@ import { CfnDBInstance, Credentials, DatabaseInstance, DatabaseInstanceEngine, P
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import { Construct, IConstruct } from 'constructs';
-import _ from 'lodash';
 import { EzConstruct } from '../ez-construct';
 import { Defaults } from '../lib/defaults';
 import { Utils } from '../lib/utils';
