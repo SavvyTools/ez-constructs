@@ -41,7 +41,7 @@ interface SecurePostgresqlDbProps {
   enableBackupPlan?: boolean;
   backupPlanRuleProps?: BackupPlanRuleProps;
   alarmProps?: AlarmProps;
-  snapshotArn?: string | null;
+  restoreFromSnapshot?: string | null;
 }
 
 
@@ -90,7 +90,7 @@ export class SecurePostgresqlDb extends EzConstruct {
       maxOpenConnections: 100,
       freeStorageThresholdPct: 20,
     },
-    snapshotArn: null,
+    restoreFromSnapshot: null,
   };
 
   // Defaults applied when calling .applyProductionDefaults()
@@ -298,12 +298,12 @@ export class SecurePostgresqlDb extends EzConstruct {
   }
 
   /**
-  * The Database will be created using the provided snapshot.
-  * @param snapshotArn
+  * The Database will be created using the provided snapshot. See README for important details on usage.
+  * @param restoreFromSnapshot
   * @returns SecurePostgresqlDb
   */
-  public snapshotArn(snapshotArn: string): SecurePostgresqlDb {
-    this._props.snapshotArn = snapshotArn;
+  public restoreFromSnapshot(restoreFromSnapshot: string): SecurePostgresqlDb {
+    this._props.restoreFromSnapshot = restoreFromSnapshot;
     return this;
   }
 
@@ -471,9 +471,9 @@ export class SecurePostgresqlDb extends EzConstruct {
       ...this._props.overrideInstanceProps,
     });
 
-    if (this._props.snapshotArn) {
+    if (this._props.restoreFromSnapshot) {
       const cfnDbInstance = this.instance.node.defaultChild as CfnDBInstance;
-      cfnDbInstance.addPropertyOverride('DbSnapshotIdentifier', this._props.snapshotArn);
+      cfnDbInstance.addPropertyOverride('DbSnapshotIdentifier', this._props.restoreFromSnapshot);
     }
   }
 

@@ -42,3 +42,19 @@ export class MyStack extends Stack {
   }
 }
 ```
+
+# DB instance from snapshot
+ If you want to restore your database from an existing snapshot, specificy the snapshot value. 
+
+ ```
+let db = new SecurePostgresqlDb(mystack, 'SecurePostgresqlDb')
+  .vpcId('000000')
+  .instanceType(InstanceType.of(InstanceClass.T4G, InstanceSize.LARGE))
+  .restoreFromSnapshot('foo::bar')
+  .assemble();
+```
+ *Careful, some important notes:* 
+- Once you specify a snapshot to restore from, you must not remove it and continue to use that even if you are changing other properties associated with the database. 
+- Only during the initial setup, the data present in the snapshot is used, thereafter for all updates the data is not reset. 
+- If you remove the snapshotARN you have used previously, the current database will be reset to start from an empty snapshot and you will lose all existing data in the database.
+- If you specify a different snapshotARN, your current database will be reset to start from that data present in the newly specified snapshot and you will lose all the existing data in your database.

@@ -364,7 +364,7 @@ describe('SecurePostgresqlDb Construct', () => {
       new SecurePostgresqlDb(mystack, 'db')
         .vpcId('000000')
         .instanceType(InstanceType.of(InstanceClass.T4G, InstanceSize.LARGE))
-        .snapshotArn('foo::bar')
+        .restoreFromSnapshot('foo::bar')
         .assemble();
 
       const template = Template.fromStack(mystack);
