@@ -1,11 +1,11 @@
 # SecurePostgresqlDb
 A secure Postgres RDS instance with accompanying resources. Will create an RDS instance with the following features:
- - Configured backup plan & vault
  - Configured alarms for CPU, Memory, Free Space, Open Connections
  - Encryption (KMS) key and instance configured for encryption-at-rest
  - Auto-generated database credentials
  - PGAudit logging
  - Optional creation from Snapshot
+ - Optional configured backup plan & vault
 
 ## Usage
 # Chained methods style
