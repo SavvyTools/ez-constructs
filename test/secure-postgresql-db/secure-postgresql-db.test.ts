@@ -51,7 +51,6 @@ describe('SecurePostgresqlDb Construct', () => {
       expect(db.instance).toBeDefined();
       expect(db.credentialSecret).toBeDefined();
       expect(db.securityGroup).toBeDefined();
-      expect(db.backupPlan).toBeDefined();
       expect(db.alarms).toBeDefined();
 
       const template = Template.fromStack(mystack);
@@ -62,9 +61,6 @@ describe('SecurePostgresqlDb Construct', () => {
       template.resourceCountIs('AWS::RDS::DBParameterGroup', 1);
       template.resourceCountIs('AWS::RDS::DBSubnetGroup', 1);
       template.resourceCountIs('AWS::RDS::DBInstance', 1);
-      template.resourceCountIs('AWS::Backup::BackupPlan', 1);
-      template.resourceCountIs('AWS::Backup::BackupVault', 1);
-      template.resourceCountIs('AWS::Backup::BackupSelection', 1);
       template.resourceCountIs('AWS::CloudWatch::Alarm', 4);
       template.resourceCountIs('AWS::SSM::Parameter', 5);
     });
@@ -181,6 +177,9 @@ describe('SecurePostgresqlDb Construct', () => {
 
       // THEN
       template.hasResourceProperties('AWS::RDS::DBInstance', { DBInstanceIdentifier: 'my-db' });
+      template.hasResourceProperties('AWS::KMS::Key', {
+        Description: Match.stringLikeRegexp('.*for instance - my-db.*'),
+      });
     });
 
     test('Port', () => {
@@ -270,11 +269,43 @@ describe('SecurePostgresqlDb Construct', () => {
       template.hasResourceProperties('AWS::RDS::DBInstance', { MultiAZ: true });
     });
 
+    test('Auto Snapshot Retention', () => {
+      // WHEN
+      new SecurePostgresqlDb(mystack, 'db')
+        .vpcId('000000')
+        .instanceType(InstanceType.of(InstanceClass.T4G, InstanceSize.LARGE))
+        .autoSnapshotRetention(Duration.days(10))
+        .assemble();
+
+      const template = Template.fromStack(mystack);
+
+      // THEN
+      template.hasResourceProperties('AWS::RDS::DBInstance', { BackupRetentionPeriod: 10 });
+    });
+
+    test('Enable Backup Plan', () => {
+      // WHEN
+      const db = new SecurePostgresqlDb(mystack, 'db')
+        .vpcId('000000')
+        .instanceType(InstanceType.of(InstanceClass.T4G, InstanceSize.LARGE))
+        .enableBackupPlan(true)
+        .assemble();
+
+      const template = Template.fromStack(mystack);
+
+      // THEN
+      expect(db.backupPlan).toBeDefined();
+      template.resourceCountIs('AWS::Backup::BackupPlan', 1);
+      template.resourceCountIs('AWS::Backup::BackupVault', 1);
+      template.resourceCountIs('AWS::Backup::BackupSelection', 1);
+    });
+
     test('Backup Plan Rule Props', () => {
       // WHEN
       new SecurePostgresqlDb(mystack, 'db')
         .vpcId('000000')
         .instanceType(InstanceType.of(InstanceClass.T4G, InstanceSize.LARGE))
+        .enableBackupPlan(true)
         .backupPlanRuleProps({
           completionWindow: Duration.hours(1),
           startWindow: Duration.hours(2),

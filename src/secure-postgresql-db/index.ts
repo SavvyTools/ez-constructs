@@ -37,6 +37,8 @@ interface SecurePostgresqlDbProps {
   allocatedStorage?: number;
   maxAllocatedStorage?: number;
   multiAz?: boolean;
+  autoSnapshotRetention?: Duration;
+  enableBackupPlan?: boolean;
   backupPlanRuleProps?: BackupPlanRuleProps;
   alarmProps?: AlarmProps;
   snapshotArn?: string | null;
@@ -69,6 +71,8 @@ export class SecurePostgresqlDb extends EzConstruct {
     multiAz: false,
     overrideInstanceProps: { deletionProtection: false },
     additionalSecurityGroups: [],
+    autoSnapshotRetention: Duration.days(7),
+    enableBackupPlan: false,
     backupPlanRuleProps: {
       completionWindow: Duration.hours(4),
       startWindow: Duration.hours(1),
@@ -226,6 +230,31 @@ export class SecurePostgresqlDb extends EzConstruct {
   */
   public multiAz(multiAz: boolean): SecurePostgresqlDb {
     this._props.multiAz = multiAz;
+    return this;
+  }
+
+  /**
+  * Sets retention duration for automatic intsance snapshots
+  * This is entirely separate from the 'Backup Plan' configuration
+  * https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds.DatabaseInstance.html#backupretention
+  * @param autoSnapshotRetention
+  * @default false
+  * @returns SecurePostgresqlDb
+  */
+  public autoSnapshotRetention(autoSnapshotRetention: Duration): SecurePostgresqlDb {
+    this._props.autoSnapshotRetention = autoSnapshotRetention;
+    return this;
+  }
+
+  /**
+  * Creates a Backup Plan for the instance with AWS Backup
+  * https://aws.amazon.com/backup/
+  * @param enableBackupPlan
+  * @default false
+  * @returns SecurePostgresqlDb
+  */
+  public enableBackupPlan(enableBackupPlan: boolean): SecurePostgresqlDb {
+    this._props.enableBackupPlan = enableBackupPlan;
     return this;
   }
 
@@ -438,7 +467,7 @@ export class SecurePostgresqlDb extends EzConstruct {
       removalPolicy: RemovalPolicy.RETAIN,
       storageEncrypted: true,
       storageEncryptionKey: this.encryptionKey,
-      backupRetention: Duration.days(7),
+      backupRetention: this._props.autoSnapshotRetention,
       ...this._props.overrideInstanceProps,
     });
 
@@ -449,8 +478,15 @@ export class SecurePostgresqlDb extends EzConstruct {
   }
 
   private _createEncryptionKey() {
+    let desc = 'CDK generated RDS encryption key';
+    if (this._props.instanceIdentifier) {
+      desc += ` for instance - ${this._props.instanceIdentifier}`;
+    }
+    desc += `. STACK - ${cdk.Stack.of(this)}`;
+
     this.encryptionKey = new Key(this, 'DbKmsKey', {
-      description: `CDK generated database encryption key. STACK - ${cdk.Stack.of(this)}`,
+      alias: `rds-pgsql-key-${cdk.Stack.of(this)}`,
+      description: desc,
       enableKeyRotation: true,
     });
   }
@@ -513,10 +549,13 @@ export class SecurePostgresqlDb extends EzConstruct {
     this._createSecret();
     this._createSecurityGroup();
     this._createDbInstance();
-    this._createBackupPlan();
     this._createAlarms();
     this._createSSMParams();
     this._suppressNagRules();
+
+    if (this._props.enableBackupPlan) {
+      this._createBackupPlan();
+    }
 
     this._instanceTags.forEach((tag) => {
       Tags.of(this.instance).add(tag[0], tag[1]);
