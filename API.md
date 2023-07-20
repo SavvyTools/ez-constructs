@@ -1340,12 +1340,18 @@ The Github events which should trigger this build.
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#ez-constructs.GitEvent.PULL_REQUEST">PULL_REQUEST</a></code> | *No description.* |
+| <code><a href="#ez-constructs.GitEvent.PULL_REQUEST_MERGED">PULL_REQUEST_MERGED</a></code> | *No description.* |
 | <code><a href="#ez-constructs.GitEvent.PUSH">PUSH</a></code> | *No description.* |
 | <code><a href="#ez-constructs.GitEvent.ALL">ALL</a></code> | *No description.* |
 
 ---
 
 ##### `PULL_REQUEST` <a name="PULL_REQUEST" id="ez-constructs.GitEvent.PULL_REQUEST"></a>
+
+---
+
+
+##### `PULL_REQUEST_MERGED` <a name="PULL_REQUEST_MERGED" id="ez-constructs.GitEvent.PULL_REQUEST_MERGED"></a>
 
 ---
 
