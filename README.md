@@ -10,7 +10,6 @@ A collection of heaviliy opinionated AWS CDK highlevel constructs.
 ## Constructs
 1. [SecureBucket](src/secure-bucket) - Creates an S3 bucket that is secure, encrypted at rest along with object retention and intelligent transition rules
 2. [SimpleCodeBuildProject](src/codebuild-ci) - Creates Codebuild projects the easy way. 
-3. [SecurePostgresqlDb](src/secure-postgresql-db/) - Creates a secure Postgres RDS instance and accompanying resources.
 
 ## Libraries
 1. Utils - A collection of utility functions
