@@ -1021,7 +1021,26 @@ the permission boundary to attach to newly created roles.
 
 | **Name** | **Description** |
 | --- | --- |
+| <code><a href="#ez-constructs.PermissionsBoundaryAspect.modifyRolePath">modifyRolePath</a></code> | *No description.* |
 | <code><a href="#ez-constructs.PermissionsBoundaryAspect.visit">visit</a></code> | All aspects can visit an IConstruct. |
+
+---
+
+##### `modifyRolePath` <a name="modifyRolePath" id="ez-constructs.PermissionsBoundaryAspect.modifyRolePath"></a>
+
+```typescript
+public modifyRolePath(roleResource: CfnRole, stack: Stack): void
+```
+
+###### `roleResource`<sup>Required</sup> <a name="roleResource" id="ez-constructs.PermissionsBoundaryAspect.modifyRolePath.parameter.roleResource"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.CfnRole
+
+---
+
+###### `stack`<sup>Required</sup> <a name="stack" id="ez-constructs.PermissionsBoundaryAspect.modifyRolePath.parameter.stack"></a>
+
+- *Type:* aws-cdk-lib.Stack
 
 ---
 
