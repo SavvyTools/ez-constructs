@@ -1,4 +1,4 @@
-import { IAspect, Stack } from 'aws-cdk-lib';
+import { CustomResourceProvider, IAspect, Stack } from 'aws-cdk-lib';
 import { CfnRole, Role } from 'aws-cdk-lib/aws-iam';
 import { IConstruct } from 'constructs';
 
@@ -36,11 +36,8 @@ export class PermissionsBoundaryAspect implements IAspect {
     this.rolePermissionBoundary = rolePermissionBoundary;
   }
 
-  public visit(node: IConstruct): void {
-
-    if (node instanceof Role) {
-      const stack = Stack.of(node);
-      const roleResource = node.node.findChild('Resource') as CfnRole;
+  public modifyRolePath(roleResource: CfnRole, stack: Stack) {
+    if (roleResource) {
       // set the path if it is provided
       if (this.rolePath) {
         roleResource.addPropertyOverride('Path', this.rolePath);
@@ -49,6 +46,19 @@ export class PermissionsBoundaryAspect implements IAspect {
       if (this.rolePermissionBoundary && !this.rolePermissionBoundary.startsWith('arn:aws:iam')) {
         roleResource.addPropertyOverride('PermissionsBoundary', `arn:aws:iam::${stack.account}:policy/${this.rolePermissionBoundary}`);
       }
+    }
+  }
+  public visit(node: IConstruct): void {
+
+    if (node instanceof Role) {
+      const stack = Stack.of(node);
+      const resourceNode = node.node.findChild('Resource') as CfnRole;
+      this.modifyRolePath(resourceNode, stack);
+    }
+    if (node instanceof CustomResourceProvider) {
+      const stack = Stack.of(node);
+      const resourceNode = node.node.findChild('Role') as CfnRole;
+      this.modifyRolePath(resourceNode, stack);
     }
 
   }

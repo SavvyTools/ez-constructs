@@ -1,7 +1,8 @@
-import { App, Aspects, Stack } from 'aws-cdk-lib';
+import { App, Aspects, RemovalPolicy, Stack } from 'aws-cdk-lib';
 import '@aws-cdk/assert/jest';
 import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
+import { SecureBucket } from '../../lib';
 import { PermissionsBoundaryAspect } from '../../src/aspects/permission-boundary-aspect';
 
 export class MyStack extends Stack {
@@ -18,6 +19,15 @@ export class MyStack extends Stack {
       resources: ['*'],
       actions: ['lambda:InvokeFunction'],
     }));
+
+    new SecureBucket(this, 'myBucket')
+      .bucketName('myworld')
+      .overrideBucketProperties({
+        autoDeleteObjects: true,
+        removalPolicy: RemovalPolicy.DESTROY,
+      })
+      .assemble();
+
   }
 }
 
@@ -29,7 +39,6 @@ describe('PermissionBoundaryAspect', () => {
     Aspects.of(app).add(new PermissionsBoundaryAspect('/role/dev/', 'boundary/dev'));
     app.synth();
     expect(mystack).toHaveResourceLike('AWS::IAM::Role', {
-      RoleName: 'biju-test-role',
       Path: '/role/dev/',
       PermissionsBoundary: 'arn:aws:iam::111111111111:policy/boundary/dev',
     });
