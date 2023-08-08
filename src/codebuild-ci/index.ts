@@ -27,7 +27,6 @@ import { SecureBucket } from '../secure-bucket';
  */
 export enum GitEvent {
   PULL_REQUEST = 'pull_request',
-  PULL_REQUEST_MERGED = 'pull_request_merged',
   PUSH = 'push',
   ALL = 'all',
 }
@@ -418,13 +417,6 @@ export class SimpleCodebuildProject extends EzConstruct {
       fg1 = FilterGroup.inEventOf(EventAction.PULL_REQUEST_CREATED,
         EventAction.PULL_REQUEST_UPDATED,
         EventAction.PULL_REQUEST_REOPENED);
-      if (base) {
-        fg1 = fg1.andBaseBranchIs(base);
-      }
-    }
-
-    if (gitEvent == GitEvent.PULL_REQUEST_MERGED) {
-      fg1 = FilterGroup.inEventOf(EventAction.PULL_REQUEST_MERGED);
       if (base) {
         fg1 = fg1.andBaseBranchIs(base);
       }
