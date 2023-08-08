@@ -20,7 +20,7 @@
     "resolveJsonModule": true,
     "strict": true,
     "strictNullChecks": true,
-    "strictPropertyInitialization": true,
+    "strictPropertyInitialization": false,
     "stripInternal": true,
     "target": "ES2019"
   },
