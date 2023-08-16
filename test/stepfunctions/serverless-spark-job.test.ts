@@ -1,0 +1,187 @@
+import '@aws-cdk/assert/jest';
+import { App, Stack } from 'aws-cdk-lib';
+import { FileUtils, Utils, SimpleServerlessSparkJob } from '../../src';
+
+
+describe('SimpleServerlessSparkJob Construct', () => {
+
+  describe('Basic Serverless Spark Job', () => {
+    let myapp: App;
+    let mystack: Stack;
+
+    beforeEach(() => {
+      // GIVEN
+      myapp = new App();
+      mystack = new Stack(myapp, 'mystack', {
+        env: {
+          account: '111111111111',
+          region: 'us-east-1',
+        },
+      });
+    });
+
+    test('default job configuration template setup', () => {
+
+      // WHEN
+      new SimpleServerlessSparkJob(mystack, 'SingleFly')
+        .name('MyTestETL')
+        .jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
+        .applicationId('12345676')
+        .logBucket('mylogbucket')
+        .usingDefinition({
+          jobName: 'mytestjob',
+          entryPoint: 's3://aws-cms-amg-qpp-costscoring-artifact-dev-222224444433-us-east-1/biju_test_files/myspark-assembly.jar',
+          mainClass: 'serverless.SimpleSparkApp',
+          enableMonitoring: true,
+        })
+        .assemble();
+
+
+      // WITH a state machine named MyTestETL
+      expect(mystack).toHaveResourceLike('AWS::IAM::Role', {
+        RoleName: 'MyTestETLStateMachineRole',
+      });
+
+      // WITH a state machine named MyTestETL
+      expect(mystack).toHaveResourceLike('AWS::StepFunctions::StateMachine', {
+        StateMachineName: 'MyTestETL',
+      });
+
+
+    });
+
+    test('default job configuration string definition setup', () => {
+      let asl = FileUtils.readFile('test/stepfunctions/single-job-asl.json');
+
+      // WHEN
+      let etl = new SimpleServerlessSparkJob(mystack, 'SingleFly')
+        .name('MyTestETL')
+        .jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
+        .applicationId('12345676')
+        .logBucket('mylogbucket')
+        .usingDefinition(asl)
+        .assemble();
+
+      // THEN should have a modified ASL.
+      let definition = JSON.parse(etl.stateDefinition);
+      expect(definition).toBeDefined();
+      let params = definition.States.RunSparkJob.Parameters;
+      expect(params).toBeDefined();
+
+      // WITH async call back task token
+      expect(params.JobDriver.SparkSubmit['EntryPointArguments.$']).toEqual('States.Array($$.Task.Token)');
+
+      let monitoringConfiguration = params.ConfigurationOverrides.MonitoringConfiguration;
+      expect(monitoringConfiguration).toBeDefined();
+
+      // WITH logging to S3
+      expect(monitoringConfiguration.S3MonitoringConfiguration.LogUri).toEqual('s3://mylogbucket-111111111111-us-east-1/MyTestETL/mytestjob');
+
+      // WITH a 90 day log preservation period
+      expect(monitoringConfiguration.ManagedPersistenceMonitoringConfiguration.Enabled).toBeTruthy();
+
+      // WITH logging to MyTestETLLogGroup
+      expect(mystack).toHaveResourceLike('AWS::Logs::LogGroup', {
+        LogGroupName: 'MyTestETLLogGroup',
+        RetentionInDays: 90,
+      });
+
+      // WITH a state machine named MyTestETL
+      expect(mystack).toHaveResourceLike('AWS::StepFunctions::StateMachine', {
+        StateMachineName: 'MyTestETL',
+        DefinitionString: Utils.escapeDoubleQuotes(etl.stateDefinition),
+      });
+
+    });
+
+
+    test('multi job configuration string definition setup', () => {
+      let asl = FileUtils.readFile('test/stepfunctions/multi-job-asl.json');
+
+      // WHEN
+      let etl = new SimpleServerlessSparkJob(mystack, 'MultiFly')
+        .name('MyMultiTestETL')
+        .jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
+        .applicationId('12345676')
+        .logBucket('mylogbucket')
+        .usingDefinition(asl)
+        .withDefaultInputs({
+          name: 'Thrinath',
+          address: {
+            street: '123 Main St',
+            city: 'Seattle',
+            state: 'WA',
+            zip: '98101',
+          },
+        })
+        .assemble();
+
+      // THEN should have a modified ASL.
+      let definition = JSON.parse(etl.stateDefinition);
+      expect(definition).toBeDefined();
+
+      // WITH job one
+      let params = definition.States.RunSparkJobOne.Parameters;
+      expect(params).toBeDefined();
+
+      // WITH async call back task token
+      expect(params.JobDriver.SparkSubmit['EntryPointArguments.$']).toEqual('States.Array($$.Task.Token)');
+
+      let monitoringConfiguration = params.ConfigurationOverrides.MonitoringConfiguration;
+      expect(monitoringConfiguration).toBeDefined();
+
+      // WITH logging to S3
+      expect(monitoringConfiguration.S3MonitoringConfiguration.LogUri).toEqual('s3://mylogbucket-111111111111-us-east-1/MyMultiTestETL/mytestjobone');
+
+      // WITH a 90 day log preservation period
+      expect(monitoringConfiguration.ManagedPersistenceMonitoringConfiguration.Enabled).toBeTruthy();
+
+      // WITH logging to MyTestETLLogGroup
+      expect(mystack).toHaveResourceLike('AWS::Logs::LogGroup', {
+        LogGroupName: 'MyMultiTestETLLogGroup',
+        RetentionInDays: 90,
+      });
+
+      // WITH job two
+      params = definition.States.RunSparkJobTwo.Parameters;
+      expect(params).toBeDefined();
+
+      // WITH async call back task token
+      expect(params.JobDriver.SparkSubmit['EntryPointArguments.$']).toEqual('States.Array($$.Task.Token)');
+
+
+      // WITH a state machine named MyTestETL
+      expect(mystack).toHaveResourceLike('AWS::StepFunctions::StateMachine', {
+        StateMachineName: 'MyMultiTestETL',
+        DefinitionString: Utils.escapeDoubleQuotes(etl.stateDefinition),
+      });
+
+    });
+
+    test('default job configuration without spark job', () => {
+      let asl = FileUtils.readFile('test/stepfunctions/some-other-asl.json');
+
+      // WHEN
+      let etl = new SimpleServerlessSparkJob(mystack, 'SomeOther')
+        .name('MyTestETL')
+        .jobRole('path/to/a-role')
+        .applicationId('12345676')
+        .logBucket('mylogbucket')
+        .usingDefinition(asl)
+        .assemble();
+
+      // THEN should not have a modified ASL.
+      let definition = JSON.parse(etl.stateDefinition);
+      expect(definition).toBeDefined();
+      let modified = Object.values(definition.States).filter( value => {
+        // @ts-ignore
+        return value.Parameters && value.Parameters.JobDriver.SparkSubmit['EntryPointArguments.$'];
+      });
+
+      expect(modified).toEqual([]);
+
+    });
+
+  });
+
+});

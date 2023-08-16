@@ -783,6 +783,461 @@ The underlying codebuild project that is created by this construct.
 ---
 
 
+### SimpleServerlessSparkJob <a name="SimpleServerlessSparkJob" id="ez-constructs.SimpleServerlessSparkJob"></a>
+
+This construct will create a Step function workflow that can submit spark job.
+
+If you utilize the @see SandardSparkSubmitJobTemplate, the workflow generated will consist of a single spark job.
+If you need a much elaborate workflow, you can provide a string version of the state definition, while initializing the construct.
+
+> [StandardSparkSubmitJobTemplate. *  The `usingDefinition` method will take care of capturing variables, like `entryPoint`, `mainClass` etc .
+By default the step function during execution utilize those variable values as default.
+It is quite common that the JAR files used for the spark job may be different. To address that, 'EntryPoint` and `SparkSubmitParameters` variables are externalized and can be overriden during execution.
+```typescript
+new SimpleServerlessSparkJob(mystack, 'SingleFly')
+.name('MyTestETL')
+.jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
+.applicationId('12345676')
+.logBucket('mylogbucket-name')
+.usingDefinition({
+jobName: 'mytestjob',
+entryPoint: 's3://aws-cms-amg-qpp-costscoring-artifact-dev-222224444433-us-east-1/biju_test_files/myspark-assembly.jar',
+mainClass: 'serverless.SimpleSparkApp',
+enableMonitoring: true,
+})
+.assemble();
+```
+Having seen the above simple example, let us look at a more elaborate example, where the step function workflow is complex.
+It is possible to author the step function workflow JSON file and provide it as a string to the `usingDefinition` method.
+```typescript
+new SimpleServerlessSparkJob(mystackObj, 'MultiFly')
+.name('MyAwesomeETL')
+.jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
+.applicationId('12345676')
+.logBucket('mylogbucket-name')
+.usingDefinition("{...json step function string.... }")
+.assemble();
+```
+If we have to read differnent input parameters for the spark job, we can have variables that extract values from the context.
+```typescript
+new SimpleServerlessSparkJob(mystackObj, 'MultiFly')
+.name('MyAwesomeETL')
+.jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
+.applicationId('12345676')
+.logBucket('mylogbucket-name')
+.usingDefinition("{...json step function string.... }")
+.withDefaultInputs({"some":"thing", "other": "thing"})
+.assemble();
+```](StandardSparkSubmitJobTemplate. *  The `usingDefinition` method will take care of capturing variables, like `entryPoint`, `mainClass` etc .
+By default the step function during execution utilize those variable values as default.
+It is quite common that the JAR files used for the spark job may be different. To address that, 'EntryPoint` and `SparkSubmitParameters` variables are externalized and can be overriden during execution.
+```typescript
+new SimpleServerlessSparkJob(mystack, 'SingleFly')
+.name('MyTestETL')
+.jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
+.applicationId('12345676')
+.logBucket('mylogbucket-name')
+.usingDefinition({
+jobName: 'mytestjob',
+entryPoint: 's3://aws-cms-amg-qpp-costscoring-artifact-dev-222224444433-us-east-1/biju_test_files/myspark-assembly.jar',
+mainClass: 'serverless.SimpleSparkApp',
+enableMonitoring: true,
+})
+.assemble();
+```
+Having seen the above simple example, let us look at a more elaborate example, where the step function workflow is complex.
+It is possible to author the step function workflow JSON file and provide it as a string to the `usingDefinition` method.
+```typescript
+new SimpleServerlessSparkJob(mystackObj, 'MultiFly')
+.name('MyAwesomeETL')
+.jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
+.applicationId('12345676')
+.logBucket('mylogbucket-name')
+.usingDefinition("{...json step function string.... }")
+.assemble();
+```
+If we have to read differnent input parameters for the spark job, we can have variables that extract values from the context.
+```typescript
+new SimpleServerlessSparkJob(mystackObj, 'MultiFly')
+.name('MyAwesomeETL')
+.jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
+.applicationId('12345676')
+.logBucket('mylogbucket-name')
+.usingDefinition("{...json step function string.... }")
+.withDefaultInputs({"some":"thing", "other": "thing"})
+.assemble();
+```)
+
+*Example*
+
+```typescript
+ There are many instances where an ETL job may only have a single spark job. In such cases, you can use the
+```
+
+
+#### Initializers <a name="Initializers" id="ez-constructs.SimpleServerlessSparkJob.Initializer"></a>
+
+```typescript
+import { SimpleServerlessSparkJob } from 'ez-constructs'
+
+new SimpleServerlessSparkJob(scope: Construct, id: string)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+
+---
+
+##### `scope`<sup>Required</sup> <a name="scope" id="ez-constructs.SimpleServerlessSparkJob.Initializer.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="ez-constructs.SimpleServerlessSparkJob.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.applicationId">applicationId</a></code> | The serverless application ID, and to that application the jobs will be submitted. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.assemble">assemble</a></code> | Assembles the state machine for the workflow. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.jobRole">jobRole</a></code> | The role the spark job will assume while executing jobs in EMR. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.logBucket">logBucket</a></code> | A bucket to store the logs producee by the Spark jobs. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.name">name</a></code> | Sets the name of the step function workflow. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.tracingEnabled">tracingEnabled</a></code> | Determines if tracing the stepfunction workflow is enabled. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.usingDefinition">usingDefinition</a></code> | The workflow deriniton approach to use. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.withDefaultInputs">withDefaultInputs</a></code> | Default inputs of the spark jobs. |
+
+---
+
+##### `toString` <a name="toString" id="ez-constructs.SimpleServerlessSparkJob.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+##### `applicationId` <a name="applicationId" id="ez-constructs.SimpleServerlessSparkJob.applicationId"></a>
+
+```typescript
+public applicationId(applicaitonId: string): SimpleServerlessSparkJob
+```
+
+The serverless application ID, and to that application the jobs will be submitted.
+
+###### `applicaitonId`<sup>Required</sup> <a name="applicaitonId" id="ez-constructs.SimpleServerlessSparkJob.applicationId.parameter.applicaitonId"></a>
+
+- *Type:* string
+
+---
+
+##### `assemble` <a name="assemble" id="ez-constructs.SimpleServerlessSparkJob.assemble"></a>
+
+```typescript
+public assemble(stateMachineProps?: StateMachineProps): SimpleServerlessSparkJob
+```
+
+Assembles the state machine for the workflow.
+
+###### `stateMachineProps`<sup>Optional</sup> <a name="stateMachineProps" id="ez-constructs.SimpleServerlessSparkJob.assemble.parameter.stateMachineProps"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.StateMachineProps
+
+---
+
+##### `jobRole` <a name="jobRole" id="ez-constructs.SimpleServerlessSparkJob.jobRole"></a>
+
+```typescript
+public jobRole(name: string): SimpleServerlessSparkJob
+```
+
+The role the spark job will assume while executing jobs in EMR.
+
+###### `name`<sup>Required</sup> <a name="name" id="ez-constructs.SimpleServerlessSparkJob.jobRole.parameter.name"></a>
+
+- *Type:* string
+
+a qualified name including the path.
+
+e.g. `path/to/roleName`
+
+---
+
+##### `logBucket` <a name="logBucket" id="ez-constructs.SimpleServerlessSparkJob.logBucket"></a>
+
+```typescript
+public logBucket(bucket: string | IBucket): SimpleServerlessSparkJob
+```
+
+A bucket to store the logs producee by the Spark jobs.
+
+###### `bucket`<sup>Required</sup> <a name="bucket" id="ez-constructs.SimpleServerlessSparkJob.logBucket.parameter.bucket"></a>
+
+- *Type:* string | aws-cdk-lib.aws_s3.IBucket
+
+---
+
+##### `name` <a name="name" id="ez-constructs.SimpleServerlessSparkJob.name"></a>
+
+```typescript
+public name(name: string): SimpleServerlessSparkJob
+```
+
+Sets the name of the step function workflow.
+
+###### `name`<sup>Required</sup> <a name="name" id="ez-constructs.SimpleServerlessSparkJob.name.parameter.name"></a>
+
+- *Type:* string
+
+---
+
+##### `tracingEnabled` <a name="tracingEnabled" id="ez-constructs.SimpleServerlessSparkJob.tracingEnabled"></a>
+
+```typescript
+public tracingEnabled(enalbe: boolean): SimpleServerlessSparkJob
+```
+
+Determines if tracing the stepfunction workflow is enabled.
+
+Defaults to false.
+
+###### `enalbe`<sup>Required</sup> <a name="enalbe" id="ez-constructs.SimpleServerlessSparkJob.tracingEnabled.parameter.enalbe"></a>
+
+- *Type:* boolean
+
+---
+
+##### `usingDefinition` <a name="usingDefinition" id="ez-constructs.SimpleServerlessSparkJob.usingDefinition"></a>
+
+```typescript
+public usingDefinition(template: string | StandardSparkSubmitJobTemplate): SimpleServerlessSparkJob
+```
+
+The workflow deriniton approach to use.
+
+If a string is provided, it must be a valid step funtion workflow definition JSON string.
+If an object is provided, it must be a valid StandardSparkSubmitJobTemplate object.
+In the template, spark submit parameters are optional and mainClass is only required for Scala spark jobs.
+
+###### `template`<sup>Required</sup> <a name="template" id="ez-constructs.SimpleServerlessSparkJob.usingDefinition.parameter.template"></a>
+
+- *Type:* string | <a href="#ez-constructs.StandardSparkSubmitJobTemplate">StandardSparkSubmitJobTemplate</a>
+
+---
+
+##### `withDefaultInputs` <a name="withDefaultInputs" id="ez-constructs.SimpleServerlessSparkJob.withDefaultInputs"></a>
+
+```typescript
+public withDefaultInputs(params: any): SimpleServerlessSparkJob
+```
+
+Default inputs of the spark jobs.
+
+Example:-
+ ```
+ .withDefaultInputs({
+     "SparkSubmitParameters": {
+       "--conf spark.executor.memory=2g",
+       "--conf spark.executor.cores=2"
+     },
+     "greetings": "Good morning",
+     "personal": {
+       "name": "John Doe",
+       "age": 30
+     }
+  })
+ ```
+
+###### `params`<sup>Required</sup> <a name="params" id="ez-constructs.SimpleServerlessSparkJob.withDefaultInputs.parameter.params"></a>
+
+- *Type:* any
+
+---
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="ez-constructs.SimpleServerlessSparkJob.isConstruct"></a>
+
+```typescript
+import { SimpleServerlessSparkJob } from 'ez-constructs'
+
+SimpleServerlessSparkJob.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="ez-constructs.SimpleServerlessSparkJob.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateDefinition">stateDefinition</a></code> | <code>string</code> | The modified state definitoin string, if a string version of state definiton was utilized. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.StateMachine</code> | The state machine instance created by this construct. |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="ez-constructs.SimpleServerlessSparkJob.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `stateDefinition`<sup>Required</sup> <a name="stateDefinition" id="ez-constructs.SimpleServerlessSparkJob.property.stateDefinition"></a>
+
+```typescript
+public readonly stateDefinition: string;
+```
+
+- *Type:* string
+
+The modified state definitoin string, if a string version of state definiton was utilized.
+
+---
+
+##### `stateMachine`<sup>Required</sup> <a name="stateMachine" id="ez-constructs.SimpleServerlessSparkJob.property.stateMachine"></a>
+
+```typescript
+public readonly stateMachine: StateMachine;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.StateMachine
+
+The state machine instance created by this construct.
+
+---
+
+
+## Structs <a name="Structs" id="Structs"></a>
+
+### StandardSparkSubmitJobTemplate <a name="StandardSparkSubmitJobTemplate" id="ez-constructs.StandardSparkSubmitJobTemplate"></a>
+
+A standard spark submit job template.
+
+#### Initializer <a name="Initializer" id="ez-constructs.StandardSparkSubmitJobTemplate.Initializer"></a>
+
+```typescript
+import { StandardSparkSubmitJobTemplate } from 'ez-constructs'
+
+const standardSparkSubmitJobTemplate: StandardSparkSubmitJobTemplate = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#ez-constructs.StandardSparkSubmitJobTemplate.property.entryPoint">entryPoint</a></code> | <code>string</code> | The S3 URL of the spark application's main file in Amazon S3. |
+| <code><a href="#ez-constructs.StandardSparkSubmitJobTemplate.property.jobName">jobName</a></code> | <code>string</code> | The name of the job.*required*. |
+| <code><a href="#ez-constructs.StandardSparkSubmitJobTemplate.property.applicationConfiguration">applicationConfiguration</a></code> | <code>aws-cdk-lib.aws_stepfunctions_tasks.ApplicationConfiguration[]</code> | Any version of overrides to use while provisioning EMR job. |
+| <code><a href="#ez-constructs.StandardSparkSubmitJobTemplate.property.enableMonitoring">enableMonitoring</a></code> | <code>boolean</code> | True if monitoring must be enabled. |
+| <code><a href="#ez-constructs.StandardSparkSubmitJobTemplate.property.mainClass">mainClass</a></code> | <code>string</code> | The name of the application's main class,only applicable for Java/Scala Spark applications. |
+| <code><a href="#ez-constructs.StandardSparkSubmitJobTemplate.property.sparkSubmitParameters">sparkSubmitParameters</a></code> | <code>string</code> | The arguments to pass to the application. |
+
+---
+
+##### `entryPoint`<sup>Required</sup> <a name="entryPoint" id="ez-constructs.StandardSparkSubmitJobTemplate.property.entryPoint"></a>
+
+```typescript
+public readonly entryPoint: string;
+```
+
+- *Type:* string
+
+The S3 URL of the spark application's main file in Amazon S3.
+
+A jar file for Scala and Java Spark applications and a Python file for pySpark applications.
+
+---
+
+##### `jobName`<sup>Required</sup> <a name="jobName" id="ez-constructs.StandardSparkSubmitJobTemplate.property.jobName"></a>
+
+```typescript
+public readonly jobName: string;
+```
+
+- *Type:* string
+
+The name of the job.*required*.
+
+---
+
+##### `applicationConfiguration`<sup>Optional</sup> <a name="applicationConfiguration" id="ez-constructs.StandardSparkSubmitJobTemplate.property.applicationConfiguration"></a>
+
+```typescript
+public readonly applicationConfiguration: ApplicationConfiguration[];
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions_tasks.ApplicationConfiguration[]
+
+Any version of overrides to use while provisioning EMR job.
+
+---
+
+##### `enableMonitoring`<sup>Optional</sup> <a name="enableMonitoring" id="ez-constructs.StandardSparkSubmitJobTemplate.property.enableMonitoring"></a>
+
+```typescript
+public readonly enableMonitoring: boolean;
+```
+
+- *Type:* boolean
+
+True if monitoring must be enabled.
+
+Defaults to true.
+
+---
+
+##### `mainClass`<sup>Optional</sup> <a name="mainClass" id="ez-constructs.StandardSparkSubmitJobTemplate.property.mainClass"></a>
+
+```typescript
+public readonly mainClass: string;
+```
+
+- *Type:* string
+
+The name of the application's main class,only applicable for Java/Scala Spark applications.
+
+---
+
+##### `sparkSubmitParameters`<sup>Optional</sup> <a name="sparkSubmitParameters" id="ez-constructs.StandardSparkSubmitJobTemplate.property.sparkSubmitParameters"></a>
+
+```typescript
+public readonly sparkSubmitParameters: string;
+```
+
+- *Type:* string
+
+The arguments to pass to the application.
+
+---
 
 ## Classes <a name="Classes" id="Classes"></a>
 
@@ -1161,6 +1616,48 @@ Default ARN qualifier.
 
 ---
 
+### FileUtils <a name="FileUtils" id="ez-constructs.FileUtils"></a>
+
+#### Initializers <a name="Initializers" id="ez-constructs.FileUtils.Initializer"></a>
+
+```typescript
+import { FileUtils } from 'ez-constructs'
+
+new FileUtils()
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+
+---
+
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#ez-constructs.FileUtils.readFile">readFile</a></code> | Will read the file from the given path and return the content as a string. |
+
+---
+
+##### `readFile` <a name="readFile" id="ez-constructs.FileUtils.readFile"></a>
+
+```typescript
+import { FileUtils } from 'ez-constructs'
+
+FileUtils.readFile(path: string)
+```
+
+Will read the file from the given path and return the content as a string.
+
+###### `path`<sup>Required</sup> <a name="path" id="ez-constructs.FileUtils.readFile.parameter.path"></a>
+
+- *Type:* string
+
+---
+
+
+
 ### PermissionsBoundaryAspect <a name="PermissionsBoundaryAspect" id="ez-constructs.PermissionsBoundaryAspect"></a>
 
 - *Implements:* aws-cdk-lib.IAspect
@@ -1308,7 +1805,10 @@ new Utils()
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#ez-constructs.Utils.appendIfNecessary">appendIfNecessary</a></code> | Will append the suffix to the given name if the name do not contain the suffix. |
+| <code><a href="#ez-constructs.Utils.camelCase">camelCase</a></code> | Will convert the given string to camel case. |
+| <code><a href="#ez-constructs.Utils.contains">contains</a></code> | Will check if the given string is contained in another string. |
 | <code><a href="#ez-constructs.Utils.endsWith">endsWith</a></code> | Will check if the given string ends with the given suffix. |
+| <code><a href="#ez-constructs.Utils.escapeDoubleQuotes">escapeDoubleQuotes</a></code> | Will escape double quotes in the given string. |
 | <code><a href="#ez-constructs.Utils.isEmpty">isEmpty</a></code> | Will check if the given object is empty. |
 | <code><a href="#ez-constructs.Utils.kebabCase">kebabCase</a></code> | Will convert the given string to lower case and transform any spaces to hyphens. |
 | <code><a href="#ez-constructs.Utils.parseGithubUrl">parseGithubUrl</a></code> | Splits a given Github URL and extracts the owner and repo name. |
@@ -1345,6 +1845,50 @@ the string to append.
 
 ---
 
+##### `camelCase` <a name="camelCase" id="ez-constructs.Utils.camelCase"></a>
+
+```typescript
+import { Utils } from 'ez-constructs'
+
+Utils.camelCase(str: string)
+```
+
+Will convert the given string to camel case.
+
+###### `str`<sup>Required</sup> <a name="str" id="ez-constructs.Utils.camelCase.parameter.str"></a>
+
+- *Type:* string
+
+a string.
+
+---
+
+##### `contains` <a name="contains" id="ez-constructs.Utils.contains"></a>
+
+```typescript
+import { Utils } from 'ez-constructs'
+
+Utils.contains(str: string, s: string)
+```
+
+Will check if the given string is contained in another string.
+
+###### `str`<sup>Required</sup> <a name="str" id="ez-constructs.Utils.contains.parameter.str"></a>
+
+- *Type:* string
+
+a string.
+
+---
+
+###### `s`<sup>Required</sup> <a name="s" id="ez-constructs.Utils.contains.parameter.s"></a>
+
+- *Type:* string
+
+the string to check for.
+
+---
+
 ##### `endsWith` <a name="endsWith" id="ez-constructs.Utils.endsWith"></a>
 
 ```typescript
@@ -1368,6 +1912,22 @@ a string.
 - *Type:* string
 
 suffix to check.
+
+---
+
+##### `escapeDoubleQuotes` <a name="escapeDoubleQuotes" id="ez-constructs.Utils.escapeDoubleQuotes"></a>
+
+```typescript
+import { Utils } from 'ez-constructs'
+
+Utils.escapeDoubleQuotes(str: string)
+```
+
+Will escape double quotes in the given string.
+
+###### `str`<sup>Required</sup> <a name="str" id="ez-constructs.Utils.escapeDoubleQuotes.parameter.str"></a>
+
+- *Type:* string
 
 ---
 
