@@ -1,3 +1,22 @@
+# EZ Constructs
+A collection of heaviliy opinionated AWS CDK highlevel constructs.
+[construct.dev](https://constructs.dev/packages/ez-constructs/) || [npmjs](https://www.npmjs.com/package/ez-constructs)
+
+## Installation
+> The library requires AWS CDK version >= 2.7.0.
+
+` npm install ez-constructs` or ` yarn add ez-constructs`
+
+## Constructs
+1. [SecureBucket](src/secure-bucket) - Creates an S3 bucket that is secure, encrypted at rest along with object retention and intelligent transition rules
+2. [SimpleCodeBuildProject](src/codebuild-ci) - Creates Codebuild projects the easy way.
+
+## Libraries
+1. Utils - A collection of utility functions
+2. CustomSynthesizer - A custom CDK synthesizer that will alter the default service roles that CDK uses.
+
+## Aspects
+1. [PermissionsBoundaryAspect](src/aspects) - A custom aspect that can be used to apply a permission boundary to all roles created in the contex.
 # API Reference <a name="API Reference" id="api-reference"></a>
 
 ## Constructs <a name="Constructs" id="Constructs"></a>
@@ -49,7 +68,51 @@ public toString(): string
 
 Returns a string representation of this construct.
 
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#ez-constructs.EzConstruct.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="ez-constructs.EzConstruct.isConstruct"></a>
+
+```typescript
+import { EzConstruct } from 'ez-constructs'
+
+EzConstruct.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="ez-constructs.EzConstruct.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#ez-constructs.EzConstruct.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="ez-constructs.EzConstruct.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
 
 
 ### SecureBucket <a name="SecureBucket" id="ez-constructs.SecureBucket"></a>
@@ -65,11 +128,11 @@ Access limited to the owner
 Example:
 
 ```ts
-    let aBucket = new SecureBucket(mystack, 'secureBucket', {
-      bucketName: 'mybucket',
-      objectsExpireInDays: 500,
-      enforceSSL: false,
-     });
+   let aBucket = new SecureBucket(mystack, 'secureBucket', {
+     bucketName: 'mybucket',
+     objectsExpireInDays: 500,
+     enforceSSL: false,
+    });
 ```
 
 #### Initializers <a name="Initializers" id="ez-constructs.SecureBucket.Initializer"></a>
@@ -228,12 +291,50 @@ Adds access restrictions so that the access is allowed from the following VPCs.
 
 ---
 
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#ez-constructs.SecureBucket.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="ez-constructs.SecureBucket.isConstruct"></a>
+
+```typescript
+import { SecureBucket } from 'ez-constructs'
+
+SecureBucket.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="ez-constructs.SecureBucket.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
 
 #### Properties <a name="Properties" id="Properties"></a>
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
+| <code><a href="#ez-constructs.SecureBucket.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#ez-constructs.SecureBucket.property.bucket">bucket</a></code> | <code>aws-cdk-lib.aws_s3.Bucket</code> | The underlying S3 bucket created by this construct. |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="ez-constructs.SecureBucket.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
 
 ---
 
@@ -262,16 +363,16 @@ However, there can be additional organizational retention policies, for example 
 With this construct, you can easily create a basic CodeBuild project with many opinated defaults that are compliant with FISMA and NIST.
 
 Example, creates a project named `my-project`, with artifacts going to my-project-artifacts-<accountId>-<region>
-  and logs going to `/aws/codebuild/my-project` log group with a retention period of 90 days and 14 months respectively.
+ and logs going to `/aws/codebuild/my-project` log group with a retention period of 90 days and 14 months respectively.
 
 ```ts
-    new SimpleCodebuildProject(stack, 'MyProject')
-      .projectName('myproject')
-      .gitRepoUrl('https://github.com/bijujoseph/cloudbiolinux.git')
-      .gitBaseBranch('main')
-      .triggerEvent(GitEvent.PULL_REQUEST)
-      .buildSpecPath('buildspecs/my-pr-checker.yml')
-      .assemble();
+   new SimpleCodebuildProject(stack, 'MyProject')
+     .projectName('myproject')
+     .gitRepoUrl('https://github.com/bijujoseph/cloudbiolinux.git')
+     .gitBaseBranch('main')
+     .triggerEvent(GitEvent.PULL_REQUEST)
+     .buildSpecPath('buildspecs/my-pr-checker.yml')
+     .assemble();
 ```
 
 #### Initializers <a name="Initializers" id="ez-constructs.SimpleCodebuildProject.Initializer"></a>
@@ -406,7 +507,7 @@ public buildImage(buildImage: IBuildImage): SimpleCodebuildProject
 
 The build image to use.
 
-> [https://docs.aws.amazon.com/cdk/api/v1/docs/](https://docs.aws.amazon.com/cdk/api/v1/docs/)
+> [https://docs.aws.amazon.com/cdk/api/v1/docs/@aws-cdk_aws-codebuild.IBuildImage.html](https://docs.aws.amazon.com/cdk/api/v1/docs/@aws-cdk_aws-codebuild.IBuildImage.html)
 
 ###### `buildImage`<sup>Required</sup> <a name="buildImage" id="ez-constructs.SimpleCodebuildProject.buildImage.parameter.buildImage"></a>
 
@@ -622,12 +723,50 @@ Triggers build on push to specified branches.
 
 ---
 
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#ez-constructs.SimpleCodebuildProject.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="ez-constructs.SimpleCodebuildProject.isConstruct"></a>
+
+```typescript
+import { SimpleCodebuildProject } from 'ez-constructs'
+
+SimpleCodebuildProject.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="ez-constructs.SimpleCodebuildProject.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
 
 #### Properties <a name="Properties" id="Properties"></a>
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
+| <code><a href="#ez-constructs.SimpleCodebuildProject.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.property.project">project</a></code> | <code>aws-cdk-lib.aws_codebuild.Project</code> | The underlying codebuild project that is created by this construct. |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="ez-constructs.SimpleCodebuildProject.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
 
 ---
 
@@ -655,22 +794,20 @@ In order to adhere with such compliance requirements, the CDK bootstrapping is o
 (refer: https://docs.aws.amazon.com/cdk/v2/guide/bootstrapping.html#bootstrapping-customizing).
 So, we need to ensure that parallel customization is applied during synthesis phase.
 This Custom Synthesizer is used to modify the default path of the following IAM Roles internally used by CDK:
-  - deploy role
-  - file-publishing-role
-  - image-publishing-role
-  - cfn-exec-role
-  - lookup-role
+ - deploy role
+ - file-publishing-role
+ - image-publishing-role
+ - cfn-exec-role
+ - lookup-role
 
-> [PermissionsBoundaryAspect
-
+> [PermissionsBoundaryAspect *
 Example Usage:
 ```ts
 new DbStack(app, config.id('apiDbStack'), {
 env: {account: '123456789012', region: 'us-east-1'},
 synthesizer: new CustomSynthesizer('/banking/dev/'),
 });
-```](PermissionsBoundaryAspect
-
+```](PermissionsBoundaryAspect *
 Example Usage:
 ```ts
 new DbStack(app, config.id('apiDbStack'), {
@@ -707,6 +844,7 @@ new CustomSynthesizer(rolePath: string)
 | <code><a href="#ez-constructs.CustomSynthesizer.addFileAsset">addFileAsset</a></code> | Register a File Asset. |
 | <code><a href="#ez-constructs.CustomSynthesizer.bind">bind</a></code> | Bind to the stack this environment is going to be used on. |
 | <code><a href="#ez-constructs.CustomSynthesizer.synthesize">synthesize</a></code> | Synthesize the associated stack to the session. |
+| <code><a href="#ez-constructs.CustomSynthesizer.reusableBind">reusableBind</a></code> | Produce a bound Stack Synthesizer for the given stack. |
 
 ---
 
@@ -719,6 +857,12 @@ public addDockerImageAsset(asset: DockerImageAssetSource): DockerImageAssetLocat
 Register a Docker Image Asset.
 
 Returns the parameters that can be used to refer to the asset inside the template.
+
+The synthesizer must rely on some out-of-band mechanism to make sure the given files
+are actually placed in the returned location before the deployment happens. This can
+be by writing the instructions to the asset manifest (for use by the `cdk-assets` tool),
+by relying on the CLI to upload files (legacy behavior), or some other operator controlled
+mechanism.
 
 ###### `asset`<sup>Required</sup> <a name="asset" id="ez-constructs.CustomSynthesizer.addDockerImageAsset.parameter.asset"></a>
 
@@ -735,6 +879,12 @@ public addFileAsset(asset: FileAssetSource): FileAssetLocation
 Register a File Asset.
 
 Returns the parameters that can be used to refer to the asset inside the template.
+
+The synthesizer must rely on some out-of-band mechanism to make sure the given files
+are actually placed in the returned location before the deployment happens. This can
+be by writing the instructions to the asset manifest (for use by the `cdk-assets` tool),
+by relying on the CLI to upload files (legacy behavior), or some other operator controlled
+mechanism.
 
 ###### `asset`<sup>Required</sup> <a name="asset" id="ez-constructs.CustomSynthesizer.addFileAsset.parameter.asset"></a>
 
@@ -772,13 +922,55 @@ Synthesize the associated stack to the session.
 
 ---
 
+##### `reusableBind` <a name="reusableBind" id="ez-constructs.CustomSynthesizer.reusableBind"></a>
+
+```typescript
+public reusableBind(stack: Stack): IBoundStackSynthesizer
+```
+
+Produce a bound Stack Synthesizer for the given stack.
+
+This method may be called more than once on the same object.
+
+###### `stack`<sup>Required</sup> <a name="stack" id="ez-constructs.CustomSynthesizer.reusableBind.parameter.stack"></a>
+
+- *Type:* aws-cdk-lib.Stack
+
+---
+
 
 #### Properties <a name="Properties" id="Properties"></a>
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
+| <code><a href="#ez-constructs.CustomSynthesizer.property.bootstrapQualifier">bootstrapQualifier</a></code> | <code>string</code> | The qualifier used to bootstrap this stack. |
+| <code><a href="#ez-constructs.CustomSynthesizer.property.lookupRole">lookupRole</a></code> | <code>string</code> | The role used to lookup for this stack. |
 | <code><a href="#ez-constructs.CustomSynthesizer.property.cloudFormationExecutionRoleArn">cloudFormationExecutionRoleArn</a></code> | <code>string</code> | Returns the ARN of the CFN execution Role. |
 | <code><a href="#ez-constructs.CustomSynthesizer.property.deployRoleArn">deployRoleArn</a></code> | <code>string</code> | Returns the ARN of the deploy Role. |
+
+---
+
+##### `bootstrapQualifier`<sup>Optional</sup> <a name="bootstrapQualifier" id="ez-constructs.CustomSynthesizer.property.bootstrapQualifier"></a>
+
+```typescript
+public readonly bootstrapQualifier: string;
+```
+
+- *Type:* string
+
+The qualifier used to bootstrap this stack.
+
+---
+
+##### `lookupRole`<sup>Optional</sup> <a name="lookupRole" id="ez-constructs.CustomSynthesizer.property.lookupRole"></a>
+
+```typescript
+public readonly lookupRole: string;
+```
+
+- *Type:* string
+
+The role used to lookup for this stack.
 
 ---
 
@@ -981,9 +1173,9 @@ So it is a laborious and at times impossible to get a handle of newly created ro
 This aspect will scan all roles within the given scope and will attach the right permission boundary and path to them.
 Example:
 ```ts
-    const app = new App();
-    const mystack = new MyStack(app, 'MyConstruct'); // assuming this will create a role by name `myCodeBuildRole` with admin access.
-    Aspects.of(app).add(new PermissionsBoundaryAspect('/my/devroles/', 'boundary/dev-max'));
+   const app = new App();
+   const mystack = new MyStack(app, 'MyConstruct'); // assuming this will create a role by name `myCodeBuildRole` with admin access.
+   Aspects.of(app).add(new PermissionsBoundaryAspect('/my/devroles/', 'boundary/dev-max'));
 ```
 
 #### Initializers <a name="Initializers" id="ez-constructs.PermissionsBoundaryAspect.Initializer"></a>
