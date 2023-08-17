@@ -570,5 +570,4 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
   }
 
 
-
 }

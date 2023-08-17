@@ -3,15 +3,15 @@ A collection of heaviliy opinionated AWS CDK highlevel constructs.
 [construct.dev](https://constructs.dev/packages/ez-constructs/) || [npmjs](https://www.npmjs.com/package/ez-constructs)
 
 ## Installation
-> The library requires AWS CDK version >= 2.7.0.
+> The library requires AWS CDK version >= 2.92.0.
 
 ` npm install ez-constructs` or ` yarn add ez-constructs`
 
 ## Constructs
 1. [SecureBucket](src/secure-bucket) - Creates an S3 bucket that is secure, encrypted at rest along with object retention and intelligent transition rules
 2. [SimpleCodeBuildProject](src/codebuild-ci) - Creates Codebuild projects the easy way.
-3. [SimpleStepFunction](src/step-function) - Creates a simple step function user supplied workflow definition file.
-4. [SimpleServerlessSparkJob](src/stepfunctions) - Creates a step function that can be used to submit a spark job to EMR.
+3. [SimpleStepFunction](src/stepfunctions#simplestepfunction) - Creates a simple step function user supplied workflow definition file.
+4. [SimpleServerlessSparkJob](stepfunctions#simpleserverlesssparkjob) - Creates a step function that can be used to submit a spark job to EMR.
 
 ## Libraries
 1. Utils - A collection of utility functions
@@ -796,8 +796,7 @@ If you need a much elaborate workflow, you can provide a string version of the s
 By default the step function during execution utilize those variable values as default.
 It is quite common that the JAR files used for the spark job may be different. To address that, 'EntryPoint` and `SparkSubmitParameters` variables are externalized and can be overriden during execution.
 ```typescript
-new SimpleServerlessSparkJob(mystack, 'SingleFly')
-.name('MyTestETL')
+new SimpleServerlessSparkJob(mystack, 'SingleFly', 'MyTestETL)
 .jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
 .applicationId('12345676')
 .logBucket('mylogbucket-name')
@@ -812,8 +811,7 @@ enableMonitoring: true,
 Having seen the above simple example, let us look at a more elaborate example, where the step function workflow is complex.
 It is possible to author the step function workflow JSON file and provide it as a string to the `usingDefinition` method.
 ```typescript
-new SimpleServerlessSparkJob(mystackObj, 'MultiFly')
-.name('MyAwesomeETL')
+new SimpleServerlessSparkJob(mystackObj, 'MultiFly', 'MyAwesomeETL)
 .jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
 .applicationId('12345676')
 .logBucket('mylogbucket-name')
@@ -834,8 +832,7 @@ new SimpleServerlessSparkJob(mystackObj, 'MultiFly')
 By default the step function during execution utilize those variable values as default.
 It is quite common that the JAR files used for the spark job may be different. To address that, 'EntryPoint` and `SparkSubmitParameters` variables are externalized and can be overriden during execution.
 ```typescript
-new SimpleServerlessSparkJob(mystack, 'SingleFly')
-.name('MyTestETL')
+new SimpleServerlessSparkJob(mystack, 'SingleFly', 'MyTestETL)
 .jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
 .applicationId('12345676')
 .logBucket('mylogbucket-name')
@@ -850,8 +847,7 @@ enableMonitoring: true,
 Having seen the above simple example, let us look at a more elaborate example, where the step function workflow is complex.
 It is possible to author the step function workflow JSON file and provide it as a string to the `usingDefinition` method.
 ```typescript
-new SimpleServerlessSparkJob(mystackObj, 'MultiFly')
-.name('MyAwesomeETL')
+new SimpleServerlessSparkJob(mystackObj, 'MultiFly', 'MyAwesomeETL)
 .jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
 .applicationId('12345676')
 .logBucket('mylogbucket-name')
@@ -922,6 +918,7 @@ new SimpleServerlessSparkJob(scope: Construct, id: string, stepFunctionName: str
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.createStateMachine">createStateMachine</a></code> | Creates state machine from the given props. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.createStateMachineCloudWatchLogGroup">createStateMachineCloudWatchLogGroup</a></code> | creates bucket to store state machine logs. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.createStateMachineRole">createStateMachineRole</a></code> | creates state machine role. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.generateDefaultStateMachinePermissions">generateDefaultStateMachinePermissions</a></code> | Will add default permisisons to the step function role. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.grantPassRole">grantPassRole</a></code> | Grants pass role permissions to the state machine role. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.modifyStateDefinition">modifyStateDefinition</a></code> | Modifies the supplied state definition string version of workflow defintion to include logging and tracing. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.usingChainableDefinition">usingChainableDefinition</a></code> | *No description.* |
@@ -1039,6 +1036,14 @@ creates state machine role.
 - *Type:* string
 
 ---
+
+##### `generateDefaultStateMachinePermissions` <a name="generateDefaultStateMachinePermissions" id="ez-constructs.SimpleServerlessSparkJob.generateDefaultStateMachinePermissions"></a>
+
+```typescript
+public generateDefaultStateMachinePermissions(): void
+```
+
+Will add default permisisons to the step function role.
 
 ##### `grantPassRole` <a name="grantPassRole" id="ez-constructs.SimpleServerlessSparkJob.grantPassRole"></a>
 
@@ -1408,6 +1413,7 @@ new SimpleStepFunction(scope: Construct, id: string, stepFunctionName: string)
 | <code><a href="#ez-constructs.SimpleStepFunction.createStateMachine">createStateMachine</a></code> | Creates state machine from the given props. |
 | <code><a href="#ez-constructs.SimpleStepFunction.createStateMachineCloudWatchLogGroup">createStateMachineCloudWatchLogGroup</a></code> | creates bucket to store state machine logs. |
 | <code><a href="#ez-constructs.SimpleStepFunction.createStateMachineRole">createStateMachineRole</a></code> | creates state machine role. |
+| <code><a href="#ez-constructs.SimpleStepFunction.generateDefaultStateMachinePermissions">generateDefaultStateMachinePermissions</a></code> | Will add default permisisons to the step function role. |
 | <code><a href="#ez-constructs.SimpleStepFunction.grantPassRole">grantPassRole</a></code> | Grants pass role permissions to the state machine role. |
 | <code><a href="#ez-constructs.SimpleStepFunction.modifyStateDefinition">modifyStateDefinition</a></code> | Modifies the supplied state definition string version of workflow defintion to include logging and tracing. |
 | <code><a href="#ez-constructs.SimpleStepFunction.usingChainableDefinition">usingChainableDefinition</a></code> | *No description.* |
@@ -1521,6 +1527,14 @@ creates state machine role.
 - *Type:* string
 
 ---
+
+##### `generateDefaultStateMachinePermissions` <a name="generateDefaultStateMachinePermissions" id="ez-constructs.SimpleStepFunction.generateDefaultStateMachinePermissions"></a>
+
+```typescript
+public generateDefaultStateMachinePermissions(): void
+```
+
+Will add default permisisons to the step function role.
 
 ##### `grantPassRole` <a name="grantPassRole" id="ez-constructs.SimpleStepFunction.grantPassRole"></a>
 
