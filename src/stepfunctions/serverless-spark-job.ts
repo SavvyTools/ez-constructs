@@ -130,6 +130,13 @@ export class SimpleStepFunction extends EzConstruct {
     return stateMachine;
   }
 
+  /**
+   * Will add default permisisons to the step function role
+   */
+  generateDefaultStateMachinePermissions(): void {
+    // do nothing
+  }
+
 
   public addPolicy(policy: PolicyStatement): SimpleStepFunction {
     this._policies.push(policy);
@@ -223,6 +230,7 @@ export class SimpleStepFunction extends EzConstruct {
       destination,
     );
 
+    this.generateDefaultStateMachinePermissions();
     let props = Utils.merge(defaults, stateMachineProps);
     this._stateMachine = this.createStateMachine(props);
     return this;
@@ -310,8 +318,7 @@ export interface StandardSparkSubmitJobTemplate {
  *  By default the step function during execution utilize those variable values as default.
  *  It is quite common that the JAR files used for the spark job may be different. To address that, 'EntryPoint` and `SparkSubmitParameters` variables are externalized and can be overriden during execution.
  * ```typescript
- * new SimpleServerlessSparkJob(mystack, 'SingleFly')
- *  .name('MyTestETL')
+ * new SimpleServerlessSparkJob(mystack, 'SingleFly', 'MyTestETL)
  *  .jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
  *  .applicationId('12345676')
  *  .logBucket('mylogbucket-name')
@@ -326,8 +333,7 @@ export interface StandardSparkSubmitJobTemplate {
  * Having seen the above simple example, let us look at a more elaborate example, where the step function workflow is complex.
  * It is possible to author the step function workflow JSON file and provide it as a string to the `usingDefinition` method.
  * ```typescript
- *  new SimpleServerlessSparkJob(mystackObj, 'MultiFly')
- *  .name('MyAwesomeETL')
+ *  new SimpleServerlessSparkJob(mystackObj, 'MultiFly', 'MyAwesomeETL)
  *  .jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
  *  .applicationId('12345676')
  *  .logBucket('mylogbucket-name')
@@ -549,6 +555,18 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
     this._singleSparkJobTemplate = sparkJobTemplate;
     super.usingChainableDefinition(this.createStateDefinition());
     return this;
+  }
+
+
+  /**
+   * Will add default permisisons to the step function role
+   */
+  override generateDefaultStateMachinePermissions(): void {
+    super.addPolicy(new PolicyStatement({
+      actions: ['emr-serverless:StartJobRun'],
+      resources: [this._applicationArn!, `${this._applicationArn!}/jobruns/*`],
+    }));
+
   }
 
 
