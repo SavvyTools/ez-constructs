@@ -9,6 +9,16 @@ const project = new awscdk.AwsCdkConstructLibrary({
   license: 'Apache-2.0',
   jsiiVersion: '~5.0.0',
   projenrcTs: true,
+  tsconfig: {
+    compilerOptions: {
+      strictPropertyInitialization: false,
+    },
+  },
+  tsconfigDev: {
+    compilerOptions: {
+      strictPropertyInitialization: false,
+    },
+  },
   gitignore: [
     'cdk.context.json',
     'cdk.out/',

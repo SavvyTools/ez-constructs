@@ -1,0 +1,36 @@
+{
+  "StartAt": "RunSparkJob",
+  "States": {
+    "RunSparkJob": {
+      "Next": "Success",
+      "Type": "Task",
+      "ResultPath": "$.JobStatus",
+      "Resource": "arn:aws:states:::aws-sdk:emrserverless:startJobRun.waitForTaskToken",
+      "Catch":[
+        {
+          "ErrorEquals":["States.ALL"],
+          "Next":"Fail"
+        }
+      ],
+      "Parameters": {
+        "ApplicationId": "00fc9h569evui609",
+        "ClientToken.$": "States.UUID()",
+        "Name": "mytestjob",
+        "ExecutionRoleArn": "arn:aws:iam::123456789012:role/delegatedadmin/developer/blames-emr-serverless-job-role",
+        "ExecutionTimeoutMinutes": 5,
+        "JobDriver": {
+          "SparkSubmit": {
+            "EntryPoint": "s3://aws-cms-amg-qpp-costscoring-artifact-dev-222224444433-us-east-1/biju_test_files/myspark-assembly.jar",
+            "SparkSubmitParameters": "--class serverless.SimpleSparkApp"
+          }
+        }
+      }
+    },
+    "Fail": {
+      "Type": "Succeed"
+    },
+    "Success": {
+      "Type": "Succeed"
+    }
+  }
+}

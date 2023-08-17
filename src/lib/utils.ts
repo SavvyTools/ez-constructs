@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { readFileSync } from 'fs';
 import { Stack } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
 import { NagSuppressions } from 'cdk-nag';
@@ -73,6 +74,20 @@ export class Utils {
   }
 
   /**
+   * Will convert the given string to camel case.
+   * @param str - a string
+   */
+  public static camelCase(str: string): string {
+    return _.camelCase(str);
+  }
+
+  /**
+   * Will escape double quotes in the given string.
+   */
+  public static escapeDoubleQuotes(str: string): string {
+    return _.replace(str, new RegExp('"', 'g'), '\"');
+  }
+  /**
    * Splits a given Github URL and extracts the owner and repo name
    * @param url
    */
@@ -122,6 +137,33 @@ export class Utils {
       id: ruleId,
       reason: reason || `${ruleId} is not needed in this context (${scope.node.id}).`,
     }], true);
+  }
+
+  /**
+   * Will check if the given string is contained in another string.
+   * @param str - a string
+   * @param s - the string to check for
+   */
+  public static contains(str: string, s: string): boolean {
+    return _.includes(str, s);
+  }
+
+  /**
+   * Merges two objects
+   */
+  public static merge(obj1: any, obj2: any): any {
+    return _.merge(obj1, obj2);
+  }
+
+}
+
+export class FileUtils {
+  /**
+   * Will read the file from the given path and return the content as a string.
+   * @param path
+   */
+  public static readFile(path: string): string {
+    return readFileSync(path, 'utf8');
   }
 
 }

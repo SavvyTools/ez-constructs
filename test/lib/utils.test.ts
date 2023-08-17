@@ -63,6 +63,18 @@ describe('Utils', () => {
 
   });
 
+  describe('escapeDoublQuotes', () => {
+
+    test('should escape correctly double quotes', () => {
+      expect(Utils.escapeDoubleQuotes('{"hello": "world"}')).toEqual('{\"hello\": \"world\"}');
+    });
+
+    test('should not escape anything when double quotes is not available', () => {
+      expect(Utils.escapeDoubleQuotes('hello world')).toEqual('hello world');
+    });
+
+  });
+
   describe('parseGithubUrl', () => {
 
     test('should get the right owner and repo name for org repos', () => {
