@@ -8,7 +8,7 @@ import {
   Condition,
   DefinitionBody,
   Errors,
-  Fail,
+  Fail, IChainable,
   IntegrationPattern,
   LogLevel,
   Pass,
@@ -21,21 +21,248 @@ import { Construct } from 'constructs';
 import { EzConstruct } from '../ez-construct';
 import { Utils } from '../lib/utils';
 
-export class StepFunctionBase extends EzConstruct {
+export class SimpleStepFunction extends EzConstruct {
 
-  protected _account: string;
-  protected _region: string;
 
-  protected readonly scope: Construct;
+  /** @internal */ _account: string = '';
+  /** @internal */ _region: string = '';
+  /** @internal */ _name: string = '';
+
+  /** @internal */ _policies: PolicyStatement[] = [];
+  /** @internal */ _stateMachine?: StateMachine;
+  /** @internal */ _stateMachineRole?: IRole;
+  /** @internal */ _stateDefinition?: IChainable | string;
+  /** @internal */ _stateDefinitionBody?: DefinitionBody;
+  /** @internal */ _defaultInputs: any = {};
+  /** @internal */ _grantee?: IRole;
+
+  private readonly _scope: Construct;
   private readonly _id: string;
 
-  constructor(scope: Construct, id: string) {
+
+  constructor(scope: Construct, id: string, stepFunctionName: string) {
     super(scope, id);
 
-    this.scope = scope;
+    this._scope = scope;
     this._id = id;
+    this._name = stepFunctionName;
     this._account = Stack.of(scope).account;
     this._region = Stack.of(scope).region;
+  }
+
+  get account(): string {
+    return this._account;
+  }
+
+  get region(): string {
+    return this._region;
+  }
+
+  get scope(): Construct {
+    return this._scope;
+  }
+
+  get id(): string {
+    return this._id;
+  }
+
+  get defaultInputs(): any {
+    return this._defaultInputs;
+  }
+
+  /**
+   * The state machine instance created by this construct.
+   * @returns {StateMachine}
+   */
+  get stateMachine(): StateMachine {
+    return this._stateMachine!;
+  }
+
+  get policies(): PolicyStatement[] {
+    return this._policies;
+  }
+
+  get stateMachineRole(): IRole {
+    return this._stateMachineRole!;
+  }
+
+  /**
+   * Returns the state definition as a string if the original state definition used was string.
+   * Otherwise returns empty string.
+   */
+  get stateDefinitionAsString(): string {
+    if (typeof this._stateDefinition === 'string') {
+      return this._stateDefinition;
+    }
+    return '';
+  }
+
+  /**
+   * Sets the state definition, and if type of the value passed is a string,
+   * will also set the stateDefinition when it is a string.
+   * @param value
+   */
+  set stateDefinition(value: IChainable | string) {
+    if (typeof value === 'string') {
+      this._stateDefinition = value;
+      this._stateDefinitionBody = DefinitionBody.fromString(value);
+    } else {
+      this._stateDefinitionBody = DefinitionBody.fromChainable(value);
+    }
+  }
+
+
+  /**
+   * Returns the state definition body object
+   */
+  get stateDefinitionBody(): DefinitionBody {
+    return this._stateDefinitionBody!;
+  }
+
+  /**
+   * Creates state machine from the given props
+   * @param stateMachineProps
+   */
+  public createStateMachine(stateMachineProps: StateMachineProps): StateMachine {
+    let stateMachine = new StateMachine(this.scope, 'StateMachine', stateMachineProps);
+    this.policies.forEach(p => stateMachine.addToRolePolicy(p));
+    this._grantee?.grantPassRole(stateMachine.role);
+    return stateMachine;
+  }
+
+
+  public addPolicy(policy: PolicyStatement): SimpleStepFunction {
+    this._policies.push(policy);
+    return this;
+  }
+
+  usingStringDefinition(stateDefinition: string): SimpleStepFunction {
+    this.stateDefinition = this.modifyStateDefinition(stateDefinition);
+    return this;
+  }
+
+  public usingChainableDefinition(stateDefinition: IChainable): SimpleStepFunction {
+    this.stateDefinition = stateDefinition;
+    return this;
+  }
+
+  /**
+   * Modifies the supplied state definition string version of workflow defintion to include logging and tracing.
+   * @param stateDef - the state definition string
+   * @private
+   */
+  modifyStateDefinition(stateDef:string): string {
+    let definition = JSON.parse(stateDef);
+    if (!Utils.isEmpty(this.defaultInputs)) {
+      definition.States.DefineDefaults = {
+        Type: 'Pass',
+        ResultPath: '$.inputDefaults',
+        Next: 'ApplyDefaults',
+        Parameters: {
+          ...this.defaultInputs,
+        },
+      };
+      definition.States.ApplyDefaults = {
+        Type: 'Pass',
+        Next: definition.StartAt,
+        ResultPath: '$.withDefaults',
+        OutputPath: '$.withDefaults.args',
+        Parameters: {
+          'args.$': 'States.JsonMerge($.inputDefaults, $$.Execution.Input, false)',
+        },
+      };
+      definition.StartAt = 'DefineDefaults';
+
+    }
+    return JSON.stringify(definition);
+  }
+
+
+  /**
+   * Default inputs of the spark jobs. Example:-
+   *  ```
+   *  .withDefaultInputs({
+   *      "SparkSubmitParameters": {
+   *        "--conf spark.executor.memory=2g",
+   *        "--conf spark.executor.cores=2"
+   *      },
+   *      "greetings": "Good morning",
+   *      "personal": {
+   *        "name": "John Doe",
+   *        "age": 30
+   *      }
+   *   })
+   *  ```
+   * @param params
+   */
+  withDefaultInputs(params: any): SimpleStepFunction {
+    this._defaultInputs = params;
+    return this;
+  }
+
+  /**
+   * Grants pass role permissions to the state machine role
+   */
+  public grantPassRole(role: IRole): SimpleStepFunction {
+    this._grantee = role;
+    return this;
+  }
+
+  /**
+   * Assembles the state machine.
+   * @param stateMachineProps
+   */
+  assemble(stateMachineProps?: StateMachineProps): SimpleStepFunction {
+    this._stateMachineRole = this.createStateMachineRole(this._name);
+    let destination = this.createStateMachineCloudWatchLogGroup(this._name);
+
+    let defaults = this.createDefaultStateMachineProps(
+      this._name,
+      this.stateMachineRole,
+      this.stateDefinitionBody,
+      destination,
+    );
+
+    let props = Utils.merge(defaults, stateMachineProps);
+    this._stateMachine = this.createStateMachine(props);
+    return this;
+  }
+
+
+  /**
+   * creates state machine role
+   */
+  public createStateMachineRole(stateMachineName: string): IRole {
+    return new Role(this.scope, 'StateMachineRole', {
+      roleName: `${stateMachineName}StateMachineRole`,
+      assumedBy: new ServicePrincipal('states.amazonaws.com'),
+    });
+  }
+
+  /**
+   * creates bucket to store state machine logs
+   */
+  public createStateMachineCloudWatchLogGroup(stateMachineName: string): LogGroup {
+    return new LogGroup(this.scope, 'LogGroup', {
+      removalPolicy: RemovalPolicy.DESTROY,
+      retention: RetentionDays.THREE_MONTHS,
+      logGroupName: `${stateMachineName}LogGroup`,
+    });
+  }
+
+  public createDefaultStateMachineProps(stateMachineName: string, stateMachineRole: IRole,
+    definitionBody: DefinitionBody, logGroup: LogGroup): StateMachineProps {
+    return {
+      definitionBody: definitionBody,
+      stateMachineName: stateMachineName,
+      role: stateMachineRole,
+      tracingEnabled: false,
+      logs: {
+        level: LogLevel.ALL,
+        includeExecutionData: false,
+        destination: logGroup,
+      },
+    };
   }
 }
 /**
@@ -120,93 +347,19 @@ export interface StandardSparkSubmitJobTemplate {
  *  ```
  *
  */
-export class SimpleServerlessSparkJob extends StepFunctionBase {
+export class SimpleServerlessSparkJob extends SimpleStepFunction {
 
   private _logBucket?: IBucket;
-  private _jobRole: IRole;
-  private _jobRoleArn: string;
+  private _jobRole?: IRole;
+  private _jobRoleArn?: string;
 
-  private _stateDefinition: string;
   private _singleSparkJobTemplate?: StandardSparkSubmitJobTemplate;
 
-  private _name: string;
+  private _applicationId?: string | undefined ;
+  private _applicationArn?: string | undefined ;
 
-  private _applicationId: string;
-  private _applicationArn: string;
-
-  private _stateMachine: StateMachine;
-  private _stateMachineRole: IRole;
-
-  private _tracingEnabled: boolean = true;
-
-  private _defaultInputs: any;
-
-  constructor(scope: Construct, id: string) {
-    super(scope, id);
-  }
-
-  /**
-   * The state machine instance created by this construct.
-   * @returns {StateMachine}
-   */
-  get stateMachine(): StateMachine {
-    return this._stateMachine;
-  }
-
-  /**
-   * The modified state definitoin string, if a string version of state definiton was utilized.
-   * @returns {string}
-   */
-  get stateDefinition(): string {
-    return this._stateDefinition;
-  }
-
-  /**
-   * Sets the name of the step function workflow.
-   * @param name
-   */
-  name(name: string): SimpleServerlessSparkJob {
-    this._name = name;
-    return this;
-  }
-
-  /**
-   * The workflow deriniton approach to use. If a string is provided, it must be a valid step funtion workflow definition JSON string.
-   * If an object is provided, it must be a valid StandardSparkSubmitJobTemplate object.
-   * In the template, spark submit parameters are optional and mainClass is only required for Scala spark jobs.
-   * @param template
-   */
-  usingDefinition(template: StandardSparkSubmitJobTemplate | string): SimpleServerlessSparkJob {
-
-    if (typeof template === 'string') {
-      this._stateDefinition = template;
-    } else {
-      this._singleSparkJobTemplate = template;
-    }
-
-    return this;
-  }
-
-  /**
-   * Default inputs of the spark jobs. Example:-
-   *  ```
-   *  .withDefaultInputs({
-   *      "SparkSubmitParameters": {
-   *        "--conf spark.executor.memory=2g",
-   *        "--conf spark.executor.cores=2"
-   *      },
-   *      "greetings": "Good morning",
-   *      "personal": {
-   *        "name": "John Doe",
-   *        "age": 30
-   *      }
-   *   })
-   *  ```
-   * @param params
-   */
-  withDefaultInputs(params: any): SimpleServerlessSparkJob {
-    this._defaultInputs = params;
-    return this;
+  constructor(scope: Construct, id: string, stepFunctionName: string) {
+    super(scope, id, stepFunctionName);
   }
 
   /**
@@ -216,6 +369,7 @@ export class SimpleServerlessSparkJob extends StepFunctionBase {
   jobRole(name: string): SimpleServerlessSparkJob {
     this._jobRole = Role.fromRoleName(this.scope, 'JobRole', name);
     this.regeneateJobRoleArn();
+    this.grantPassRole(this._jobRole);
     return this;
   }
 
@@ -237,21 +391,11 @@ export class SimpleServerlessSparkJob extends StepFunctionBase {
 
     if (typeof bucket === 'string') {
       this._logBucket = Bucket.fromBucketName(this.scope, 'LoggingBucket',
-        Utils.appendIfNecessary(bucket, this._account, this._region));
+        Utils.appendIfNecessary(bucket, this.account, this.region));
       return this;
     }
 
     this._logBucket = bucket;
-    return this;
-  }
-
-  /**
-   * Determines if tracing the stepfunction workflow is enabled. Defaults to false.
-   * @param enalbe
-   */
-
-  tracingEnabled(enalbe: boolean): SimpleServerlessSparkJob {
-    this._tracingEnabled = enalbe;
     return this;
   }
 
@@ -261,7 +405,7 @@ export class SimpleServerlessSparkJob extends StepFunctionBase {
       service: 'iam',
       resource: 'role',
       region: '',
-      resourceName: Arn.extractResourceName(this._jobRole.roleArn, 'role'),
+      resourceName: Arn.extractResourceName(this._jobRole?.roleArn!, 'role'),
       arnFormat: ArnFormat.SLASH_RESOURCE_NAME,
     }));
 
@@ -296,35 +440,17 @@ export class SimpleServerlessSparkJob extends StepFunctionBase {
 
   /**
    * Modifies the supplied state definition string version of workflow defintion to include logging and tracing.
-   * @param stateDef - the state definition string
+   * @param aDef - the state definition string
    * @private
    */
-  private modifyStateDefinition(stateDef:string): string {
-    let definition = JSON.parse(stateDef);
-    if (this._defaultInputs) {
-      definition.States.DefineDefaults = {
-        Type: 'Pass',
-        ResultPath: '$.inputDefaults',
-        Next: 'ApplyDefaults',
-        Parameters: {
-          ...this._defaultInputs,
-        },
-      };
-      definition.States.ApplyDefaults = {
-        Type: 'Pass',
-        Next: definition.StartAt,
-        ResultPath: '$.withDefaults',
-        OutputPath: '$.withDefaults.args',
-        Parameters: {
-          'args.$': 'States.JsonMerge($.inputDefaults, $$.Execution.Input, false)',
-        },
-      };
-      definition.StartAt = 'DefineDefaults';
+  override modifyStateDefinition(aDef:string): string {
 
-    }
+    let stateDef = super.modifyStateDefinition(aDef);
+    let definition = JSON.parse(stateDef);
 
     // iterate through the States object within the definition as key/value pairs
-    Object.entries(definition.States).forEach(([key, value]) => {
+    Object.values(definition.States).forEach((v) => {
+      let value = v as any;
       if (value.Resource == 'arn:aws:states:::aws-sdk:emrserverless:startJobRun.waitForTaskToken') {
         let params = value.Parameters;
         params.ExecutionRoleArn = this._jobRoleArn;
@@ -345,21 +471,20 @@ export class SimpleServerlessSparkJob extends StepFunctionBase {
    * Will create a state definition object based on the supplied StandardSparkSubmitJobTemplate object.
    * @private
    */
-  private createStateDefinition(): DefinitionBody {
+  private createStateDefinition(): IChainable {
 
     let sparkSubmitParams = this._singleSparkJobTemplate?.sparkSubmitParameters;
     if (this._singleSparkJobTemplate?.mainClass) {
       sparkSubmitParams = `--main ${this._singleSparkJobTemplate.mainClass} ${sparkSubmitParams}`;
     }
 
-    this._defaultInputs = this._defaultInputs || {};
-    this._defaultInputs.EntryPoint = this._singleSparkJobTemplate?.entryPoint;
-    this._defaultInputs.SparkSubmitParameters = sparkSubmitParams;
+    this.defaultInputs.EntryPoint = this._singleSparkJobTemplate?.entryPoint;
+    this.defaultInputs.SparkSubmitParameters = sparkSubmitParams;
 
     let loadDefaultsState = new Pass(this.scope, 'LoadDefaults', {
       resultPath: '$.inputDefaults',
       parameters: {
-        ...this._defaultInputs,
+        ...this.defaultInputs,
       },
     });
 
@@ -383,7 +508,7 @@ export class SimpleServerlessSparkJob extends StepFunctionBase {
       service: 'emrserverless',
       action: 'startJobRun',
       integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-      iamResources: [this._applicationArn],
+      iamResources: [this._applicationArn!],
       resultPath: '$.JobStatus',
       parameters: {
         'ApplicationId': this._applicationId,
@@ -404,67 +529,25 @@ export class SimpleServerlessSparkJob extends StepFunctionBase {
     });
 
 
-    return DefinitionBody.fromChainable(loadDefaultsState
+    return loadDefaultsState
       .next(applyDefaultsState)
       .next(runJobState)
       .next(
         new Choice(this, 'Job Complete ?')
           .when(Condition.stringEquals('$.status', 'SUCCEEDED'), successState)
           .otherwise(failState),
-      ));
+      );
 
   }
 
+
   /**
-   * Assembles the state machine for the workflow.
-   * @param stateMachineProps
+   * Will create a state definition object based on the supplied StandardSparkSubmitJobTemplate object.
+   * @param sparkJobTemplate
    */
-  assemble(stateMachineProps?: StateMachineProps): SimpleServerlessSparkJob {
-
-    this._stateMachineRole = new Role(this.scope, 'StateMachineRole', {
-      roleName: `${this._name}StateMachineRole`,
-      assumedBy: new ServicePrincipal('states.amazonaws.com'),
-    });
-
-    let destination = new LogGroup(this.scope, 'LogGroup', {
-      removalPolicy: RemovalPolicy.DESTROY,
-      retention: RetentionDays.THREE_MONTHS,
-      logGroupName: `${this._name}LogGroup`,
-    });
-
-    let definitionBody = undefined;
-
-    if (this._stateDefinition) {
-      this._stateDefinition = this.modifyStateDefinition(this._stateDefinition);
-      definitionBody = DefinitionBody.fromString(this._stateDefinition);
-    } else {
-      definitionBody = this.createStateDefinition();
-    }
-
-    let defaultStateMachineProps: StateMachineProps = {
-      definitionBody: definitionBody,
-      stateMachineName: this._name,
-      role: this._stateMachineRole,
-      tracingEnabled: this._tracingEnabled,
-      logs: {
-        level: LogLevel.ALL,
-        includeExecutionData: false,
-        destination: destination,
-      },
-    };
-
-    let props:StateMachineProps = Object.assign({}, defaultStateMachineProps, stateMachineProps);
-    this._stateMachine = this._stateMachine = new StateMachine(this.scope, 'StateMachine', props);
-
-    // allow stepfunctions to invoke spark jobs in emr
-    this._stateMachine.addToRolePolicy(new PolicyStatement({
-      actions: ['emr-serverless:StartJobRun'],
-      resources: [this._applicationArn, `${this._applicationArn}/jobruns/*`],
-    }));
-
-    // ensure that passRole permission is granted
-    this._jobRole.grantPassRole(this._stateMachine.role);
-
+  usingSparkJobTemplate(sparkJobTemplate: StandardSparkSubmitJobTemplate): SimpleServerlessSparkJob {
+    this._singleSparkJobTemplate = sparkJobTemplate;
+    super.usingChainableDefinition(this.createStateDefinition());
     return this;
   }
 

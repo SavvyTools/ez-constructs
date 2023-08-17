@@ -148,6 +148,13 @@ export class Utils {
     return _.includes(str, s);
   }
 
+  /**
+   * Merges two objects
+   */
+  public static merge(obj1: any, obj2: any): any {
+    return _.merge(obj1, obj2);
+  }
+
 }
 
 export class FileUtils {

@@ -23,12 +23,11 @@ describe('SimpleServerlessSparkJob Construct', () => {
     test('default job configuration template setup', () => {
 
       // WHEN
-      new SimpleServerlessSparkJob(mystack, 'SingleFly')
-        .name('MyTestETL')
+      new SimpleServerlessSparkJob(mystack, 'SingleFly', 'MyTestETL')
         .jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
         .applicationId('12345676')
         .logBucket('mylogbucket')
-        .usingDefinition({
+        .usingSparkJobTemplate({
           jobName: 'mytestjob',
           entryPoint: 's3://aws-cms-amg-qpp-costscoring-artifact-dev-222224444433-us-east-1/biju_test_files/myspark-assembly.jar',
           mainClass: 'serverless.SimpleSparkApp',
@@ -54,16 +53,18 @@ describe('SimpleServerlessSparkJob Construct', () => {
       let asl = FileUtils.readFile('test/stepfunctions/single-job-asl.json');
 
       // WHEN
-      let etl = new SimpleServerlessSparkJob(mystack, 'SingleFly')
-        .name('MyTestETL')
+      let etl = new SimpleServerlessSparkJob(mystack, 'SingleFly', 'MyTestETL')
         .jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
         .applicationId('12345676')
         .logBucket('mylogbucket')
-        .usingDefinition(asl)
+        .usingStringDefinition(asl)
+        .withDefaultInputs({
+          crazy: 'day',
+        })
         .assemble();
 
       // THEN should have a modified ASL.
-      let definition = JSON.parse(etl.stateDefinition);
+      let definition = JSON.parse(etl.stateDefinitionAsString);
       expect(definition).toBeDefined();
       let params = definition.States.RunSparkJob.Parameters;
       expect(params).toBeDefined();
@@ -89,7 +90,7 @@ describe('SimpleServerlessSparkJob Construct', () => {
       // WITH a state machine named MyTestETL
       expect(mystack).toHaveResourceLike('AWS::StepFunctions::StateMachine', {
         StateMachineName: 'MyTestETL',
-        DefinitionString: Utils.escapeDoubleQuotes(etl.stateDefinition),
+        DefinitionString: Utils.escapeDoubleQuotes(etl.stateDefinitionAsString),
       });
 
     });
@@ -99,12 +100,11 @@ describe('SimpleServerlessSparkJob Construct', () => {
       let asl = FileUtils.readFile('test/stepfunctions/multi-job-asl.json');
 
       // WHEN
-      let etl = new SimpleServerlessSparkJob(mystack, 'MultiFly')
-        .name('MyMultiTestETL')
+      let etl = new SimpleServerlessSparkJob(mystack, 'MultiFly', 'MyMultiTestETL')
         .jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
         .applicationId('12345676')
         .logBucket('mylogbucket')
-        .usingDefinition(asl)
+        .usingStringDefinition(asl)
         .withDefaultInputs({
           name: 'Thrinath',
           address: {
@@ -117,7 +117,7 @@ describe('SimpleServerlessSparkJob Construct', () => {
         .assemble();
 
       // THEN should have a modified ASL.
-      let definition = JSON.parse(etl.stateDefinition);
+      let definition = JSON.parse(etl.stateDefinitionAsString!);
       expect(definition).toBeDefined();
 
       // WITH job one
@@ -153,7 +153,7 @@ describe('SimpleServerlessSparkJob Construct', () => {
       // WITH a state machine named MyTestETL
       expect(mystack).toHaveResourceLike('AWS::StepFunctions::StateMachine', {
         StateMachineName: 'MyMultiTestETL',
-        DefinitionString: Utils.escapeDoubleQuotes(etl.stateDefinition),
+        DefinitionString: Utils.escapeDoubleQuotes(etl.stateDefinitionAsString),
       });
 
     });
@@ -162,17 +162,17 @@ describe('SimpleServerlessSparkJob Construct', () => {
       let asl = FileUtils.readFile('test/stepfunctions/some-other-asl.json');
 
       // WHEN
-      let etl = new SimpleServerlessSparkJob(mystack, 'SomeOther')
-        .name('MyTestETL')
+      let etl = new SimpleServerlessSparkJob(mystack, 'SomeOther', 'MyTestETL')
         .jobRole('path/to/a-role')
         .applicationId('12345676')
         .logBucket('mylogbucket')
-        .usingDefinition(asl)
+        .usingStringDefinition(asl)
         .assemble();
 
       // THEN should not have a modified ASL.
-      let definition = JSON.parse(etl.stateDefinition);
+      let definition = JSON.parse(etl.stateDefinitionAsString);
       expect(definition).toBeDefined();
+      // @ts-ignore
       let modified = Object.values(definition.States).filter( value => {
         // @ts-ignore
         return value.Parameters && value.Parameters.JobDriver.SparkSubmit['EntryPointArguments.$'];

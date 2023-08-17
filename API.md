@@ -880,13 +880,14 @@ new SimpleServerlessSparkJob(mystackObj, 'MultiFly')
 ```typescript
 import { SimpleServerlessSparkJob } from 'ez-constructs'
 
-new SimpleServerlessSparkJob(scope: Construct, id: string)
+new SimpleServerlessSparkJob(scope: Construct, id: string, stepFunctionName: string)
 ```
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.Initializer.parameter.stepFunctionName">stepFunctionName</a></code> | <code>string</code> | *No description.* |
 
 ---
 
@@ -902,19 +903,32 @@ new SimpleServerlessSparkJob(scope: Construct, id: string)
 
 ---
 
+##### `stepFunctionName`<sup>Required</sup> <a name="stepFunctionName" id="ez-constructs.SimpleServerlessSparkJob.Initializer.parameter.stepFunctionName"></a>
+
+- *Type:* string
+
+---
+
 #### Methods <a name="Methods" id="Methods"></a>
 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.addPolicy">addPolicy</a></code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.assemble">assemble</a></code> | Assembles the state machine. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.createDefaultStateMachineProps">createDefaultStateMachineProps</a></code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.createStateMachine">createStateMachine</a></code> | Creates state machine from the given props. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.createStateMachineCloudWatchLogGroup">createStateMachineCloudWatchLogGroup</a></code> | creates bucket to store state machine logs. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.createStateMachineRole">createStateMachineRole</a></code> | creates state machine role. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.grantPassRole">grantPassRole</a></code> | Grants pass role permissions to the state machine role. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.modifyStateDefinition">modifyStateDefinition</a></code> | Modifies the supplied state definition string version of workflow defintion to include logging and tracing. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.usingChainableDefinition">usingChainableDefinition</a></code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.usingStringDefinition">usingStringDefinition</a></code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.withDefaultInputs">withDefaultInputs</a></code> | Default inputs of the spark jobs. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.applicationId">applicationId</a></code> | The serverless application ID, and to that application the jobs will be submitted. |
-| <code><a href="#ez-constructs.SimpleServerlessSparkJob.assemble">assemble</a></code> | Assembles the state machine for the workflow. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.jobRole">jobRole</a></code> | The role the spark job will assume while executing jobs in EMR. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.logBucket">logBucket</a></code> | A bucket to store the logs producee by the Spark jobs. |
-| <code><a href="#ez-constructs.SimpleServerlessSparkJob.name">name</a></code> | Sets the name of the step function workflow. |
-| <code><a href="#ez-constructs.SimpleServerlessSparkJob.tracingEnabled">tracingEnabled</a></code> | Determines if tracing the stepfunction workflow is enabled. |
-| <code><a href="#ez-constructs.SimpleServerlessSparkJob.usingDefinition">usingDefinition</a></code> | The workflow deriniton approach to use. |
-| <code><a href="#ez-constructs.SimpleServerlessSparkJob.withDefaultInputs">withDefaultInputs</a></code> | Default inputs of the spark jobs. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.usingSparkJobTemplate">usingSparkJobTemplate</a></code> | Will create a state definition object based on the supplied StandardSparkSubmitJobTemplate object. |
 
 ---
 
@@ -925,6 +939,187 @@ public toString(): string
 ```
 
 Returns a string representation of this construct.
+
+##### `addPolicy` <a name="addPolicy" id="ez-constructs.SimpleServerlessSparkJob.addPolicy"></a>
+
+```typescript
+public addPolicy(policy: PolicyStatement): SimpleStepFunction
+```
+
+###### `policy`<sup>Required</sup> <a name="policy" id="ez-constructs.SimpleServerlessSparkJob.addPolicy.parameter.policy"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.PolicyStatement
+
+---
+
+##### `assemble` <a name="assemble" id="ez-constructs.SimpleServerlessSparkJob.assemble"></a>
+
+```typescript
+public assemble(stateMachineProps?: StateMachineProps): SimpleStepFunction
+```
+
+Assembles the state machine.
+
+###### `stateMachineProps`<sup>Optional</sup> <a name="stateMachineProps" id="ez-constructs.SimpleServerlessSparkJob.assemble.parameter.stateMachineProps"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.StateMachineProps
+
+---
+
+##### `createDefaultStateMachineProps` <a name="createDefaultStateMachineProps" id="ez-constructs.SimpleServerlessSparkJob.createDefaultStateMachineProps"></a>
+
+```typescript
+public createDefaultStateMachineProps(stateMachineName: string, stateMachineRole: IRole, definitionBody: DefinitionBody, logGroup: LogGroup): StateMachineProps
+```
+
+###### `stateMachineName`<sup>Required</sup> <a name="stateMachineName" id="ez-constructs.SimpleServerlessSparkJob.createDefaultStateMachineProps.parameter.stateMachineName"></a>
+
+- *Type:* string
+
+---
+
+###### `stateMachineRole`<sup>Required</sup> <a name="stateMachineRole" id="ez-constructs.SimpleServerlessSparkJob.createDefaultStateMachineProps.parameter.stateMachineRole"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IRole
+
+---
+
+###### `definitionBody`<sup>Required</sup> <a name="definitionBody" id="ez-constructs.SimpleServerlessSparkJob.createDefaultStateMachineProps.parameter.definitionBody"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.DefinitionBody
+
+---
+
+###### `logGroup`<sup>Required</sup> <a name="logGroup" id="ez-constructs.SimpleServerlessSparkJob.createDefaultStateMachineProps.parameter.logGroup"></a>
+
+- *Type:* aws-cdk-lib.aws_logs.LogGroup
+
+---
+
+##### `createStateMachine` <a name="createStateMachine" id="ez-constructs.SimpleServerlessSparkJob.createStateMachine"></a>
+
+```typescript
+public createStateMachine(stateMachineProps: StateMachineProps): StateMachine
+```
+
+Creates state machine from the given props.
+
+###### `stateMachineProps`<sup>Required</sup> <a name="stateMachineProps" id="ez-constructs.SimpleServerlessSparkJob.createStateMachine.parameter.stateMachineProps"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.StateMachineProps
+
+---
+
+##### `createStateMachineCloudWatchLogGroup` <a name="createStateMachineCloudWatchLogGroup" id="ez-constructs.SimpleServerlessSparkJob.createStateMachineCloudWatchLogGroup"></a>
+
+```typescript
+public createStateMachineCloudWatchLogGroup(stateMachineName: string): LogGroup
+```
+
+creates bucket to store state machine logs.
+
+###### `stateMachineName`<sup>Required</sup> <a name="stateMachineName" id="ez-constructs.SimpleServerlessSparkJob.createStateMachineCloudWatchLogGroup.parameter.stateMachineName"></a>
+
+- *Type:* string
+
+---
+
+##### `createStateMachineRole` <a name="createStateMachineRole" id="ez-constructs.SimpleServerlessSparkJob.createStateMachineRole"></a>
+
+```typescript
+public createStateMachineRole(stateMachineName: string): IRole
+```
+
+creates state machine role.
+
+###### `stateMachineName`<sup>Required</sup> <a name="stateMachineName" id="ez-constructs.SimpleServerlessSparkJob.createStateMachineRole.parameter.stateMachineName"></a>
+
+- *Type:* string
+
+---
+
+##### `grantPassRole` <a name="grantPassRole" id="ez-constructs.SimpleServerlessSparkJob.grantPassRole"></a>
+
+```typescript
+public grantPassRole(role: IRole): SimpleStepFunction
+```
+
+Grants pass role permissions to the state machine role.
+
+###### `role`<sup>Required</sup> <a name="role" id="ez-constructs.SimpleServerlessSparkJob.grantPassRole.parameter.role"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IRole
+
+---
+
+##### `modifyStateDefinition` <a name="modifyStateDefinition" id="ez-constructs.SimpleServerlessSparkJob.modifyStateDefinition"></a>
+
+```typescript
+public modifyStateDefinition(aDef: string): string
+```
+
+Modifies the supplied state definition string version of workflow defintion to include logging and tracing.
+
+###### `aDef`<sup>Required</sup> <a name="aDef" id="ez-constructs.SimpleServerlessSparkJob.modifyStateDefinition.parameter.aDef"></a>
+
+- *Type:* string
+
+the state definition string.
+
+---
+
+##### `usingChainableDefinition` <a name="usingChainableDefinition" id="ez-constructs.SimpleServerlessSparkJob.usingChainableDefinition"></a>
+
+```typescript
+public usingChainableDefinition(stateDefinition: IChainable): SimpleStepFunction
+```
+
+###### `stateDefinition`<sup>Required</sup> <a name="stateDefinition" id="ez-constructs.SimpleServerlessSparkJob.usingChainableDefinition.parameter.stateDefinition"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.IChainable
+
+---
+
+##### `usingStringDefinition` <a name="usingStringDefinition" id="ez-constructs.SimpleServerlessSparkJob.usingStringDefinition"></a>
+
+```typescript
+public usingStringDefinition(stateDefinition: string): SimpleStepFunction
+```
+
+###### `stateDefinition`<sup>Required</sup> <a name="stateDefinition" id="ez-constructs.SimpleServerlessSparkJob.usingStringDefinition.parameter.stateDefinition"></a>
+
+- *Type:* string
+
+---
+
+##### `withDefaultInputs` <a name="withDefaultInputs" id="ez-constructs.SimpleServerlessSparkJob.withDefaultInputs"></a>
+
+```typescript
+public withDefaultInputs(params: any): SimpleStepFunction
+```
+
+Default inputs of the spark jobs.
+
+Example:-
+ ```
+ .withDefaultInputs({
+     "SparkSubmitParameters": {
+       "--conf spark.executor.memory=2g",
+       "--conf spark.executor.cores=2"
+     },
+     "greetings": "Good morning",
+     "personal": {
+       "name": "John Doe",
+       "age": 30
+     }
+  })
+ ```
+
+###### `params`<sup>Required</sup> <a name="params" id="ez-constructs.SimpleServerlessSparkJob.withDefaultInputs.parameter.params"></a>
+
+- *Type:* any
+
+---
 
 ##### `applicationId` <a name="applicationId" id="ez-constructs.SimpleServerlessSparkJob.applicationId"></a>
 
@@ -937,20 +1132,6 @@ The serverless application ID, and to that application the jobs will be submitte
 ###### `applicaitonId`<sup>Required</sup> <a name="applicaitonId" id="ez-constructs.SimpleServerlessSparkJob.applicationId.parameter.applicaitonId"></a>
 
 - *Type:* string
-
----
-
-##### `assemble` <a name="assemble" id="ez-constructs.SimpleServerlessSparkJob.assemble"></a>
-
-```typescript
-public assemble(stateMachineProps?: StateMachineProps): SimpleServerlessSparkJob
-```
-
-Assembles the state machine for the workflow.
-
-###### `stateMachineProps`<sup>Optional</sup> <a name="stateMachineProps" id="ez-constructs.SimpleServerlessSparkJob.assemble.parameter.stateMachineProps"></a>
-
-- *Type:* aws-cdk-lib.aws_stepfunctions.StateMachineProps
 
 ---
 
@@ -986,80 +1167,17 @@ A bucket to store the logs producee by the Spark jobs.
 
 ---
 
-##### `name` <a name="name" id="ez-constructs.SimpleServerlessSparkJob.name"></a>
+##### `usingSparkJobTemplate` <a name="usingSparkJobTemplate" id="ez-constructs.SimpleServerlessSparkJob.usingSparkJobTemplate"></a>
 
 ```typescript
-public name(name: string): SimpleServerlessSparkJob
+public usingSparkJobTemplate(sparkJobTemplate: StandardSparkSubmitJobTemplate): SimpleServerlessSparkJob
 ```
 
-Sets the name of the step function workflow.
+Will create a state definition object based on the supplied StandardSparkSubmitJobTemplate object.
 
-###### `name`<sup>Required</sup> <a name="name" id="ez-constructs.SimpleServerlessSparkJob.name.parameter.name"></a>
+###### `sparkJobTemplate`<sup>Required</sup> <a name="sparkJobTemplate" id="ez-constructs.SimpleServerlessSparkJob.usingSparkJobTemplate.parameter.sparkJobTemplate"></a>
 
-- *Type:* string
-
----
-
-##### `tracingEnabled` <a name="tracingEnabled" id="ez-constructs.SimpleServerlessSparkJob.tracingEnabled"></a>
-
-```typescript
-public tracingEnabled(enalbe: boolean): SimpleServerlessSparkJob
-```
-
-Determines if tracing the stepfunction workflow is enabled.
-
-Defaults to false.
-
-###### `enalbe`<sup>Required</sup> <a name="enalbe" id="ez-constructs.SimpleServerlessSparkJob.tracingEnabled.parameter.enalbe"></a>
-
-- *Type:* boolean
-
----
-
-##### `usingDefinition` <a name="usingDefinition" id="ez-constructs.SimpleServerlessSparkJob.usingDefinition"></a>
-
-```typescript
-public usingDefinition(template: string | StandardSparkSubmitJobTemplate): SimpleServerlessSparkJob
-```
-
-The workflow deriniton approach to use.
-
-If a string is provided, it must be a valid step funtion workflow definition JSON string.
-If an object is provided, it must be a valid StandardSparkSubmitJobTemplate object.
-In the template, spark submit parameters are optional and mainClass is only required for Scala spark jobs.
-
-###### `template`<sup>Required</sup> <a name="template" id="ez-constructs.SimpleServerlessSparkJob.usingDefinition.parameter.template"></a>
-
-- *Type:* string | <a href="#ez-constructs.StandardSparkSubmitJobTemplate">StandardSparkSubmitJobTemplate</a>
-
----
-
-##### `withDefaultInputs` <a name="withDefaultInputs" id="ez-constructs.SimpleServerlessSparkJob.withDefaultInputs"></a>
-
-```typescript
-public withDefaultInputs(params: any): SimpleServerlessSparkJob
-```
-
-Default inputs of the spark jobs.
-
-Example:-
- ```
- .withDefaultInputs({
-     "SparkSubmitParameters": {
-       "--conf spark.executor.memory=2g",
-       "--conf spark.executor.cores=2"
-     },
-     "greetings": "Good morning",
-     "personal": {
-       "name": "John Doe",
-       "age": 30
-     }
-  })
- ```
-
-###### `params`<sup>Required</sup> <a name="params" id="ez-constructs.SimpleServerlessSparkJob.withDefaultInputs.parameter.params"></a>
-
-- *Type:* any
+- *Type:* <a href="#ez-constructs.StandardSparkSubmitJobTemplate">StandardSparkSubmitJobTemplate</a>
 
 ---
 
@@ -1094,8 +1212,17 @@ Any object.
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
-| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateDefinition">stateDefinition</a></code> | <code>string</code> | The modified state definitoin string, if a string version of state definiton was utilized. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.account">account</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.defaultInputs">defaultInputs</a></code> | <code>any</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.policies">policies</a></code> | <code>aws-cdk-lib.aws_iam.PolicyStatement[]</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.region">region</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateDefinitionAsString">stateDefinitionAsString</a></code> | <code>string</code> | Returns the state definition as a string if the original state definition used was string. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateDefinitionBody">stateDefinitionBody</a></code> | <code>aws-cdk-lib.aws_stepfunctions.DefinitionBody</code> | Returns the state definition body object. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.StateMachine</code> | The state machine instance created by this construct. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateMachineRole">stateMachineRole</a></code> | <code>aws-cdk-lib.aws_iam.IRole</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateDefinition">stateDefinition</a></code> | <code>string \| aws-cdk-lib.aws_stepfunctions.IChainable</code> | Sets the state definition, and if type of the value passed is a string, will also set the stateDefinition when it is a string. |
 
 ---
 
@@ -1111,15 +1238,89 @@ The tree node.
 
 ---
 
-##### `stateDefinition`<sup>Required</sup> <a name="stateDefinition" id="ez-constructs.SimpleServerlessSparkJob.property.stateDefinition"></a>
+##### `account`<sup>Required</sup> <a name="account" id="ez-constructs.SimpleServerlessSparkJob.property.account"></a>
 
 ```typescript
-public readonly stateDefinition: string;
+public readonly account: string;
 ```
 
 - *Type:* string
 
-The modified state definitoin string, if a string version of state definiton was utilized.
+---
+
+##### `defaultInputs`<sup>Required</sup> <a name="defaultInputs" id="ez-constructs.SimpleServerlessSparkJob.property.defaultInputs"></a>
+
+```typescript
+public readonly defaultInputs: any;
+```
+
+- *Type:* any
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="ez-constructs.SimpleServerlessSparkJob.property.id"></a>
+
+```typescript
+public readonly id: string;
+```
+
+- *Type:* string
+
+---
+
+##### `policies`<sup>Required</sup> <a name="policies" id="ez-constructs.SimpleServerlessSparkJob.property.policies"></a>
+
+```typescript
+public readonly policies: PolicyStatement[];
+```
+
+- *Type:* aws-cdk-lib.aws_iam.PolicyStatement[]
+
+---
+
+##### `region`<sup>Required</sup> <a name="region" id="ez-constructs.SimpleServerlessSparkJob.property.region"></a>
+
+```typescript
+public readonly region: string;
+```
+
+- *Type:* string
+
+---
+
+##### `scope`<sup>Required</sup> <a name="scope" id="ez-constructs.SimpleServerlessSparkJob.property.scope"></a>
+
+```typescript
+public readonly scope: Construct;
+```
+
+- *Type:* constructs.Construct
+
+---
+
+##### `stateDefinitionAsString`<sup>Required</sup> <a name="stateDefinitionAsString" id="ez-constructs.SimpleServerlessSparkJob.property.stateDefinitionAsString"></a>
+
+```typescript
+public readonly stateDefinitionAsString: string;
+```
+
+- *Type:* string
+
+Returns the state definition as a string if the original state definition used was string.
+
+Otherwise returns empty string.
+
+---
+
+##### `stateDefinitionBody`<sup>Required</sup> <a name="stateDefinitionBody" id="ez-constructs.SimpleServerlessSparkJob.property.stateDefinitionBody"></a>
+
+```typescript
+public readonly stateDefinitionBody: DefinitionBody;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.DefinitionBody
+
+Returns the state definition body object.
 
 ---
 
@@ -1132,6 +1333,450 @@ public readonly stateMachine: StateMachine;
 - *Type:* aws-cdk-lib.aws_stepfunctions.StateMachine
 
 The state machine instance created by this construct.
+
+---
+
+##### `stateMachineRole`<sup>Required</sup> <a name="stateMachineRole" id="ez-constructs.SimpleServerlessSparkJob.property.stateMachineRole"></a>
+
+```typescript
+public readonly stateMachineRole: IRole;
+```
+
+- *Type:* aws-cdk-lib.aws_iam.IRole
+
+---
+
+##### `stateDefinition`<sup>Required</sup> <a name="stateDefinition" id="ez-constructs.SimpleServerlessSparkJob.property.stateDefinition"></a>
+
+```typescript
+public readonly stateDefinition: string | IChainable;
+```
+
+- *Type:* string | aws-cdk-lib.aws_stepfunctions.IChainable
+
+Sets the state definition, and if type of the value passed is a string, will also set the stateDefinition when it is a string.
+
+---
+
+
+### SimpleStepFunction <a name="SimpleStepFunction" id="ez-constructs.SimpleStepFunction"></a>
+
+#### Initializers <a name="Initializers" id="ez-constructs.SimpleStepFunction.Initializer"></a>
+
+```typescript
+import { SimpleStepFunction } from 'ez-constructs'
+
+new SimpleStepFunction(scope: Construct, id: string, stepFunctionName: string)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#ez-constructs.SimpleStepFunction.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleStepFunction.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleStepFunction.Initializer.parameter.stepFunctionName">stepFunctionName</a></code> | <code>string</code> | *No description.* |
+
+---
+
+##### `scope`<sup>Required</sup> <a name="scope" id="ez-constructs.SimpleStepFunction.Initializer.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="ez-constructs.SimpleStepFunction.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+##### `stepFunctionName`<sup>Required</sup> <a name="stepFunctionName" id="ez-constructs.SimpleStepFunction.Initializer.parameter.stepFunctionName"></a>
+
+- *Type:* string
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#ez-constructs.SimpleStepFunction.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#ez-constructs.SimpleStepFunction.addPolicy">addPolicy</a></code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleStepFunction.assemble">assemble</a></code> | Assembles the state machine. |
+| <code><a href="#ez-constructs.SimpleStepFunction.createDefaultStateMachineProps">createDefaultStateMachineProps</a></code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleStepFunction.createStateMachine">createStateMachine</a></code> | Creates state machine from the given props. |
+| <code><a href="#ez-constructs.SimpleStepFunction.createStateMachineCloudWatchLogGroup">createStateMachineCloudWatchLogGroup</a></code> | creates bucket to store state machine logs. |
+| <code><a href="#ez-constructs.SimpleStepFunction.createStateMachineRole">createStateMachineRole</a></code> | creates state machine role. |
+| <code><a href="#ez-constructs.SimpleStepFunction.grantPassRole">grantPassRole</a></code> | Grants pass role permissions to the state machine role. |
+| <code><a href="#ez-constructs.SimpleStepFunction.modifyStateDefinition">modifyStateDefinition</a></code> | Modifies the supplied state definition string version of workflow defintion to include logging and tracing. |
+| <code><a href="#ez-constructs.SimpleStepFunction.usingChainableDefinition">usingChainableDefinition</a></code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleStepFunction.usingStringDefinition">usingStringDefinition</a></code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleStepFunction.withDefaultInputs">withDefaultInputs</a></code> | Default inputs of the spark jobs. |
+
+---
+
+##### `toString` <a name="toString" id="ez-constructs.SimpleStepFunction.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+##### `addPolicy` <a name="addPolicy" id="ez-constructs.SimpleStepFunction.addPolicy"></a>
+
+```typescript
+public addPolicy(policy: PolicyStatement): SimpleStepFunction
+```
+
+###### `policy`<sup>Required</sup> <a name="policy" id="ez-constructs.SimpleStepFunction.addPolicy.parameter.policy"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.PolicyStatement
+
+---
+
+##### `assemble` <a name="assemble" id="ez-constructs.SimpleStepFunction.assemble"></a>
+
+```typescript
+public assemble(stateMachineProps?: StateMachineProps): SimpleStepFunction
+```
+
+Assembles the state machine.
+
+###### `stateMachineProps`<sup>Optional</sup> <a name="stateMachineProps" id="ez-constructs.SimpleStepFunction.assemble.parameter.stateMachineProps"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.StateMachineProps
+
+---
+
+##### `createDefaultStateMachineProps` <a name="createDefaultStateMachineProps" id="ez-constructs.SimpleStepFunction.createDefaultStateMachineProps"></a>
+
+```typescript
+public createDefaultStateMachineProps(stateMachineName: string, stateMachineRole: IRole, definitionBody: DefinitionBody, logGroup: LogGroup): StateMachineProps
+```
+
+###### `stateMachineName`<sup>Required</sup> <a name="stateMachineName" id="ez-constructs.SimpleStepFunction.createDefaultStateMachineProps.parameter.stateMachineName"></a>
+
+- *Type:* string
+
+---
+
+###### `stateMachineRole`<sup>Required</sup> <a name="stateMachineRole" id="ez-constructs.SimpleStepFunction.createDefaultStateMachineProps.parameter.stateMachineRole"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IRole
+
+---
+
+###### `definitionBody`<sup>Required</sup> <a name="definitionBody" id="ez-constructs.SimpleStepFunction.createDefaultStateMachineProps.parameter.definitionBody"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.DefinitionBody
+
+---
+
+###### `logGroup`<sup>Required</sup> <a name="logGroup" id="ez-constructs.SimpleStepFunction.createDefaultStateMachineProps.parameter.logGroup"></a>
+
+- *Type:* aws-cdk-lib.aws_logs.LogGroup
+
+---
+
+##### `createStateMachine` <a name="createStateMachine" id="ez-constructs.SimpleStepFunction.createStateMachine"></a>
+
+```typescript
+public createStateMachine(stateMachineProps: StateMachineProps): StateMachine
+```
+
+Creates state machine from the given props.
+
+###### `stateMachineProps`<sup>Required</sup> <a name="stateMachineProps" id="ez-constructs.SimpleStepFunction.createStateMachine.parameter.stateMachineProps"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.StateMachineProps
+
+---
+
+##### `createStateMachineCloudWatchLogGroup` <a name="createStateMachineCloudWatchLogGroup" id="ez-constructs.SimpleStepFunction.createStateMachineCloudWatchLogGroup"></a>
+
+```typescript
+public createStateMachineCloudWatchLogGroup(stateMachineName: string): LogGroup
+```
+
+creates bucket to store state machine logs.
+
+###### `stateMachineName`<sup>Required</sup> <a name="stateMachineName" id="ez-constructs.SimpleStepFunction.createStateMachineCloudWatchLogGroup.parameter.stateMachineName"></a>
+
+- *Type:* string
+
+---
+
+##### `createStateMachineRole` <a name="createStateMachineRole" id="ez-constructs.SimpleStepFunction.createStateMachineRole"></a>
+
+```typescript
+public createStateMachineRole(stateMachineName: string): IRole
+```
+
+creates state machine role.
+
+###### `stateMachineName`<sup>Required</sup> <a name="stateMachineName" id="ez-constructs.SimpleStepFunction.createStateMachineRole.parameter.stateMachineName"></a>
+
+- *Type:* string
+
+---
+
+##### `grantPassRole` <a name="grantPassRole" id="ez-constructs.SimpleStepFunction.grantPassRole"></a>
+
+```typescript
+public grantPassRole(role: IRole): SimpleStepFunction
+```
+
+Grants pass role permissions to the state machine role.
+
+###### `role`<sup>Required</sup> <a name="role" id="ez-constructs.SimpleStepFunction.grantPassRole.parameter.role"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IRole
+
+---
+
+##### `modifyStateDefinition` <a name="modifyStateDefinition" id="ez-constructs.SimpleStepFunction.modifyStateDefinition"></a>
+
+```typescript
+public modifyStateDefinition(stateDef: string): string
+```
+
+Modifies the supplied state definition string version of workflow defintion to include logging and tracing.
+
+###### `stateDef`<sup>Required</sup> <a name="stateDef" id="ez-constructs.SimpleStepFunction.modifyStateDefinition.parameter.stateDef"></a>
+
+- *Type:* string
+
+the state definition string.
+
+---
+
+##### `usingChainableDefinition` <a name="usingChainableDefinition" id="ez-constructs.SimpleStepFunction.usingChainableDefinition"></a>
+
+```typescript
+public usingChainableDefinition(stateDefinition: IChainable): SimpleStepFunction
+```
+
+###### `stateDefinition`<sup>Required</sup> <a name="stateDefinition" id="ez-constructs.SimpleStepFunction.usingChainableDefinition.parameter.stateDefinition"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.IChainable
+
+---
+
+##### `usingStringDefinition` <a name="usingStringDefinition" id="ez-constructs.SimpleStepFunction.usingStringDefinition"></a>
+
+```typescript
+public usingStringDefinition(stateDefinition: string): SimpleStepFunction
+```
+
+###### `stateDefinition`<sup>Required</sup> <a name="stateDefinition" id="ez-constructs.SimpleStepFunction.usingStringDefinition.parameter.stateDefinition"></a>
+
+- *Type:* string
+
+---
+
+##### `withDefaultInputs` <a name="withDefaultInputs" id="ez-constructs.SimpleStepFunction.withDefaultInputs"></a>
+
+```typescript
+public withDefaultInputs(params: any): SimpleStepFunction
+```
+
+Default inputs of the spark jobs.
+
+Example:-
+ ```
+ .withDefaultInputs({
+     "SparkSubmitParameters": {
+       "--conf spark.executor.memory=2g",
+       "--conf spark.executor.cores=2"
+     },
+     "greetings": "Good morning",
+     "personal": {
+       "name": "John Doe",
+       "age": 30
+     }
+  })
+ ```
+
+###### `params`<sup>Required</sup> <a name="params" id="ez-constructs.SimpleStepFunction.withDefaultInputs.parameter.params"></a>
+
+- *Type:* any
+
+---
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#ez-constructs.SimpleStepFunction.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="ez-constructs.SimpleStepFunction.isConstruct"></a>
+
+```typescript
+import { SimpleStepFunction } from 'ez-constructs'
+
+SimpleStepFunction.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="ez-constructs.SimpleStepFunction.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#ez-constructs.SimpleStepFunction.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#ez-constructs.SimpleStepFunction.property.account">account</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleStepFunction.property.defaultInputs">defaultInputs</a></code> | <code>any</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleStepFunction.property.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleStepFunction.property.policies">policies</a></code> | <code>aws-cdk-lib.aws_iam.PolicyStatement[]</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleStepFunction.property.region">region</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleStepFunction.property.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleStepFunction.property.stateDefinitionAsString">stateDefinitionAsString</a></code> | <code>string</code> | Returns the state definition as a string if the original state definition used was string. |
+| <code><a href="#ez-constructs.SimpleStepFunction.property.stateDefinitionBody">stateDefinitionBody</a></code> | <code>aws-cdk-lib.aws_stepfunctions.DefinitionBody</code> | Returns the state definition body object. |
+| <code><a href="#ez-constructs.SimpleStepFunction.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.StateMachine</code> | The state machine instance created by this construct. |
+| <code><a href="#ez-constructs.SimpleStepFunction.property.stateMachineRole">stateMachineRole</a></code> | <code>aws-cdk-lib.aws_iam.IRole</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleStepFunction.property.stateDefinition">stateDefinition</a></code> | <code>string \| aws-cdk-lib.aws_stepfunctions.IChainable</code> | Sets the state definition, and if type of the value passed is a string, will also set the stateDefinition when it is a string. |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="ez-constructs.SimpleStepFunction.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `account`<sup>Required</sup> <a name="account" id="ez-constructs.SimpleStepFunction.property.account"></a>
+
+```typescript
+public readonly account: string;
+```
+
+- *Type:* string
+
+---
+
+##### `defaultInputs`<sup>Required</sup> <a name="defaultInputs" id="ez-constructs.SimpleStepFunction.property.defaultInputs"></a>
+
+```typescript
+public readonly defaultInputs: any;
+```
+
+- *Type:* any
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="ez-constructs.SimpleStepFunction.property.id"></a>
+
+```typescript
+public readonly id: string;
+```
+
+- *Type:* string
+
+---
+
+##### `policies`<sup>Required</sup> <a name="policies" id="ez-constructs.SimpleStepFunction.property.policies"></a>
+
+```typescript
+public readonly policies: PolicyStatement[];
+```
+
+- *Type:* aws-cdk-lib.aws_iam.PolicyStatement[]
+
+---
+
+##### `region`<sup>Required</sup> <a name="region" id="ez-constructs.SimpleStepFunction.property.region"></a>
+
+```typescript
+public readonly region: string;
+```
+
+- *Type:* string
+
+---
+
+##### `scope`<sup>Required</sup> <a name="scope" id="ez-constructs.SimpleStepFunction.property.scope"></a>
+
+```typescript
+public readonly scope: Construct;
+```
+
+- *Type:* constructs.Construct
+
+---
+
+##### `stateDefinitionAsString`<sup>Required</sup> <a name="stateDefinitionAsString" id="ez-constructs.SimpleStepFunction.property.stateDefinitionAsString"></a>
+
+```typescript
+public readonly stateDefinitionAsString: string;
+```
+
+- *Type:* string
+
+Returns the state definition as a string if the original state definition used was string.
+
+Otherwise returns empty string.
+
+---
+
+##### `stateDefinitionBody`<sup>Required</sup> <a name="stateDefinitionBody" id="ez-constructs.SimpleStepFunction.property.stateDefinitionBody"></a>
+
+```typescript
+public readonly stateDefinitionBody: DefinitionBody;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.DefinitionBody
+
+Returns the state definition body object.
+
+---
+
+##### `stateMachine`<sup>Required</sup> <a name="stateMachine" id="ez-constructs.SimpleStepFunction.property.stateMachine"></a>
+
+```typescript
+public readonly stateMachine: StateMachine;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.StateMachine
+
+The state machine instance created by this construct.
+
+---
+
+##### `stateMachineRole`<sup>Required</sup> <a name="stateMachineRole" id="ez-constructs.SimpleStepFunction.property.stateMachineRole"></a>
+
+```typescript
+public readonly stateMachineRole: IRole;
+```
+
+- *Type:* aws-cdk-lib.aws_iam.IRole
+
+---
+
+##### `stateDefinition`<sup>Required</sup> <a name="stateDefinition" id="ez-constructs.SimpleStepFunction.property.stateDefinition"></a>
+
+```typescript
+public readonly stateDefinition: string | IChainable;
+```
+
+- *Type:* string | aws-cdk-lib.aws_stepfunctions.IChainable
+
+Sets the state definition, and if type of the value passed is a string, will also set the stateDefinition when it is a string.
 
 ---
 
@@ -1811,6 +2456,7 @@ new Utils()
 | <code><a href="#ez-constructs.Utils.escapeDoubleQuotes">escapeDoubleQuotes</a></code> | Will escape double quotes in the given string. |
 | <code><a href="#ez-constructs.Utils.isEmpty">isEmpty</a></code> | Will check if the given object is empty. |
 | <code><a href="#ez-constructs.Utils.kebabCase">kebabCase</a></code> | Will convert the given string to lower case and transform any spaces to hyphens. |
+| <code><a href="#ez-constructs.Utils.merge">merge</a></code> | Merges two objects. |
 | <code><a href="#ez-constructs.Utils.parseGithubUrl">parseGithubUrl</a></code> | Splits a given Github URL and extracts the owner and repo name. |
 | <code><a href="#ez-constructs.Utils.prettyPrintStack">prettyPrintStack</a></code> | A utility function that will print the content of a CDK stack. |
 | <code><a href="#ez-constructs.Utils.startsWith">startsWith</a></code> | Will check if the given string starts with the given prefix. |
@@ -1962,6 +2608,28 @@ Will convert the given string to lower case and transform any spaces to hyphens.
 - *Type:* string
 
 a string.
+
+---
+
+##### `merge` <a name="merge" id="ez-constructs.Utils.merge"></a>
+
+```typescript
+import { Utils } from 'ez-constructs'
+
+Utils.merge(obj1: any, obj2: any)
+```
+
+Merges two objects.
+
+###### `obj1`<sup>Required</sup> <a name="obj1" id="ez-constructs.Utils.merge.parameter.obj1"></a>
+
+- *Type:* any
+
+---
+
+###### `obj2`<sup>Required</sup> <a name="obj2" id="ez-constructs.Utils.merge.parameter.obj2"></a>
+
+- *Type:* any
 
 ---
 
