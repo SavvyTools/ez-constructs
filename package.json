@@ -57,7 +57,7 @@
     "jsii-pacmak": "^1.87.0",
     "jsii-rosetta": "~5.0.0",
     "npm-check-updates": "^16",
-    "projen": "^0.72.13",
+    "projen": "^0.72.14",
     "standard-version": "^9",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
@@ -69,7 +69,7 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.197",
-    "cdk-nag": "^2.27.102",
+    "cdk-nag": "^2.27.103",
     "lodash": "^4.17.21"
   },
   "bundledDependencies": [
