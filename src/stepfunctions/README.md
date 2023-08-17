@@ -71,7 +71,7 @@ Under the hoods, the Spark Serverless step function invokes
 
 Step functions are not just limited to EMR worklods, the `SimpleStepFunction` construct provides easy APIs to create step function workflows from string definitions.
 ```ts
-new SimpleStepFunction(mystack, 'MultiFly', 'MyGenericWorkflow')
+new SimpleStepFunction(mystack, 'MultiFlySomeOtherThing', 'MyGenericWorkflow')
     .addPolicy(new PolicyStatement({
         effect: Effect.ALLOW,
         actions: ['s3:GetObject'],
