@@ -481,7 +481,7 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
 
     let sparkSubmitParams = this._singleSparkJobTemplate?.sparkSubmitParameters;
     if (this._singleSparkJobTemplate?.mainClass) {
-      sparkSubmitParams = `--main ${this._singleSparkJobTemplate.mainClass} ${sparkSubmitParams}`;
+      sparkSubmitParams = `--class ${this._singleSparkJobTemplate.mainClass} ${sparkSubmitParams}`;
     }
 
     this.defaultInputs.EntryPoint = this._singleSparkJobTemplate?.entryPoint;
