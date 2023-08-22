@@ -14,6 +14,7 @@ describe('SimpleCodebuildProject Construct', () => {
       expect(GitEvent.ALL).toEqual('all');
       expect(GitEvent.PULL_REQUEST).toEqual('pull_request');
       expect(GitEvent.PUSH).toEqual('push');
+      expect(GitEvent.PULL_REQUEST_MERGED).toEqual('pull_request_merged');
     });
   });
 
@@ -160,7 +161,37 @@ describe('SimpleCodebuildProject Construct', () => {
 
       });
 
+    });
 
+    test('project PR merged build', () => {
+      // WHEN
+      new SimpleCodebuildProject(mystack, 'myproject')
+        .projectName('myproject')
+        .gitRepoUrl('https://github.cms.gov/qpp/qpp-integration-test-infrastructure-cdk.git')
+        .gitBaseBranch('main')
+        .triggerBuildOnGitEvent(GitEvent.PULL_REQUEST_MERGED)
+        .assemble();
+
+      // THEN should have a default project created
+      expect(mystack).toHaveResourceLike('AWS::CodeBuild::Project', {
+        Name: 'myproject',
+        Triggers: {
+          Webhook: true,
+          FilterGroups: [
+            [
+              {
+                Pattern: 'PULL_REQUEST_MERGED',
+                Type: 'EVENT',
+              },
+              {
+                Pattern: 'refs/heads/main',
+                Type: 'BASE_REF',
+              },
+            ],
+          ],
+        },
+
+      });
     });
     test('project Scheduled build', () => {
       // WHEN

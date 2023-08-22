@@ -69,7 +69,7 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.197",
-    "cdk-nag": "^2.27.103",
+    "cdk-nag": "^2.27.102",
     "lodash": "^4.17.21"
   },
   "bundledDependencies": [
