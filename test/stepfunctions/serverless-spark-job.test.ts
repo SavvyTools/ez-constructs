@@ -30,6 +30,7 @@ describe('SimpleServerlessSparkJob Construct', () => {
         .usingSparkJobTemplate({
           jobName: 'mytestjob',
           entryPoint: 's3://aws-cms-amg-qpp-costscoring-artifact-dev-222224444433-us-east-1/biju_test_files/myspark-assembly.jar',
+          entryPointArgumentNames: ['--input', '--output', '--performanceYear'],
           mainClass: 'serverless.SimpleSparkApp',
           enableMonitoring: true,
         })

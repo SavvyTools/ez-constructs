@@ -287,6 +287,11 @@ export interface StandardSparkSubmitJobTemplate {
    */
   readonly entryPoint: string;
   /**
+   * The names of the arguments to pass to the application.
+   * The actual argument value should be specified during step funciton execution time.
+   */
+  readonly entryPointArgumentNames?: String[];
+  /**
    * The name of the application's main class,only applicable for Java/Scala Spark applications.
    */
   readonly mainClass?: string;
@@ -485,6 +490,7 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
     }
 
     this.defaultInputs.EntryPoint = this._singleSparkJobTemplate?.entryPoint;
+    this.defaultInputs.entryPointArgumentNames = this._singleSparkJobTemplate?.entryPointArgumentNames;
     this.defaultInputs.SparkSubmitParameters = sparkSubmitParams;
 
     let loadDefaultsState = new Pass(this.scope, 'LoadDefaults', {
@@ -510,6 +516,12 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
       error: `The job ${jobName} failed.`,
     });
 
+    let argsLine = "'States.Array($$.Task.Token";
+    this.defaultInputs.entryPointArgumentNames?.forEach((k:any) => {
+      argsLine += `, "${k}", $["${k}"]`;
+    });
+    argsLine += ")'";
+
     const runJobState = new CallAwsService(this, 'RunSparkJob', {
       service: 'emrserverless',
       action: 'startJobRun',
@@ -524,7 +536,7 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
         'JobDriver': {
           SparkSubmit: {
             'EntryPoint': '$.EntryPoint',
-            'EntryPointArguments.$': 'States.Array($$.Task.Token)',
+            'EntryPointArguments.$': argsLine,
             'SparkSubmitParameters': '$.SparkSubmitParameters',
           },
         },
