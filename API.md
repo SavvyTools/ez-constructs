@@ -1819,6 +1819,7 @@ const standardSparkSubmitJobTemplate: StandardSparkSubmitJobTemplate = { ... }
 | <code><a href="#ez-constructs.StandardSparkSubmitJobTemplate.property.jobName">jobName</a></code> | <code>string</code> | The name of the job.*required*. |
 | <code><a href="#ez-constructs.StandardSparkSubmitJobTemplate.property.applicationConfiguration">applicationConfiguration</a></code> | <code>aws-cdk-lib.aws_stepfunctions_tasks.ApplicationConfiguration[]</code> | Any version of overrides to use while provisioning EMR job. |
 | <code><a href="#ez-constructs.StandardSparkSubmitJobTemplate.property.enableMonitoring">enableMonitoring</a></code> | <code>boolean</code> | True if monitoring must be enabled. |
+| <code><a href="#ez-constructs.StandardSparkSubmitJobTemplate.property.entryPointArgumentNames">entryPointArgumentNames</a></code> | <code>string[]</code> | The names of the arguments to pass to the application. |
 | <code><a href="#ez-constructs.StandardSparkSubmitJobTemplate.property.mainClass">mainClass</a></code> | <code>string</code> | The name of the application's main class,only applicable for Java/Scala Spark applications. |
 | <code><a href="#ez-constructs.StandardSparkSubmitJobTemplate.property.sparkSubmitParameters">sparkSubmitParameters</a></code> | <code>string</code> | The arguments to pass to the application. |
 
@@ -1873,6 +1874,20 @@ public readonly enableMonitoring: boolean;
 True if monitoring must be enabled.
 
 Defaults to true.
+
+---
+
+##### `entryPointArgumentNames`<sup>Optional</sup> <a name="entryPointArgumentNames" id="ez-constructs.StandardSparkSubmitJobTemplate.property.entryPointArgumentNames"></a>
+
+```typescript
+public readonly entryPointArgumentNames: string[];
+```
+
+- *Type:* string[]
+
+The names of the arguments to pass to the application.
+
+The actual argument value should be specified during step funciton execution time.
 
 ---
 
