@@ -516,11 +516,11 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
       error: `The job ${jobName} failed.`,
     });
 
-    let argsLine = "'States.Array($$.Task.Token";
+    let argsLine = 'States.Array($$.Task.Token';
     this.defaultInputs.entryPointArgumentNames?.forEach((k:any) => {
-      argsLine += `, "${k}", $["${k}"]`;
+      argsLine += `,'${k}',$['${k}']`;
     });
-    argsLine += ")'";
+    argsLine += ')';
 
     const runJobState = new CallAwsService(this, 'RunSparkJob', {
       service: 'emrserverless',
