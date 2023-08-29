@@ -484,7 +484,7 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
    */
   private createStateDefinition(): IChainable {
 
-    let sparkSubmitParams = this._singleSparkJobTemplate?.sparkSubmitParameters;
+    let sparkSubmitParams = this._singleSparkJobTemplate?.sparkSubmitParameters || '';
     if (this._singleSparkJobTemplate?.mainClass) {
       sparkSubmitParams = `--class ${this._singleSparkJobTemplate.mainClass} ${sparkSubmitParams}`;
     }
@@ -535,9 +535,9 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
         'ExecutionRoleArn': this._jobRoleArn,
         'JobDriver': {
           SparkSubmit: {
-            'EntryPoint': '$.EntryPoint',
+            'EntryPoint.$': '$.EntryPoint',
             'EntryPointArguments.$': argsLine,
-            'SparkSubmitParameters': '$.SparkSubmitParameters',
+            'SparkSubmitParameters.$': '$.SparkSubmitParameters',
           },
         },
         'ConfigurationOverrides': this.mergeConfigOverrides(jobName, {}),
