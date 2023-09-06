@@ -2485,6 +2485,7 @@ new Utils()
 | <code><a href="#ez-constructs.Utils.contains">contains</a></code> | Will check if the given string is contained in another string. |
 | <code><a href="#ez-constructs.Utils.endsWith">endsWith</a></code> | Will check if the given string ends with the given suffix. |
 | <code><a href="#ez-constructs.Utils.escapeDoubleQuotes">escapeDoubleQuotes</a></code> | Will escape double quotes in the given string. |
+| <code><a href="#ez-constructs.Utils.fetchStepFuncitonStateDefinition">fetchStepFuncitonStateDefinition</a></code> | A utility function that will obtain the first state machine definition from the given stack. |
 | <code><a href="#ez-constructs.Utils.isEmpty">isEmpty</a></code> | Will check if the given object is empty. |
 | <code><a href="#ez-constructs.Utils.kebabCase">kebabCase</a></code> | Will convert the given string to lower case and transform any spaces to hyphens. |
 | <code><a href="#ez-constructs.Utils.merge">merge</a></code> | Merges two objects. |
@@ -2605,6 +2606,24 @@ Will escape double quotes in the given string.
 ###### `str`<sup>Required</sup> <a name="str" id="ez-constructs.Utils.escapeDoubleQuotes.parameter.str"></a>
 
 - *Type:* string
+
+---
+
+##### `fetchStepFuncitonStateDefinition` <a name="fetchStepFuncitonStateDefinition" id="ez-constructs.Utils.fetchStepFuncitonStateDefinition"></a>
+
+```typescript
+import { Utils } from 'ez-constructs'
+
+Utils.fetchStepFuncitonStateDefinition(stack: Stack)
+```
+
+A utility function that will obtain the first state machine definition from the given stack.
+
+###### `stack`<sup>Required</sup> <a name="stack" id="ez-constructs.Utils.fetchStepFuncitonStateDefinition.parameter.stack"></a>
+
+- *Type:* aws-cdk-lib.Stack
+
+a stack that contains at least one state machine resource.
 
 ---
 
