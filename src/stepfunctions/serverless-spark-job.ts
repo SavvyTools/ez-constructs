@@ -552,7 +552,7 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
       .next(runJobState)
       .next(
         new Choice(this, 'Job Complete ?')
-          .when(Condition.stringEquals('$.status', 'SUCCEEDED'), successState)
+          .when(Condition.stringEquals('$.Status', 'Success'), successState)
           .otherwise(failState),
       );
 
