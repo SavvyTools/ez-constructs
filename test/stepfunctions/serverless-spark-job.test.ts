@@ -185,4 +185,59 @@ describe('SimpleServerlessSparkJob Construct', () => {
 
   });
 
+  describe('Serverless Spark Job - Definition', () => {
+    let myapp: App;
+    let mystack: Stack;
+
+    beforeEach(() => {
+      // GIVEN
+      myapp = new App();
+      mystack = new Stack(myapp, 'mystack', {
+        env: {
+          account: '111111111111',
+          region: 'us-east-1',
+        },
+      });
+    });
+
+    test('default job configuration template setup', () => {
+      // WHEN
+      new SimpleServerlessSparkJob(mystack, 'SingleFly', 'MyTestETL')
+        .jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
+        .applicationId('12345676')
+        .logBucket('mylogbucket')
+        .usingSparkJobTemplate({
+          jobName: 'mytestjob',
+          entryPoint: 's3://aws-cms-amg-qpp-costscoring-artifact-dev-222224444433-us-east-1/biju_test_files/myspark-assembly.jar',
+          entryPointArgumentNames: ['--input', '--output', '--performanceYear'],
+          mainClass: 'serverless.SimpleSparkApp',
+          enableMonitoring: true,
+        })
+        .assemble();
+
+      // THEN should have a modified ASL.
+      let stateDef = Utils.fetchStepFuncitonStateDefinition(mystack);
+      expect(stateDef).toBeDefined();
+      expect(stateDef.StartAt).toEqual('LoadDefaults');
+      expect(stateDef.States.RunSparkJob).toBeDefined();
+      expect(stateDef.States.LoadDefaults).toBeDefined();
+      expect(stateDef.States.ApplyDefaults).toBeDefined();
+      expect(stateDef.States.Fail).toBeDefined();
+      expect(stateDef.States.Success).toBeDefined();
+
+      let sparkJob = stateDef.States.RunSparkJob;
+      expect(sparkJob.Parameters).toBeDefined();
+      expect(sparkJob.ResultPath).toEqual('$.JobStatus');
+      expect(sparkJob.Resource).toEqual('arn::states:::aws-sdk:emrserverless:startJobRun.waitForTaskToken');
+
+      let jobComplete = stateDef.States['Job Complete ?'];
+      expect(jobComplete).toBeDefined();
+      expect(jobComplete.Type).toEqual('Choice');
+      expect(jobComplete.Choices[0].Variable).toEqual('$.Status');
+      expect(jobComplete.Choices[0].StringEquals).toEqual('Success');
+    });
+
+
+  });
+
 });

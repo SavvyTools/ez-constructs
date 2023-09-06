@@ -127,6 +127,17 @@ export class Utils {
   }
 
   /**
+   * A utility function that will obtain the first state machine definition from the given stack.
+   * @param stack - a stack that contains at least one state machine resource.
+   */
+  public static fetchStepFuncitonStateDefinition(stack: Stack): any {
+    let t = Template.fromStack(stack);
+    let stateMachine = t.findResources('AWS::StepFunctions::StateMachine');
+    let defString = Object.values(stateMachine)[0].Properties.DefinitionString['Fn::Join'][1];
+    return JSON.parse(defString[0] + defString[2]);
+  }
+
+  /**
    * Will disable the CDK NAG rule for the given construct and its children.
    * @param scope - the scope to disable the rule for
    * @param ruleId - the rule id to disable
