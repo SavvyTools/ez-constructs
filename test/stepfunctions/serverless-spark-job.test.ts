@@ -233,7 +233,7 @@ describe('SimpleServerlessSparkJob Construct', () => {
       let jobComplete = stateDef.States['Job Complete ?'];
       expect(jobComplete).toBeDefined();
       expect(jobComplete.Type).toEqual('Choice');
-      expect(jobComplete.Choices[0].Variable).toEqual('$.Status');
+      expect(jobComplete.Choices[0].Variable).toEqual('$.JobStatus.Status');
       expect(jobComplete.Choices[0].StringEquals).toEqual('Success');
     });
 
