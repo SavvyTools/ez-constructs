@@ -28,12 +28,11 @@ enum AllocationType {
 
 export class SimpleServerlessApplication extends EzConstruct {
   private readonly _scope: Construct;
-  private _vpc: IVpc;
-  private _applicationName: string;
-  private _privateSubnetIds: string[];
-  private _securityGroup: SecurityGroup;
-
-  private _application: CfnApplication;
+  /** @internal */ private _vpc: IVpc;
+  /** @internal */ private _applicationName: string;
+  /** @internal */ private _privateSubnetIds: string[];
+  /** @internal */ private _securityGroup: SecurityGroup;
+  /** @internal */ private _application: CfnApplication;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
