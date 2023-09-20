@@ -27,19 +27,21 @@ enum AllocationType {
 }
 
 export class SimpleServerlessApplication extends EzConstruct {
+
+  /** @internal */ private _vpc?: IVpc;
+  /** @internal */ private _applicationName: string = '';
+  /** @internal */ private _privateSubnetIds: string[] = [];
+  /** @internal */ private _securityGroup?: SecurityGroup;
+  /** @internal */ private _application?: CfnApplication;
+
   private readonly _scope: Construct;
-  /** @internal */ private _vpc: IVpc;
-  /** @internal */ private _applicationName: string;
-  /** @internal */ private _privateSubnetIds: string[];
-  /** @internal */ private _securityGroup: SecurityGroup;
-  /** @internal */ private _application: CfnApplication;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
     this._scope = scope;
   }
 
-  get application(): CfnApplication {
+  get application(): CfnApplication | undefined {
     return this._application;
   }
 
@@ -74,7 +76,7 @@ export class SimpleServerlessApplication extends EzConstruct {
     });
   }
   private createMetric(metricName: string, workerType: WorkerType, allocationType:AllocationType, label='', includeSumStats = false, color = '#18EC9BFF') : Metric {
-    let dim:DimensionsMap = { ApplicationId: this._application.attrApplicationId };
+    let dim:DimensionsMap = { ApplicationId: this._application?.attrApplicationId || '' };
     if (workerType) dim.WorkerType = workerType.toString();
     if (allocationType) dim.CapacityAllocationType = allocationType.toString();
 
@@ -188,7 +190,7 @@ export class SimpleServerlessApplication extends EzConstruct {
     let jobStateMetrics = jobStates.map(name => this.createMetric(name, WorkerType.NONE, AllocationType.NONE, name, true));
     dashboard.addWidgets(this.createSingleValueWidget('Job Runs', jobStateMetrics));
 
-    let label = `Application Metrics\n---\nApplication metrics shows the capacity used by application **(${this._application.logicalId})**.`;
+    let label = `Application Metrics\n---\nApplication metrics shows the capacity used by application **(${this._application?.logicalId})**.`;
     dashboard.addWidgets(this.createTextWidget(label));
 
     const appGraphWidgets = ['CPUAllocated', 'MemoryAllocated', 'StorageAllocated']
@@ -337,7 +339,7 @@ export class SimpleServerlessApplication extends EzConstruct {
       },
       networkConfiguration: {
         subnetIds: this._privateSubnetIds,
-        securityGroupIds: [this._securityGroup.securityGroupId],
+        securityGroupIds: [this._securityGroup?.securityGroupId || ''],
       },
     };
 
