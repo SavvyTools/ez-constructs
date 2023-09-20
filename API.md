@@ -10,8 +10,9 @@ A collection of heaviliy opinionated AWS CDK highlevel constructs.
 ## Constructs
 1. [SecureBucket](src/secure-bucket) - Creates an S3 bucket that is secure, encrypted at rest along with object retention and intelligent transition rules
 2. [SimpleCodeBuildProject](src/codebuild-ci) - Creates Codebuild projects the easy way.
-3. [SimpleStepFunction](src/stepfunctions#simplestepfunction) - Creates a simple step function user supplied workflow definition file.
-4. [SimpleServerlessSparkJob](stepfunctions#simpleserverlesssparkjob) - Creates a step function that can be used to submit a spark job to EMR.
+3. [SimpleStepFunction](src/stepfunctions) - Creates a simple step function user supplied workflow definition file.
+4. [SimpleServerlessSparkJob](src/stepfunctions#simpleserverlesssparkjob) - Creates a step function that can be used to submit a spark job to EMR.
+5. [SimpleServerlessApplication](src/emr) - Creates an EMR Serverless Application.
 
 ## Libraries
 1. Utils - A collection of utility functions
@@ -781,6 +782,148 @@ public readonly project: Project;
 - *Type:* aws-cdk-lib.aws_codebuild.Project
 
 The underlying codebuild project that is created by this construct.
+
+---
+
+
+### SimpleServerlessApplication <a name="SimpleServerlessApplication" id="ez-constructs.SimpleServerlessApplication"></a>
+
+#### Initializers <a name="Initializers" id="ez-constructs.SimpleServerlessApplication.Initializer"></a>
+
+```typescript
+import { SimpleServerlessApplication } from 'ez-constructs'
+
+new SimpleServerlessApplication(scope: Construct, id: string)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#ez-constructs.SimpleServerlessApplication.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessApplication.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+
+---
+
+##### `scope`<sup>Required</sup> <a name="scope" id="ez-constructs.SimpleServerlessApplication.Initializer.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="ez-constructs.SimpleServerlessApplication.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#ez-constructs.SimpleServerlessApplication.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#ez-constructs.SimpleServerlessApplication.assemble">assemble</a></code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessApplication.name">name</a></code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessApplication.vpc">vpc</a></code> | *No description.* |
+
+---
+
+##### `toString` <a name="toString" id="ez-constructs.SimpleServerlessApplication.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+##### `assemble` <a name="assemble" id="ez-constructs.SimpleServerlessApplication.assemble"></a>
+
+```typescript
+public assemble(props?: CfnApplicationProps): SimpleServerlessApplication
+```
+
+###### `props`<sup>Optional</sup> <a name="props" id="ez-constructs.SimpleServerlessApplication.assemble.parameter.props"></a>
+
+- *Type:* aws-cdk-lib.aws_emrserverless.CfnApplicationProps
+
+---
+
+##### `name` <a name="name" id="ez-constructs.SimpleServerlessApplication.name"></a>
+
+```typescript
+public name(name: string): SimpleServerlessApplication
+```
+
+###### `name`<sup>Required</sup> <a name="name" id="ez-constructs.SimpleServerlessApplication.name.parameter.name"></a>
+
+- *Type:* string
+
+---
+
+##### `vpc` <a name="vpc" id="ez-constructs.SimpleServerlessApplication.vpc"></a>
+
+```typescript
+public vpc(v: string | IVpc): SimpleServerlessApplication
+```
+
+###### `v`<sup>Required</sup> <a name="v" id="ez-constructs.SimpleServerlessApplication.vpc.parameter.v"></a>
+
+- *Type:* string | aws-cdk-lib.aws_ec2.IVpc
+
+---
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#ez-constructs.SimpleServerlessApplication.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="ez-constructs.SimpleServerlessApplication.isConstruct"></a>
+
+```typescript
+import { SimpleServerlessApplication } from 'ez-constructs'
+
+SimpleServerlessApplication.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="ez-constructs.SimpleServerlessApplication.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#ez-constructs.SimpleServerlessApplication.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#ez-constructs.SimpleServerlessApplication.property.application">application</a></code> | <code>aws-cdk-lib.aws_emrserverless.CfnApplication</code> | *No description.* |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="ez-constructs.SimpleServerlessApplication.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `application`<sup>Optional</sup> <a name="application" id="ez-constructs.SimpleServerlessApplication.property.application"></a>
+
+```typescript
+public readonly application: CfnApplication;
+```
+
+- *Type:* aws-cdk-lib.aws_emrserverless.CfnApplication
 
 ---
 
