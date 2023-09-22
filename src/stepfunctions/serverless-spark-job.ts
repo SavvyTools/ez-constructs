@@ -560,10 +560,9 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
       errors: [Errors.ALL],
     });
 
-
-    let chainable = loadDefaultsState
-      .next(applyDefaultsState)
-      .next(entryPointArgsState);
+    let jobCompleteState = new Choice(this, 'Job Complete ?')
+      .when(Condition.stringEquals('$.JobStatus.Status', 'Success'), successState)
+      .otherwise(failState);
 
 
     // if validator singleton function present, add it to chain
@@ -574,22 +573,24 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
         resultSelector: { 'result.$': '$.Payload' },
       });
 
-      chainable = chainable
+      let entryValidState = new Choice(this, 'EntryArgs Valid ?')
+        .when(Condition.stringEquals('$.validator.result.status', 'fail'), failState)
+        .otherwise(runJobState)
+        .afterwards();
+
+      return loadDefaultsState
+        .next(applyDefaultsState)
+        .next(entryPointArgsState)
         .next(lambdaFnState)
-        .next(
-          new Choice(this, 'EntryArgs Valid ?')
-            .when(Condition.stringEquals('$.validator.result.status', 'pass'), runJobState)
-            .otherwise(failState),
-        );
+        .next(entryValidState)
+        .next(jobCompleteState);
     }
 
-    return chainable
+    return loadDefaultsState
+      .next(applyDefaultsState)
+      .next(entryPointArgsState)
       .next(runJobState)
-      .next(
-        new Choice(this, 'Job Complete ?')
-          .when(Condition.stringEquals('$.JobStatus.Status', 'Success'), successState)
-          .otherwise(failState),
-      );
+      .next(jobCompleteState);
 
   }
 
