@@ -1,6 +1,7 @@
 
 import { Arn, ArnFormat, RemovalPolicy, Stack, Token } from 'aws-cdk-lib';
 import { IRole, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { Code, Runtime, SingletonFunction } from 'aws-cdk-lib/aws-lambda';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import {
@@ -16,7 +17,7 @@ import {
   Succeed,
 } from 'aws-cdk-lib/aws-stepfunctions';
 import { StateMachineProps } from 'aws-cdk-lib/aws-stepfunctions/lib/state-machine';
-import { ApplicationConfiguration, CallAwsService } from 'aws-cdk-lib/aws-stepfunctions-tasks';
+import { ApplicationConfiguration, CallAwsService, LambdaInvoke } from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Construct } from 'constructs';
 import { EzConstruct } from '../ez-construct';
 import { Utils } from '../lib/utils';
@@ -290,7 +291,7 @@ export interface StandardSparkSubmitJobTemplate {
    * The names of the arguments to pass to the application.
    * The actual argument value should be specified during step funciton execution time.
    */
-  readonly entryPointArgumentNames?: String[];
+  readonly entryPointArgumentNames?: string[];
   /**
    * The name of the application's main class,only applicable for Java/Scala Spark applications.
    */
@@ -359,6 +360,7 @@ export interface StandardSparkSubmitJobTemplate {
  *
  */
 export class SimpleServerlessSparkJob extends SimpleStepFunction {
+  private _validatorLambdaFn?: SingletonFunction;
 
   private _logBucket?: IBucket;
   private _jobRole?: IRole;
@@ -371,6 +373,11 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
 
   constructor(scope: Construct, id: string, stepFunctionName: string) {
     super(scope, id, stepFunctionName);
+  }
+
+
+  get validatorLambdaFn(): SingletonFunction {
+    return <SingletonFunction> this._validatorLambdaFn;
   }
 
   /**
@@ -508,6 +515,13 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
       },
     });
 
+    let entryPointArgsState = new Pass(this.scope, 'EntryArgs', {
+      resultPath: '$.entryArgs',
+      parameters: {
+        args: `${Utils.join(this._singleSparkJobTemplate?.entryPointArgumentNames)}`,
+      },
+    });
+
     let jobName = `${Utils.camelCase(this._name)}SparkJob`;
 
     const successState = new Succeed(this, 'Success');
@@ -547,8 +561,21 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
     });
 
 
-    return loadDefaultsState
+    let chainable = loadDefaultsState
       .next(applyDefaultsState)
+      .next(entryPointArgsState);
+
+
+    if (this.validatorLambdaFn) {
+      chainable = chainable.next(new LambdaInvoke(this, 'ValidatorFnInvoke', {
+        lambdaFunction: this.validatorLambdaFn,
+        resultPath: '$.validator',
+        resultSelector: { 'result.$': '$.Payload' },
+      }));
+    }
+
+
+    return chainable
       .next(runJobState)
       .next(
         new Choice(this, 'Job Complete ?')
@@ -565,7 +592,6 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
    */
   usingSparkJobTemplate(sparkJobTemplate: StandardSparkSubmitJobTemplate): SimpleServerlessSparkJob {
     this._singleSparkJobTemplate = sparkJobTemplate;
-    super.usingChainableDefinition(this.createStateDefinition());
     return this;
   }
 
@@ -581,5 +607,50 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
 
   }
 
+  /**
+   * Will create the validator lambda function that can validate entrypoint args
+   * @private
+   */
+  private createValidatorFn(): SingletonFunction {
 
+    return new SingletonFunction(this, 'Validator', {
+      uuid: '93243b0e-6fbf-4a68-a6c1-6da4b4e3c3e4',
+      lambdaPurpose: 'validation',
+      functionName: Utils.kebabCase(`${this._name}EntryArgsValidator`),
+      runtime: Runtime.NODEJS_18_X,
+      handler: 'index.handler',
+      code: Code.fromInline(`
+          exports.handler = async (event, context) => {
+              console.log('Received event:', JSON.stringify(event, null, 2));
+              let errors = [];
+              let args = event['entryArgs']['args'];
+              if (args) {
+                  args.split(',').forEach(k=> {
+                      let v = event[k];
+                      if (!v) {
+                          errors.push('Missing value for, ' + k);
+                      }
+                  });
+              }
+              
+              return {
+                  "status": errors.length > 0 ? "fail": "pass",
+                  "errors": errors
+              }
+          };
+      `),
+    });
+  }
+
+
+  assemble(stateMachineProps?: StateMachineProps): SimpleStepFunction {
+    if (this._singleSparkJobTemplate) {
+      if (this._singleSparkJobTemplate.entryPointArgumentNames) {
+        this._validatorLambdaFn = this.createValidatorFn();
+      }
+      super.usingChainableDefinition(this.createStateDefinition());
+    }
+    super.assemble(stateMachineProps);
+    return this;
+  }
 }

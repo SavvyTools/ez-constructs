@@ -134,7 +134,8 @@ export class Utils {
     let t = Template.fromStack(stack);
     let stateMachine = t.findResources('AWS::StepFunctions::StateMachine');
     let defString = Object.values(stateMachine)[0].Properties.DefinitionString['Fn::Join'][1];
-    return JSON.parse(defString[0] + defString[2]);
+    defString = defString.filter((a:any) => typeof a == 'string');
+    return JSON.parse(defString.join(''));
   }
 
   /**
@@ -164,6 +165,15 @@ export class Utils {
    */
   public static merge(obj1: any, obj2: any): any {
     return _.merge(obj1, obj2);
+  }
+
+  /**
+   * joins a string array using the given seperator
+   * @param arr
+   * @param separator
+   */
+  public static join(arr:string[] | undefined, separator?: string): string {
+    return _.join(arr, separator);
   }
 
 }
