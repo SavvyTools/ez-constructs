@@ -566,14 +566,22 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
       .next(entryPointArgsState);
 
 
+    // if validator singleton function present, add it to chain
     if (this.validatorLambdaFn) {
-      chainable = chainable.next(new LambdaInvoke(this, 'ValidatorFnInvoke', {
+      let lambdaFnState = new LambdaInvoke(this, 'ValidatorFnInvoke', {
         lambdaFunction: this.validatorLambdaFn,
         resultPath: '$.validator',
         resultSelector: { 'result.$': '$.Payload' },
-      }));
-    }
+      });
 
+      chainable = chainable
+        .next(lambdaFnState)
+        .next(
+          new Choice(this, 'EntryArgs Valid ?')
+            .when(Condition.stringEquals('$.validator.result.status', 'pass'), runJobState)
+            .otherwise(failState),
+        );
+    }
 
     return chainable
       .next(runJobState)
@@ -616,7 +624,7 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
     return new SingletonFunction(this, 'Validator', {
       uuid: '93243b0e-6fbf-4a68-a6c1-6da4b4e3c3e4',
       lambdaPurpose: 'validation',
-      functionName: Utils.kebabCase(`${this._name}EntryArgsValidator`),
+      functionName: Utils.kebabCase(`${this._name}-EntryArgsValidator`),
       runtime: Runtime.NODEJS_18_X,
       handler: 'index.handler',
       code: Code.fromInline(`
