@@ -560,28 +560,37 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
       errors: [Errors.ALL],
     });
 
+    let jobCompleteState = new Choice(this, 'Job Complete ?')
+      .when(Condition.stringEquals('$.JobStatus.Status', 'Success'), successState)
+      .otherwise(failState);
 
-    let chainable = loadDefaultsState
-      .next(applyDefaultsState)
-      .next(entryPointArgsState);
 
-
+    // if validator singleton function present, add it to chain
     if (this.validatorLambdaFn) {
-      chainable = chainable.next(new LambdaInvoke(this, 'ValidatorFnInvoke', {
+      let lambdaFnState = new LambdaInvoke(this, 'ValidatorFnInvoke', {
         lambdaFunction: this.validatorLambdaFn,
         resultPath: '$.validator',
         resultSelector: { 'result.$': '$.Payload' },
-      }));
+      });
+
+      let entryValidState = new Choice(this, 'EntryArgs Valid ?')
+        .when(Condition.stringEquals('$.validator.result.status', 'fail'), failState)
+        .otherwise(runJobState)
+        .afterwards();
+
+      return loadDefaultsState
+        .next(applyDefaultsState)
+        .next(entryPointArgsState)
+        .next(lambdaFnState)
+        .next(entryValidState)
+        .next(jobCompleteState);
     }
 
-
-    return chainable
+    return loadDefaultsState
+      .next(applyDefaultsState)
+      .next(entryPointArgsState)
       .next(runJobState)
-      .next(
-        new Choice(this, 'Job Complete ?')
-          .when(Condition.stringEquals('$.JobStatus.Status', 'Success'), successState)
-          .otherwise(failState),
-      );
+      .next(jobCompleteState);
 
   }
 
@@ -616,7 +625,7 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
     return new SingletonFunction(this, 'Validator', {
       uuid: '93243b0e-6fbf-4a68-a6c1-6da4b4e3c3e4',
       lambdaPurpose: 'validation',
-      functionName: Utils.kebabCase(`${this._name}EntryArgsValidator`),
+      functionName: Utils.kebabCase(`${this._name}-EntryArgsValidator`),
       runtime: Runtime.NODEJS_18_X,
       handler: 'index.handler',
       code: Code.fromInline(`

@@ -247,6 +247,8 @@ describe('SimpleServerlessSparkJob Construct', () => {
 
       let validatorFn = stateDef.States.ValidatorFnInvoke;
       expect(validatorFn).toBeDefined();
+      let entryArgsValid = stateDef.States['EntryArgs Valid ?'];
+      expect(entryArgsValid).toBeDefined();
 
     });
 
@@ -273,6 +275,8 @@ describe('SimpleServerlessSparkJob Construct', () => {
       let stateDef = Utils.fetchStepFuncitonStateDefinition(mystack);
       let validatorFn = stateDef.States.ValidatorFnInvoke;
       expect(validatorFn).not.toBeDefined();
+      let entryArgsValid = stateDef.States['EntryArgs Valid ?'];
+      expect(entryArgsValid).not.toBeDefined();
     });
 
 
