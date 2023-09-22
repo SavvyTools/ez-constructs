@@ -101,4 +101,14 @@ describe('Utils', () => {
     });
   });
 
+  describe('join', () => {
+    test('should get right comma seperated values', () => {
+      expect(Utils.join(['a', 'b'])).toEqual('a,b');
+      expect(Utils.join([])).toEqual('');
+    });
+
+    test('should handle null', () => {
+      expect(Utils.join(undefined)).toBe('');
+    });
+  });
 });

@@ -1373,6 +1373,7 @@ Any object.
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.StateMachine</code> | The state machine instance created by this construct. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateMachineRole">stateMachineRole</a></code> | <code>aws-cdk-lib.aws_iam.IRole</code> | *No description.* |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateDefinition">stateDefinition</a></code> | <code>string \| aws-cdk-lib.aws_stepfunctions.IChainable</code> | Sets the state definition, and if type of the value passed is a string, will also set the stateDefinition when it is a string. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.validatorLambdaFn">validatorLambdaFn</a></code> | <code>aws-cdk-lib.aws_lambda.SingletonFunction</code> | *No description.* |
 
 ---
 
@@ -1505,6 +1506,16 @@ public readonly stateDefinition: string | IChainable;
 - *Type:* string | aws-cdk-lib.aws_stepfunctions.IChainable
 
 Sets the state definition, and if type of the value passed is a string, will also set the stateDefinition when it is a string.
+
+---
+
+##### `validatorLambdaFn`<sup>Required</sup> <a name="validatorLambdaFn" id="ez-constructs.SimpleServerlessSparkJob.property.validatorLambdaFn"></a>
+
+```typescript
+public readonly validatorLambdaFn: SingletonFunction;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.SingletonFunction
 
 ---
 
@@ -2630,6 +2641,7 @@ new Utils()
 | <code><a href="#ez-constructs.Utils.escapeDoubleQuotes">escapeDoubleQuotes</a></code> | Will escape double quotes in the given string. |
 | <code><a href="#ez-constructs.Utils.fetchStepFuncitonStateDefinition">fetchStepFuncitonStateDefinition</a></code> | A utility function that will obtain the first state machine definition from the given stack. |
 | <code><a href="#ez-constructs.Utils.isEmpty">isEmpty</a></code> | Will check if the given object is empty. |
+| <code><a href="#ez-constructs.Utils.join">join</a></code> | joins a string array using the given seperator. |
 | <code><a href="#ez-constructs.Utils.kebabCase">kebabCase</a></code> | Will convert the given string to lower case and transform any spaces to hyphens. |
 | <code><a href="#ez-constructs.Utils.merge">merge</a></code> | Merges two objects. |
 | <code><a href="#ez-constructs.Utils.parseGithubUrl">parseGithubUrl</a></code> | Splits a given Github URL and extracts the owner and repo name. |
@@ -2783,6 +2795,28 @@ Will check if the given object is empty.
 ###### `value`<sup>Optional</sup> <a name="value" id="ez-constructs.Utils.isEmpty.parameter.value"></a>
 
 - *Type:* any
+
+---
+
+##### `join` <a name="join" id="ez-constructs.Utils.join"></a>
+
+```typescript
+import { Utils } from 'ez-constructs'
+
+Utils.join(arr?: string[], separator?: string)
+```
+
+joins a string array using the given seperator.
+
+###### `arr`<sup>Optional</sup> <a name="arr" id="ez-constructs.Utils.join.parameter.arr"></a>
+
+- *Type:* string[]
+
+---
+
+###### `separator`<sup>Optional</sup> <a name="separator" id="ez-constructs.Utils.join.parameter.separator"></a>
+
+- *Type:* string
 
 ---
 

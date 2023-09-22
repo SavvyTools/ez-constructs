@@ -213,7 +213,12 @@ describe('SimpleServerlessSparkJob Construct', () => {
           mainClass: 'serverless.SimpleSparkApp',
           enableMonitoring: true,
         })
+        .withDefaultInputs({
+          age: 10,
+          country: 'USA',
+        })
         .assemble();
+
 
       // THEN should have a modified ASL.
       let stateDef = Utils.fetchStepFuncitonStateDefinition(mystack);
@@ -235,6 +240,39 @@ describe('SimpleServerlessSparkJob Construct', () => {
       expect(jobComplete.Type).toEqual('Choice');
       expect(jobComplete.Choices[0].Variable).toEqual('$.JobStatus.Status');
       expect(jobComplete.Choices[0].StringEquals).toEqual('Success');
+
+      let entryArgs = stateDef.States.EntryArgs;
+      expect(entryArgs).toBeDefined();
+      expect(entryArgs.Parameters.args).toEqual('--input,--output,--performanceYear');
+
+      let validatorFn = stateDef.States.ValidatorFnInvoke;
+      expect(validatorFn).toBeDefined();
+
+    });
+
+    test('job configuration template without entry point args', () => {
+      // WHEN
+      new SimpleServerlessSparkJob(mystack, 'SingleFly', 'MyTestETL')
+        .jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
+        .applicationId('12345676')
+        .logBucket('mylogbucket')
+        .usingSparkJobTemplate({
+          jobName: 'mytestjob',
+          entryPoint: 's3://aws-cms-amg-qpp-costscoring-artifact-dev-222224444433-us-east-1/biju_test_files/myspark-assembly.jar',
+          mainClass: 'serverless.SimpleSparkApp',
+          enableMonitoring: true,
+        })
+        .withDefaultInputs({
+          age: 10,
+          country: 'USA',
+        })
+        .assemble();
+
+
+      // THEN should have a modified ASL.
+      let stateDef = Utils.fetchStepFuncitonStateDefinition(mystack);
+      let validatorFn = stateDef.States.ValidatorFnInvoke;
+      expect(validatorFn).not.toBeDefined();
     });
 
 
