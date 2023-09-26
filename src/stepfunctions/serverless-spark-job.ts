@@ -37,6 +37,7 @@ export class SimpleStepFunction extends EzConstruct {
   /** @internal */ _defaultInputs: any = {};
   /** @internal */ _grantee?: IRole;
 
+
   private readonly _scope: Construct;
   private readonly _id: string;
 
@@ -361,6 +362,7 @@ export interface StandardSparkSubmitJobTemplate {
  */
 export class SimpleServerlessSparkJob extends SimpleStepFunction {
   private _validatorLambdaFn?: SingletonFunction;
+  private _replacerLambdaFn?: SingletonFunction;
 
   private _logBucket?: IBucket;
   private _jobRole?: IRole;
@@ -378,6 +380,10 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
 
   get validatorLambdaFn(): SingletonFunction {
     return <SingletonFunction> this._validatorLambdaFn;
+  }
+
+  get replacerLambdaFn(): SingletonFunction {
+    return <SingletonFunction> this._replacerLambdaFn;
   }
 
   /**
@@ -564,6 +570,10 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
       .when(Condition.stringEquals('$.JobStatus.Status', 'Success'), successState)
       .otherwise(failState);
 
+    let replacerFnState = new LambdaInvoke(this, 'ReplacerFnInvoke', {
+      lambdaFunction: this.replacerLambdaFn,
+      outputPath: '$',
+    });
 
     // if validator singleton function present, add it to chain
     if (this.validatorLambdaFn) {
@@ -581,6 +591,7 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
       return loadDefaultsState
         .next(applyDefaultsState)
         .next(entryPointArgsState)
+        .next(replacerFnState)
         .next(lambdaFnState)
         .next(entryValidState)
         .next(jobCompleteState);
@@ -589,6 +600,7 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
     return loadDefaultsState
       .next(applyDefaultsState)
       .next(entryPointArgsState)
+      .next(replacerFnState)
       .next(runJobState)
       .next(jobCompleteState);
 
@@ -614,6 +626,39 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
       resources: [this._applicationArn!, `${this._applicationArn!}/jobruns/*`],
     }));
 
+  }
+
+
+  /**
+   * Will create replacements of text in %KEY%, with actual value of the KEY
+   * @private
+   */
+  private createReplacementFn(): SingletonFunction {
+
+    return new SingletonFunction(this, 'Replacer', {
+      uuid: '86323b0e-2faf-5a68-a6c1-7da4b4e3c3e5',
+      lambdaPurpose: 'replace',
+      functionName: Utils.kebabCase(`${this._name}-Replacer`),
+      runtime: Runtime.NODEJS_18_X,
+      handler: 'index.handler',
+      code: Code.fromInline(`
+          const _ = require('lodash');
+          
+          exports.handler = async (event) => {
+              return  JSON.stringify(replaceValues(event, event));
+          };
+          
+          function replaceValues(obj, data) {
+              if (_.isObject(obj)) {
+                  return _.mapValues(obj, (value) => replaceValues(value, data));
+              } else if (_.isString(obj)) {
+                  return obj.replace(/%([^%]+)%/g, (match, key) => data[key] || match);
+              } else {
+                  return obj;
+              }
+          }
+      `),
+    });
   }
 
   /**
@@ -657,6 +702,7 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
       if (this._singleSparkJobTemplate.entryPointArgumentNames) {
         this._validatorLambdaFn = this.createValidatorFn();
       }
+      this._replacerLambdaFn = this.createReplacementFn();
       super.usingChainableDefinition(this.createStateDefinition());
     }
     super.assemble(stateMachineProps);

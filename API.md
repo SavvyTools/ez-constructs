@@ -1373,6 +1373,7 @@ Any object.
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.StateMachine</code> | The state machine instance created by this construct. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateMachineRole">stateMachineRole</a></code> | <code>aws-cdk-lib.aws_iam.IRole</code> | *No description.* |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateDefinition">stateDefinition</a></code> | <code>string \| aws-cdk-lib.aws_stepfunctions.IChainable</code> | Sets the state definition, and if type of the value passed is a string, will also set the stateDefinition when it is a string. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.replacerLambdaFn">replacerLambdaFn</a></code> | <code>aws-cdk-lib.aws_lambda.SingletonFunction</code> | *No description.* |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.validatorLambdaFn">validatorLambdaFn</a></code> | <code>aws-cdk-lib.aws_lambda.SingletonFunction</code> | *No description.* |
 
 ---
@@ -1506,6 +1507,16 @@ public readonly stateDefinition: string | IChainable;
 - *Type:* string | aws-cdk-lib.aws_stepfunctions.IChainable
 
 Sets the state definition, and if type of the value passed is a string, will also set the stateDefinition when it is a string.
+
+---
+
+##### `replacerLambdaFn`<sup>Required</sup> <a name="replacerLambdaFn" id="ez-constructs.SimpleServerlessSparkJob.property.replacerLambdaFn"></a>
+
+```typescript
+public readonly replacerLambdaFn: SingletonFunction;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.SingletonFunction
 
 ---
 
