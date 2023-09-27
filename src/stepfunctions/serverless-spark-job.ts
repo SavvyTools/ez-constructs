@@ -572,7 +572,7 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
 
     let replacerFnState = new LambdaInvoke(this, 'ReplacerFnInvoke', {
       lambdaFunction: this.replacerLambdaFn,
-      outputPath: '$',
+      outputPath: '$.Payload',
     });
 
     // if validator singleton function present, add it to chain
