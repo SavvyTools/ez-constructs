@@ -642,21 +642,29 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
       runtime: Runtime.NODEJS_18_X,
       handler: 'index.handler',
       code: Code.fromInline(`
-          const _ = require('lodash');
-          
-          exports.handler = async (event) => {
-              return  JSON.stringify(replaceValues(event, event));
-          };
-          
-          function replaceValues(obj, data) {
-              if (_.isObject(obj)) {
-                  return _.mapValues(obj, (value) => replaceValues(value, data));
-              } else if (_.isString(obj)) {
-                  return obj.replace(/%([^%]+)%/g, (match, key) => data[key] || match);
-              } else {
-                  return obj;
-              }
-          }
+        function isObject(obj) {
+            return obj !== null && typeof obj === 'object';
+        }
+        
+        function replaceValues(obj, data) {
+            if (isObject(obj)) {
+                const replacedObj = {};
+                for (const key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        replacedObj[key] = replaceValues(obj[key], data);
+                    }
+                }
+                return replacedObj;
+            } else if (typeof obj === 'string') {
+                return obj.replace(/%([^%]+)%/g, (match, key) => data[key] || match);
+            } else {
+                return obj;
+            }
+        }
+        
+        exports.handler = async (event) => {
+            return JSON.stringify(replaceValues(event, event));
+        };      
       `),
     });
   }
