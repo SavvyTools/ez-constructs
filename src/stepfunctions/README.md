@@ -29,19 +29,32 @@ new SimpleServerlessSparkJob(mystack, 'SingleFly', 'C2QProcessingETL')
         .logBucket('my-log-bucket-name')
         .usingDefinition({
           jobName: 'mytestjob',
-          entryPoint: 's3://my-artifact-bucket-222224444433-us-east-1/biju_test_files/myspark-assembly.jar',
+          entryPoint: 's3://my-artifact-bucket-222224444433-us-east-1/%commitId%/myspark-assembly.jar',
           mainClass: 'serverless.SimpleSparkApp',
           enableMonitoring: true,
         })
     .defaultParameters({
         "movie": {
-            "primeVideo": "No Country for Old Men"
+            "primeVideo": "No Country for Old Men release in %month%"
         },
         "month": "August"
     })
     .assemble();
 ```
 In the above case, in addition to the `EntryPoint` and `SparkSubmitParameters`, while starting execution one could override the `movie` and `month` parameter as well.
+
+> **Note**
+> Have you observed the `%month%` and `%commitId%` placeholders? 
+> 
+> Anything enclosed in `%%` will be dynamically replaced with the corresponding runtime context values, and this replacement happens recursively.
+>
+> In this specific scenario, the `month` value is already set to `August`, which will be used when generating the values for `primeVideo`. Additionally, the entryPoint will incorporate its file path with the `commitId` value you provide as input during the initiation of the step function execution.
+
+
+
+
+
+
 
 What if you prefer to create your own spark serverless workflow or have an serverless workflow that has many steps. In such circumstances, you could supply your custom workflow definition as shown below:
 ```ts

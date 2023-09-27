@@ -252,6 +252,7 @@ describe('SimpleServerlessSparkJob Construct', () => {
 
     });
 
+
     test('job configuration template without entry point args', () => {
       // WHEN
       new SimpleServerlessSparkJob(mystack, 'SingleFly', 'MyTestETL')
@@ -279,6 +280,33 @@ describe('SimpleServerlessSparkJob Construct', () => {
       expect(entryArgsValid).not.toBeDefined();
     });
 
+
+    test('job configuration template with replacements', () => {
+      // WHEN
+      new SimpleServerlessSparkJob(mystack, 'SingleFly', 'MyTestETL')
+        .jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
+        .applicationId('12345676')
+        .logBucket('mylogbucket')
+        .usingSparkJobTemplate({
+          jobName: 'mytestjob-%country%',
+          entryPoint: 's3://aws-cms-amg-qpp-costscoring-artifact-dev-222224444433-us-east-1/%commitId%/myspark-assembly.jar',
+          mainClass: 'serverless.SimpleSparkApp',
+          enableMonitoring: true,
+        })
+        .withDefaultInputs({
+          age: 10,
+          country: 'USA',
+          message: 'This is from %commitId%',
+        })
+        .assemble();
+
+
+      // THEN should have a modified ASL.
+      let stateDef = Utils.fetchStepFuncitonStateDefinition(mystack);
+      console.log(JSON.stringify(stateDef, null, 2));
+      let replacerFn = stateDef.States.ReplacerFnInvoke;
+      expect(replacerFn).toBeDefined();
+    });
 
   });
 
