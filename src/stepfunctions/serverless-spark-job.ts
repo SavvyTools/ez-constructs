@@ -663,7 +663,7 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
         }
         
         exports.handler = async (event) => {
-            return JSON.stringify(replaceValues(event, event));
+            return replaceValues(event, event);
         };      
       `),
     });
