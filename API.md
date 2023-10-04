@@ -424,6 +424,7 @@ new SimpleCodebuildProject(scope: Construct, id: string)
 | <code><a href="#ez-constructs.SimpleCodebuildProject.privileged">privileged</a></code> | Set privileged mode of execution. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.projectDescription">projectDescription</a></code> | The description of the codebuild project. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.projectName">projectName</a></code> | The name of the codebuild project. |
+| <code><a href="#ez-constructs.SimpleCodebuildProject.skipArtifacts">skipArtifacts</a></code> | If set, will skip artifact creation. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.triggerBuildOnGitEvent">triggerBuildOnGitEvent</a></code> | The Github events that can trigger this build. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.triggerBuildOnSchedule">triggerBuildOnSchedule</a></code> | The cron schedule on which this build gets triggerd. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.triggerOnPushToBranches">triggerOnPushToBranches</a></code> | Triggers build on push to specified branches. |
@@ -681,6 +682,20 @@ The name of the codebuild project.
 - *Type:* string
 
 a valid name string.
+
+---
+
+##### `skipArtifacts` <a name="skipArtifacts" id="ez-constructs.SimpleCodebuildProject.skipArtifacts"></a>
+
+```typescript
+public skipArtifacts(skip: boolean): SimpleCodebuildProject
+```
+
+If set, will skip artifact creation.
+
+###### `skip`<sup>Required</sup> <a name="skip" id="ez-constructs.SimpleCodebuildProject.skipArtifacts.parameter.skip"></a>
+
+- *Type:* boolean
 
 ---
 
