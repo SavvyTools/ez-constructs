@@ -2574,7 +2574,7 @@ the permission boundary to attach to newly created roles.
 ##### `modifyRolePath` <a name="modifyRolePath" id="ez-constructs.PermissionsBoundaryAspect.modifyRolePath"></a>
 
 ```typescript
-public modifyRolePath(roleResource: CfnRole, stack: Stack): void
+public modifyRolePath(roleResource: CfnRole, stack: Stack, skipBoundary?: boolean): void
 ```
 
 ###### `roleResource`<sup>Required</sup> <a name="roleResource" id="ez-constructs.PermissionsBoundaryAspect.modifyRolePath.parameter.roleResource"></a>
@@ -2586,6 +2586,12 @@ public modifyRolePath(roleResource: CfnRole, stack: Stack): void
 ###### `stack`<sup>Required</sup> <a name="stack" id="ez-constructs.PermissionsBoundaryAspect.modifyRolePath.parameter.stack"></a>
 
 - *Type:* aws-cdk-lib.Stack
+
+---
+
+###### `skipBoundary`<sup>Optional</sup> <a name="skipBoundary" id="ez-constructs.PermissionsBoundaryAspect.modifyRolePath.parameter.skipBoundary"></a>
+
+- *Type:* boolean
 
 ---
 
