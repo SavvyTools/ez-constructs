@@ -67,6 +67,7 @@ export class SimpleCodebuildProject extends EzConstruct {
   private _buildSpecPath?: string;
   private _grantReportGroupPermissions = true;
   private _privileged = false;
+  private _skipArtifacts = false;
   private _triggerOnGitEvent?: GitEvent;
   private _triggerOnSchedule?: Schedule;
   private _triggerOnPushToBranches:Array<string> = [];
@@ -192,6 +193,15 @@ export class SimpleCodebuildProject extends EzConstruct {
   }
 
   /**
+   * If set, will skip artifact creation
+   * @param skip
+   */
+  skipArtifacts(skip:boolean): SimpleCodebuildProject {
+    this._skipArtifacts = skip;
+    return this;
+  }
+
+  /**
    * The build spec file path
    * @param buildSpecPath - relative location of the build spec file
    */
@@ -299,7 +309,7 @@ export class SimpleCodebuildProject extends EzConstruct {
     }
 
     // create artifact bucket if one was not provided
-    if (Utils.isEmpty(props.artifacts)) {
+    if (!this._skipArtifacts && Utils.isEmpty(props.artifacts)) {
       // @ts-ignore
       defaults.artifacts = this.createArtifacts(this._artifactBucket ?? `${this._projectName}-artifacts`);
     }
@@ -368,6 +378,7 @@ export class SimpleCodebuildProject extends EzConstruct {
       bucket: theBucket,
       includeBuildId: true,
       packageZip: true,
+      path: this._projectName,
     });
   }
 

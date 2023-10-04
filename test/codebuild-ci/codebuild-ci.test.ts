@@ -250,6 +250,29 @@ describe('SimpleCodebuildProject Construct', () => {
 
     });
 
+    test('project without artifacts', () => {
+      // WHEN
+      let p = new SimpleCodebuildProject(mystack, 'myproject')
+        .projectName('myproject')
+        .gitRepoUrl('https://github.cms.gov/qpp/qpp-integration-test-infrastructure-cdk.git')
+        .gitBaseBranch('main')
+        .skipArtifacts(true)
+        .assemble();
+
+      // THEN should have a default project created
+      expect(p.project).toBeDefined();
+      expect(mystack).toHaveResourceLike('AWS::CodeBuild::Project', {
+        Artifacts: {
+          Type: 'NO_ARTIFACTS',
+        },
+      });
+
+      // THEN should contain a bucket with correct name
+      expect(mystack).not.toHaveResourceLike('AWS::S3::Bucket', {
+        BucketName: 'myproject-artifacts-111111111111-us-east-1',
+      });
+
+    });
 
     test('project environment privileged mode via overrides', () => {
       // WHEN
