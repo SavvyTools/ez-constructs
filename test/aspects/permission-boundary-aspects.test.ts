@@ -1,6 +1,6 @@
 import { App, Aspects, RemovalPolicy, Stack } from 'aws-cdk-lib';
 import '@aws-cdk/assert/jest';
-import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { InstanceProfile, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 import { SecureBucket } from '../../lib';
 import { PermissionsBoundaryAspect } from '../../src/aspects/permission-boundary-aspect';
@@ -19,6 +19,11 @@ export class MyStack extends Stack {
       resources: ['*'],
       actions: ['lambda:InvokeFunction'],
     }));
+
+    new InstanceProfile(this, 'MyProfile', {
+      role: role,
+      instanceProfileName: 'bj-test-profile',
+    });
 
     new SecureBucket(this, 'myBucket')
       .bucketName('myworld')
@@ -41,6 +46,10 @@ describe('PermissionBoundaryAspect', () => {
     expect(mystack).toHaveResourceLike('AWS::IAM::Role', {
       Path: '/role/dev/',
       PermissionsBoundary: 'arn:aws:iam::111111111111:policy/boundary/dev',
+    });
+
+    expect(mystack).toHaveResourceLike('AWS::IAM::InstanceProfile', {
+      Path: '/role/dev/',
     });
 
   });
