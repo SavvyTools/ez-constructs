@@ -837,6 +837,7 @@ new SimpleServerlessApplication(scope: Construct, id: string)
 | <code><a href="#ez-constructs.SimpleServerlessApplication.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#ez-constructs.SimpleServerlessApplication.assemble">assemble</a></code> | *No description.* |
 | <code><a href="#ez-constructs.SimpleServerlessApplication.name">name</a></code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessApplication.skipDashboard">skipDashboard</a></code> | *No description.* |
 | <code><a href="#ez-constructs.SimpleServerlessApplication.vpc">vpc</a></code> | *No description.* |
 
 ---
@@ -870,6 +871,18 @@ public name(name: string): SimpleServerlessApplication
 ###### `name`<sup>Required</sup> <a name="name" id="ez-constructs.SimpleServerlessApplication.name.parameter.name"></a>
 
 - *Type:* string
+
+---
+
+##### `skipDashboard` <a name="skipDashboard" id="ez-constructs.SimpleServerlessApplication.skipDashboard"></a>
+
+```typescript
+public skipDashboard(skip: boolean): SimpleServerlessApplication
+```
+
+###### `skip`<sup>Required</sup> <a name="skip" id="ez-constructs.SimpleServerlessApplication.skipDashboard.parameter.skip"></a>
+
+- *Type:* boolean
 
 ---
 
