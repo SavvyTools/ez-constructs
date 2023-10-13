@@ -33,6 +33,7 @@ export class SimpleServerlessApplication extends EzConstruct {
   /** @internal */ private _privateSubnetIds: string[] = [];
   /** @internal */ private _securityGroup?: SecurityGroup;
   /** @internal */ private _application?: CfnApplication;
+  /** @internal */ private _skipDashboard = false;
 
   private readonly _scope: Construct;
 
@@ -43,6 +44,11 @@ export class SimpleServerlessApplication extends EzConstruct {
 
   get application(): CfnApplication | undefined {
     return this._application;
+  }
+
+  public skipDashboard(skip: boolean): SimpleServerlessApplication {
+    this._skipDashboard = skip;
+    return this;
   }
 
   public name(name: string): SimpleServerlessApplication {
@@ -318,7 +324,7 @@ export class SimpleServerlessApplication extends EzConstruct {
   public assemble(props?: CfnApplicationProps): SimpleServerlessApplication {
     let newProps = Object.assign({}, this.defaultProps(), props || {});
     this._application = new CfnApplication(this._scope, 'DefaultServerlessApplication', newProps);
-    this.createDashboard();
+    if (!this._skipDashboard) this.createDashboard();
     return this;
   }
 

@@ -303,7 +303,6 @@ describe('SimpleServerlessSparkJob Construct', () => {
 
       // THEN should have a modified ASL.
       let stateDef = Utils.fetchStepFuncitonStateDefinition(mystack);
-      console.log(JSON.stringify(stateDef, null, 2));
       let replacerFn = stateDef.States.ReplacerFnInvoke;
       expect(replacerFn).toBeDefined();
     });
