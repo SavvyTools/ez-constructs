@@ -645,6 +645,34 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
         function isObject(obj) {
             return obj !== null && typeof obj === 'object';
         }
+
+        function getFormattedDate() {
+            const now = new Date();
+
+            // Get each component of the date and time
+            const year = now.getUTCFullYear();
+            const month = (now.getUTCMonth() + 1).toString().padStart(2, '0');
+            const day = now.getUTCDate().toString().padStart(2, '0');
+            const hours = now.getUTCHours().toString().padStart(2, '0');
+            const minutes = now.getUTCMinutes().toString().padStart(2, '0');
+            const seconds = now.getUTCSeconds().toString().padStart(2, '0');
+
+            // Concatenate the components in the desired format
+            const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}Z`;
+
+            return formattedDate;
+        }
+
+        function getCommit4(obj) {
+             let commitId = obj['commitId'];
+             return commitId?commitId.substring(0, 4):commitId;
+        }
+
+        function getSync(obj) {
+             let sync = obj['synchronizedRun'];
+             let tier = obj['tier'];
+             return sync == 'true'?'sync':tier;
+        }
         
         function replaceValues(obj, data) {
             if (isObject(obj)) {
@@ -663,6 +691,9 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
         }
         
         exports.handler = async (event) => {
+            event.startDateTime = getFormattedDate();
+            event.sync = getSync(event);
+            event.commit4 = getCommit4(event);
             return replaceValues(event, event);
         };      
       `),
