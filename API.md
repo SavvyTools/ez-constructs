@@ -177,6 +177,7 @@ a unique identifier for the construct.
 | <code><a href="#ez-constructs.SecureBucket.assemble">assemble</a></code> | Creates the underlying S3 bucket. |
 | <code><a href="#ez-constructs.SecureBucket.bucketName">bucketName</a></code> | The name of the bucket. |
 | <code><a href="#ez-constructs.SecureBucket.moveToGlacierDeepArchive">moveToGlacierDeepArchive</a></code> | Use only for buckets that have archiving data. |
+| <code><a href="#ez-constructs.SecureBucket.moveToGlacierInstantRetrieval">moveToGlacierInstantRetrieval</a></code> | Use only for buckets that have archiving data. |
 | <code><a href="#ez-constructs.SecureBucket.objectsExpireInDays">objectsExpireInDays</a></code> | The number of days that object will be kept. |
 | <code><a href="#ez-constructs.SecureBucket.overrideBucketProperties">overrideBucketProperties</a></code> | This function allows users to override the defaults calculated by this construct and is only recommended for advanced usecases. |
 | <code><a href="#ez-constructs.SecureBucket.restrictAccessToIpOrCidrs">restrictAccessToIpOrCidrs</a></code> | Adds access restrictions so that the access is allowed from the following IP ranges. |
@@ -226,9 +227,23 @@ public moveToGlacierDeepArchive(move?: boolean): SecureBucket
 
 Use only for buckets that have archiving data.
 
-CAUTION, once the object is archived, a temporary bucket to store the data.
+CAUTION, once the object is archived, a temporary bucket copy is needed to restore the data.
 
 ###### `move`<sup>Optional</sup> <a name="move" id="ez-constructs.SecureBucket.moveToGlacierDeepArchive.parameter.move"></a>
+
+- *Type:* boolean
+
+---
+
+##### `moveToGlacierInstantRetrieval` <a name="moveToGlacierInstantRetrieval" id="ez-constructs.SecureBucket.moveToGlacierInstantRetrieval"></a>
+
+```typescript
+public moveToGlacierInstantRetrieval(move?: boolean): SecureBucket
+```
+
+Use only for buckets that have archiving data.
+
+###### `move`<sup>Optional</sup> <a name="move" id="ez-constructs.SecureBucket.moveToGlacierInstantRetrieval.parameter.move"></a>
 
 - *Type:* boolean
 

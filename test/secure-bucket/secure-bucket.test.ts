@@ -139,6 +139,7 @@ describe('SecureBucket Construct', () => {
       new SecureBucket(mystack, 'secureBucket')
         .bucketName('mybucket')
         .objectsExpireInDays(500)
+        .moveToGlacierDeepArchive(true)
         .assemble();
 
       // THEN
@@ -167,6 +168,10 @@ describe('SecureBucket Construct', () => {
                 {
                   StorageClass: 'INTELLIGENT_TIERING',
                   TransitionInDays: 60,
+                },
+                {
+                  StorageClass: 'DEEP_ARCHIVE',
+                  TransitionInDays: 365,
                 },
               ],
             },
