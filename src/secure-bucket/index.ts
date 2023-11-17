@@ -1,6 +1,14 @@
 import { Duration, Stack } from 'aws-cdk-lib';
 import { Effect, PolicyStatement, StarPrincipal } from 'aws-cdk-lib/aws-iam';
-import { BlockPublicAccess, Bucket, BucketEncryption, BucketProps, StorageClass } from 'aws-cdk-lib/aws-s3';
+import {
+  BlockPublicAccess,
+  Bucket,
+  BucketEncryption,
+  BucketProps,
+  LifecycleRule,
+  StorageClass,
+} from 'aws-cdk-lib/aws-s3';
+import { Transition } from 'aws-cdk-lib/aws-s3/lib/rule';
 import { Construct } from 'constructs';
 import * as _ from 'lodash';
 import { EzConstruct } from '../ez-construct';
@@ -32,6 +40,7 @@ export class SecureBucket extends EzConstruct {
   private _props: BucketProps | undefined;
 
   private _moveToGlacierDeepArchive = false;
+  private _moveToGlacierInstantRetrieval = false;
   private _objectsExpireInDays = 3650;
   private readonly scope: Construct;
   // @ts-ignore
@@ -85,12 +94,23 @@ export class SecureBucket extends EzConstruct {
 
   /**
    * Use only for buckets that have archiving data.
-   * CAUTION, once the object is archived, a temporary bucket to store the data.
+   * CAUTION, once the object is archived, a temporary bucket copy is needed to restore the data.
    * @default false
    * @returns SecureBucket
    */
   moveToGlacierDeepArchive(move?: boolean): SecureBucket {
     this._moveToGlacierDeepArchive = move ?? false;
+    this._moveToGlacierInstantRetrieval = !(this._moveToGlacierDeepArchive);
+    return this;
+  }
+  /**
+   * Use only for buckets that have archiving data.
+   * @default false
+   * @returns SecureBucket
+   */
+  moveToGlacierInstantRetrieval(move?: boolean): SecureBucket {
+    this._moveToGlacierInstantRetrieval = move ?? false;
+    this._moveToGlacierDeepArchive = !(this._moveToGlacierInstantRetrieval);
     return this;
   }
 
@@ -131,6 +151,46 @@ export class SecureBucket extends EzConstruct {
 
   }
 
+  private generateLifeCycleRule(): LifecycleRule[] {
+    let objectsExpireInDays = this._objectsExpireInDays ?? 3650; // 10 years
+    let moveToGlacierDeepArchive = this._moveToGlacierDeepArchive ?? false;
+    let moveToGlacierInstantRetrieval = this._moveToGlacierInstantRetrieval ?? false;
+    let transitions:Transition[] = [];
+    let lifecycleRules = [
+      {
+        expiration: Duration.days(objectsExpireInDays),
+        abortIncompleteMultipartUploadAfter: Duration.days(30),
+        transitions: transitions,
+      },
+    ];
+    if (objectsExpireInDays <= 30) return lifecycleRules;
+    if (moveToGlacierInstantRetrieval) {
+      transitions.push({
+        storageClass: StorageClass.GLACIER_INSTANT_RETRIEVAL,
+        transitionAfter: Duration.days(30),
+      });
+      return lifecycleRules;
+    }
+    if (objectsExpireInDays >= 60) {
+      transitions.push({
+        storageClass: StorageClass.INFREQUENT_ACCESS,
+        transitionAfter: Duration.days(30),
+      });
+    }
+    if (objectsExpireInDays >= 90) {
+      transitions.push({
+        storageClass: StorageClass.INTELLIGENT_TIERING,
+        transitionAfter: Duration.days(60),
+      });
+    }
+    if (moveToGlacierDeepArchive && objectsExpireInDays >= 365) {
+      transitions.push({
+        storageClass: StorageClass.DEEP_ARCHIVE,
+        transitionAfter: Duration.days(365),
+      });
+    }
+    return lifecycleRules;
+  }
 
   /**
    * This function allows users to override the defaults calculated by this construct and is only recommended for advanced usecases.
@@ -150,40 +210,10 @@ export class SecureBucket extends EzConstruct {
     let versioned = true;
     let enforceSSL = true;
     let publicReadAccess = false;
-    let objectsExpireInDays = this._objectsExpireInDays ?? 3650; // 10 years
-    let moveToGlacierDeepArchive = this._moveToGlacierDeepArchive ?? false;
 
     // block access if necessary
     let blockPublicAccess = (!publicReadAccess ? BlockPublicAccess.BLOCK_ALL : undefined);
-
-    // will add transitions if expiry set on object is >90 days.
-    let transitions = [];
-    if (objectsExpireInDays >= 60) {
-      transitions.push({
-        storageClass: StorageClass.INFREQUENT_ACCESS,
-        transitionAfter: Duration.days(30),
-      });
-    }
-    if (objectsExpireInDays >= 90) {
-      transitions.push({
-        storageClass: StorageClass.INTELLIGENT_TIERING,
-        transitionAfter: Duration.days(60),
-      });
-    }
-    if (moveToGlacierDeepArchive && objectsExpireInDays >= 365) {
-      transitions.push({
-        storageClass: StorageClass.DEEP_ARCHIVE,
-        transitionAfter: Duration.days(90),
-      });
-    }
-
-    let lifecycleRules = [
-      {
-        expiration: Duration.days(objectsExpireInDays),
-        abortIncompleteMultipartUploadAfter: Duration.days(30),
-        transitions: transitions,
-      },
-    ];
+    let lifecycleRules = this.generateLifeCycleRule();
 
     // override bucket props with defaults
     let bucketProps = Object.assign({}, {
