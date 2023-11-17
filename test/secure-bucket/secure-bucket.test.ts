@@ -343,7 +343,7 @@ describe('SecureBucket Construct', () => {
       expect(mystack).toHaveResourceLike('AWS::S3::Bucket', {
         LoggingConfiguration: {
           DestinationBucketName: {},
-          LogFilePrefix: 'mybucket',
+          LogFilePrefix: 'mybucket/',
         },
       });
 

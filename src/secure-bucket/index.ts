@@ -225,7 +225,8 @@ export class SecureBucket extends EzConstruct {
     let blockPublicAccess = (!publicReadAccess ? BlockPublicAccess.BLOCK_ALL : undefined);
     let lifecycleRules = this.generateLifeCycleRule();
     let serverAccessLogsBucket = props.serverAccessLogsBucket ?? this._logsBucket;
-    let serverAccessLogsPrefix = serverAccessLogsBucket ? props.serverAccessLogsPrefix ?? this._bucketName : undefined;
+    let defaultPrefix = `${this._bucketName}/`;
+    let serverAccessLogsPrefix = serverAccessLogsBucket ? props.serverAccessLogsPrefix ?? defaultPrefix: undefined;
 
     // override bucket props with defaults
     let bucketProps = Object.assign({}, {
