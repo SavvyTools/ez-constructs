@@ -100,7 +100,6 @@ export class SecureBucket extends EzConstruct {
    */
   moveToGlacierDeepArchive(move?: boolean): SecureBucket {
     this._moveToGlacierDeepArchive = move ?? false;
-    this._moveToGlacierInstantRetrieval = !(this._moveToGlacierDeepArchive);
     return this;
   }
   /**
@@ -110,7 +109,6 @@ export class SecureBucket extends EzConstruct {
    */
   moveToGlacierInstantRetrieval(move?: boolean): SecureBucket {
     this._moveToGlacierInstantRetrieval = move ?? false;
-    this._moveToGlacierDeepArchive = !(this._moveToGlacierInstantRetrieval);
     return this;
   }
 
@@ -163,32 +161,19 @@ export class SecureBucket extends EzConstruct {
         transitions: transitions,
       },
     ];
+
     if (objectsExpireInDays <= 30) return lifecycleRules;
-    if (moveToGlacierInstantRetrieval) {
-      transitions.push({
-        storageClass: StorageClass.GLACIER_INSTANT_RETRIEVAL,
-        transitionAfter: Duration.days(30),
-      });
-      return lifecycleRules;
-    }
-    if (objectsExpireInDays >= 60) {
-      transitions.push({
-        storageClass: StorageClass.INFREQUENT_ACCESS,
-        transitionAfter: Duration.days(30),
-      });
-    }
-    if (objectsExpireInDays >= 90) {
-      transitions.push({
-        storageClass: StorageClass.INTELLIGENT_TIERING,
-        transitionAfter: Duration.days(60),
-      });
-    }
+
     if (moveToGlacierDeepArchive && objectsExpireInDays >= 365) {
-      transitions.push({
-        storageClass: StorageClass.DEEP_ARCHIVE,
-        transitionAfter: Duration.days(365),
-      });
+      transitions.push({ storageClass: StorageClass.DEEP_ARCHIVE, transitionAfter: Duration.days(365) });
     }
+
+    if (moveToGlacierInstantRetrieval) {
+      transitions.push({ storageClass: StorageClass.GLACIER_INSTANT_RETRIEVAL, transitionAfter: Duration.days(30) });
+    } else {
+      transitions.push({ storageClass: StorageClass.INTELLIGENT_TIERING, transitionAfter: Duration.days(30) });
+    }
+
     return lifecycleRules;
   }
 
