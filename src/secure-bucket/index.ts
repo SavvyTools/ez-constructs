@@ -43,6 +43,7 @@ export class SecureBucket extends EzConstruct {
   private _moveToGlacierDeepArchive = false;
   private _moveToGlacierInstantRetrieval = false;
   private _objectsExpireInDays = 3650;
+  private _noncurrentObjectsExpireInDays = 90;
   private readonly scope: Construct;
   // @ts-ignore
   private readonly id: string;
@@ -124,6 +125,16 @@ export class SecureBucket extends EzConstruct {
   }
 
   /**
+   * The number of days that non current version of object will be kept.
+   * @default 90 days
+   * @returns SecureBucket
+   */
+  nonCurrentObjectsExpireInDays(expiryInDays: number): SecureBucket {
+    this._noncurrentObjectsExpireInDays = expiryInDays;
+    return this;
+  }
+
+  /**
    * Will enable the access logs to the given bucket
    * @param logsBucket
    */
@@ -169,6 +180,10 @@ export class SecureBucket extends EzConstruct {
         expiration: Duration.days(objectsExpireInDays),
         abortIncompleteMultipartUploadAfter: Duration.days(30),
         transitions: transitions,
+        noncurrentVersionExpiration: Duration.days(this._noncurrentObjectsExpireInDays),
+        noncurrentVersionTransitions: [
+          { storageClass: StorageClass.GLACIER_INSTANT_RETRIEVAL, transitionAfter: Duration.days(3) },
+        ],
       },
     ];
 

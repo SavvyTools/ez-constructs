@@ -364,6 +364,85 @@ describe('SecureBucket Construct', () => {
 
   });
 
+  describe('Secure S3 Bucket :: Lifecycle', () => {
+    let myapp: App;
+    let mystack: Stack;
+
+    beforeEach(() => {
+      // GIVEN
+      myapp = new App();
+      mystack = new Stack(myapp, 'mystack', {
+        env: {
+          account: '111111111111',
+          region: 'us-east-1',
+        },
+      });
+    });
+
+    test('enabled by default', () => {
+
+      // WHEN
+      new SecureBucket(mystack, 'secureBucket').bucketName('mybucket')
+        .assemble();
+
+      // THEN should have correct name
+      expect(mystack).toHaveResourceLike('AWS::S3::Bucket', {
+        BucketName: 'mybucket-111111111111-us-east-1',
+        LifecycleConfiguration: {
+          Rules: [
+            {
+              Status: 'Enabled',
+              ExpirationInDays: 3650,
+              NoncurrentVersionExpiration: {
+                NoncurrentDays: 90,
+              },
+              NoncurrentVersionTransitions: [
+                {
+                  StorageClass: 'GLACIER_IR',
+                  TransitionInDays: 3,
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+    });
+
+    test('updates expriry on demand', () => {
+
+      // WHEN
+      new SecureBucket(mystack, 'secureBucket').bucketName('mybucket')
+        .nonCurrentObjectsExpireInDays(30)
+        .assemble();
+
+      // THEN should have correct name
+      expect(mystack).toHaveResourceLike('AWS::S3::Bucket', {
+        BucketName: 'mybucket-111111111111-us-east-1',
+        LifecycleConfiguration: {
+          Rules: [
+            {
+              Status: 'Enabled',
+              ExpirationInDays: 3650,
+              NoncurrentVersionExpiration: {
+                NoncurrentDays: 30,
+              },
+              NoncurrentVersionTransitions: [
+                {
+                  StorageClass: 'GLACIER_IR',
+                  TransitionInDays: 3,
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+    });
+
+
+  });
+
   describe('S3 Bucket Nagging', () => {
 
     test('should not throw error for s3 bucket access log', () => {
