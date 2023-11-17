@@ -47,12 +47,8 @@ describe('SecureBucket Construct', () => {
             {
               Transitions: [
                 {
-                  StorageClass: 'STANDARD_IA',
-                  TransitionInDays: 30,
-                },
-                {
                   StorageClass: 'INTELLIGENT_TIERING',
-                  TransitionInDays: 60,
+                  TransitionInDays: 30,
                 },
               ],
             },
@@ -162,16 +158,12 @@ describe('SecureBucket Construct', () => {
             {
               Transitions: [
                 {
-                  StorageClass: 'STANDARD_IA',
-                  TransitionInDays: 30,
+                  StorageClass: 'DEEP_ARCHIVE',
+                  TransitionInDays: 365,
                 },
                 {
                   StorageClass: 'INTELLIGENT_TIERING',
-                  TransitionInDays: 60,
-                },
-                {
-                  StorageClass: 'DEEP_ARCHIVE',
-                  TransitionInDays: 365,
+                  TransitionInDays: 30,
                 },
               ],
             },
@@ -195,7 +187,7 @@ describe('SecureBucket Construct', () => {
               ExpirationInDays: 89,
               Transitions: [
                 {
-                  StorageClass: 'STANDARD_IA',
+                  StorageClass: 'INTELLIGENT_TIERING',
                   TransitionInDays: 30,
                 },
               ],
