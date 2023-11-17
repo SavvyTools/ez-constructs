@@ -1,6 +1,7 @@
 import { SynthUtils } from '@aws-cdk/assert';
 import '@aws-cdk/assert/jest';
 import { App, Aspects, Stack } from 'aws-cdk-lib';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { AwsSolutionsChecks } from 'cdk-nag';
 import { SecureBucket } from '../../src';
 
@@ -316,6 +317,131 @@ describe('SecureBucket Construct', () => {
     });
   });
 
+  describe('Secure S3 Bucket :: Logging', () => {
+    let myapp: App;
+    let mystack: Stack;
+
+    beforeEach(() => {
+      // GIVEN
+      myapp = new App();
+      mystack = new Stack(myapp, 'mystack', {
+        env: {
+          account: '111111111111',
+          region: 'us-east-1',
+        },
+      });
+    });
+
+    test('enabled', () => {
+
+      // WHEN
+      new SecureBucket(mystack, 'secureBucket').bucketName('mybucket')
+        .accessLogsBucket(new Bucket(mystack, 'test', { bucketName: 'test' }))
+        .assemble();
+
+      // THEN should have correct name
+      expect(mystack).toHaveResourceLike('AWS::S3::Bucket', {
+        LoggingConfiguration: {
+          DestinationBucketName: {},
+          LogFilePrefix: 'mybucket/',
+        },
+      });
+
+    });
+
+    test('disabled', () => {
+      // WHEN
+      new SecureBucket(mystack, 'secureBucket')
+        .bucketName('mybucket')
+        .assemble();
+
+
+      // THEN should have correct name
+      expect(mystack).not.toHaveResourceLike('AWS::S3::Bucket', {
+        LoggingConfiguration: {},
+      });
+    });
+
+  });
+
+  describe('Secure S3 Bucket :: Lifecycle', () => {
+    let myapp: App;
+    let mystack: Stack;
+
+    beforeEach(() => {
+      // GIVEN
+      myapp = new App();
+      mystack = new Stack(myapp, 'mystack', {
+        env: {
+          account: '111111111111',
+          region: 'us-east-1',
+        },
+      });
+    });
+
+    test('enabled by default', () => {
+
+      // WHEN
+      new SecureBucket(mystack, 'secureBucket').bucketName('mybucket')
+        .assemble();
+
+      // THEN should have correct name
+      expect(mystack).toHaveResourceLike('AWS::S3::Bucket', {
+        BucketName: 'mybucket-111111111111-us-east-1',
+        LifecycleConfiguration: {
+          Rules: [
+            {
+              Status: 'Enabled',
+              ExpirationInDays: 3650,
+              NoncurrentVersionExpiration: {
+                NoncurrentDays: 90,
+              },
+              NoncurrentVersionTransitions: [
+                {
+                  StorageClass: 'GLACIER_IR',
+                  TransitionInDays: 3,
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+    });
+
+    test('updates expriry on demand', () => {
+
+      // WHEN
+      new SecureBucket(mystack, 'secureBucket').bucketName('mybucket')
+        .nonCurrentObjectsExpireInDays(30)
+        .assemble();
+
+      // THEN should have correct name
+      expect(mystack).toHaveResourceLike('AWS::S3::Bucket', {
+        BucketName: 'mybucket-111111111111-us-east-1',
+        LifecycleConfiguration: {
+          Rules: [
+            {
+              Status: 'Enabled',
+              ExpirationInDays: 3650,
+              NoncurrentVersionExpiration: {
+                NoncurrentDays: 30,
+              },
+              NoncurrentVersionTransitions: [
+                {
+                  StorageClass: 'GLACIER_IR',
+                  TransitionInDays: 3,
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+    });
+
+
+  });
 
   describe('S3 Bucket Nagging', () => {
 

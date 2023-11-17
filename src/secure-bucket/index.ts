@@ -4,7 +4,7 @@ import {
   BlockPublicAccess,
   Bucket,
   BucketEncryption,
-  BucketProps,
+  BucketProps, IBucket,
   LifecycleRule,
   StorageClass,
 } from 'aws-cdk-lib/aws-s3';
@@ -38,10 +38,12 @@ export class SecureBucket extends EzConstruct {
   private _bucket: Bucket | undefined;
   private _bucketName: string | undefined;
   private _props: BucketProps | undefined;
+  private _logsBucket: IBucket | undefined;
 
   private _moveToGlacierDeepArchive = false;
   private _moveToGlacierInstantRetrieval = false;
   private _objectsExpireInDays = 3650;
+  private _noncurrentObjectsExpireInDays = 90;
   private readonly scope: Construct;
   // @ts-ignore
   private readonly id: string;
@@ -123,6 +125,25 @@ export class SecureBucket extends EzConstruct {
   }
 
   /**
+   * The number of days that non current version of object will be kept.
+   * @default 90 days
+   * @returns SecureBucket
+   */
+  nonCurrentObjectsExpireInDays(expiryInDays: number): SecureBucket {
+    this._noncurrentObjectsExpireInDays = expiryInDays;
+    return this;
+  }
+
+  /**
+   * Will enable the access logs to the given bucket
+   * @param logsBucket
+   */
+  accessLogsBucket(logsBucket: IBucket): SecureBucket {
+    this._logsBucket = logsBucket;
+    return this;
+  }
+
+  /**
    * Adds restriction to the bucket based on IP/CIDRs or VPC IDs specified.
    * @param bucket - the bucket
    */
@@ -159,6 +180,10 @@ export class SecureBucket extends EzConstruct {
         expiration: Duration.days(objectsExpireInDays),
         abortIncompleteMultipartUploadAfter: Duration.days(30),
         transitions: transitions,
+        noncurrentVersionExpiration: Duration.days(this._noncurrentObjectsExpireInDays),
+        noncurrentVersionTransitions: [
+          { storageClass: StorageClass.GLACIER_INSTANT_RETRIEVAL, transitionAfter: Duration.days(3) },
+        ],
       },
     ];
 
@@ -199,6 +224,9 @@ export class SecureBucket extends EzConstruct {
     // block access if necessary
     let blockPublicAccess = (!publicReadAccess ? BlockPublicAccess.BLOCK_ALL : undefined);
     let lifecycleRules = this.generateLifeCycleRule();
+    let serverAccessLogsBucket = props.serverAccessLogsBucket ?? this._logsBucket;
+    let defaultPrefix = `${this._bucketName}/`;
+    let serverAccessLogsPrefix = serverAccessLogsBucket ? props.serverAccessLogsPrefix ?? defaultPrefix: undefined;
 
     // override bucket props with defaults
     let bucketProps = Object.assign({}, {
@@ -209,6 +237,8 @@ export class SecureBucket extends EzConstruct {
       publicReadAccess,
       blockPublicAccess,
       lifecycleRules,
+      serverAccessLogsBucket,
+      serverAccessLogsPrefix,
     }, props);
 
     this._props = bucketProps;
