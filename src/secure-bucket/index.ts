@@ -4,7 +4,7 @@ import {
   BlockPublicAccess,
   Bucket,
   BucketEncryption,
-  BucketProps,
+  BucketProps, IBucket,
   LifecycleRule,
   StorageClass,
 } from 'aws-cdk-lib/aws-s3';
@@ -38,6 +38,7 @@ export class SecureBucket extends EzConstruct {
   private _bucket: Bucket | undefined;
   private _bucketName: string | undefined;
   private _props: BucketProps | undefined;
+  private _logsBucket: IBucket | undefined;
 
   private _moveToGlacierDeepArchive = false;
   private _moveToGlacierInstantRetrieval = false;
@@ -123,6 +124,15 @@ export class SecureBucket extends EzConstruct {
   }
 
   /**
+   * Will enable the access logs to the given bucket
+   * @param logsBucket
+   */
+  accessLogsBucket(logsBucket: IBucket): SecureBucket {
+    this._logsBucket = logsBucket;
+    return this;
+  }
+
+  /**
    * Adds restriction to the bucket based on IP/CIDRs or VPC IDs specified.
    * @param bucket - the bucket
    */
@@ -199,6 +209,8 @@ export class SecureBucket extends EzConstruct {
     // block access if necessary
     let blockPublicAccess = (!publicReadAccess ? BlockPublicAccess.BLOCK_ALL : undefined);
     let lifecycleRules = this.generateLifeCycleRule();
+    let serverAccessLogsBucket = props.serverAccessLogsBucket ?? this._logsBucket;
+    let serverAccessLogsPrefix = serverAccessLogsBucket ? props.serverAccessLogsPrefix ?? this._bucketName : undefined;
 
     // override bucket props with defaults
     let bucketProps = Object.assign({}, {
@@ -209,6 +221,8 @@ export class SecureBucket extends EzConstruct {
       publicReadAccess,
       blockPublicAccess,
       lifecycleRules,
+      serverAccessLogsBucket,
+      serverAccessLogsPrefix,
     }, props);
 
     this._props = bucketProps;

@@ -1,6 +1,7 @@
 import { SynthUtils } from '@aws-cdk/assert';
 import '@aws-cdk/assert/jest';
 import { App, Aspects, Stack } from 'aws-cdk-lib';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { AwsSolutionsChecks } from 'cdk-nag';
 import { SecureBucket } from '../../src';
 
@@ -316,6 +317,52 @@ describe('SecureBucket Construct', () => {
     });
   });
 
+  describe('Secure S3 Bucket :: Logging', () => {
+    let myapp: App;
+    let mystack: Stack;
+
+    beforeEach(() => {
+      // GIVEN
+      myapp = new App();
+      mystack = new Stack(myapp, 'mystack', {
+        env: {
+          account: '111111111111',
+          region: 'us-east-1',
+        },
+      });
+    });
+
+    test('enabled', () => {
+
+      // WHEN
+      new SecureBucket(mystack, 'secureBucket').bucketName('mybucket')
+        .accessLogsBucket(new Bucket(mystack, 'test', { bucketName: 'test' }))
+        .assemble();
+
+      // THEN should have correct name
+      expect(mystack).toHaveResourceLike('AWS::S3::Bucket', {
+        LoggingConfiguration: {
+          DestinationBucketName: {},
+          LogFilePrefix: 'mybucket',
+        },
+      });
+
+    });
+
+    test('disabled', () => {
+      // WHEN
+      new SecureBucket(mystack, 'secureBucket')
+        .bucketName('mybucket')
+        .assemble();
+
+
+      // THEN should have correct name
+      expect(mystack).not.toHaveResourceLike('AWS::S3::Bucket', {
+        LoggingConfiguration: {},
+      });
+    });
+
+  });
 
   describe('S3 Bucket Nagging', () => {
 
