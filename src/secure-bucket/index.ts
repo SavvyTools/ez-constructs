@@ -49,6 +49,7 @@ export class SecureBucket extends EzConstruct {
   private readonly id: string;
   private _restrictToIpOrCidrs: Array<string> = [];
   private _restrictToVpcIds: Array<string> = [];
+  private _restricWritesToPaths: Array<string> = [];
 
   /**
    * Creates the SecureBucket
@@ -82,6 +83,15 @@ export class SecureBucket extends EzConstruct {
    */
   restrictAccessToVpcs(vpcIds: Array<string>): SecureBucket {
     this._restrictToVpcIds.push(...vpcIds);
+    return this;
+  }
+
+  /**
+   * Will only allow writes to the following path prefixes mentioned
+   * @param dirs, a list of path prefixes to allow
+   */
+  restrictWritesToPaths(dirs: Array<string>): SecureBucket {
+    this._restricWritesToPaths.push(...dirs);
     return this;
   }
 
@@ -168,6 +178,24 @@ export class SecureBucket extends EzConstruct {
       conditions: conditions,
     }));
 
+  }
+
+  /**
+   * Will apply write restrictions to the specified path prefixes
+   * @param bucket
+   * @private
+   */
+  private enforceWriteRestrictions(bucket: Bucket):void {
+    if (!_.isEmpty(this._restricWritesToPaths)) {
+      let notResources = this._restricWritesToPaths.map( p => `${bucket.bucketArn}/${p}`);
+      bucket.addToResourcePolicy(new PolicyStatement({
+        sid: 'RestrictWrites',
+        effect: Effect.DENY,
+        principals: [new StarPrincipal()],
+        actions: ['s3:PutObject'],
+        notResources,
+      }));
+    }
   }
 
   private generateLifeCycleRule(): LifecycleRule[] {
@@ -257,6 +285,7 @@ export class SecureBucket extends EzConstruct {
     let newBucket = new Bucket(this, 'Bucket', this._props);
     // add restrictions as needed.
     this.addRestrictionPolicy(newBucket);
+    this.enforceWriteRestrictions(newBucket);
     this._bucket = newBucket;
 
     // disable s3 access log enfocement

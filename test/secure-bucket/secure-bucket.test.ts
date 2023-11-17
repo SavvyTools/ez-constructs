@@ -1,6 +1,7 @@
 import { SynthUtils } from '@aws-cdk/assert';
 import '@aws-cdk/assert/jest';
 import { App, Aspects, Stack } from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { AwsSolutionsChecks } from 'cdk-nag';
 import { SecureBucket } from '../../src';
@@ -437,6 +438,46 @@ describe('SecureBucket Construct', () => {
           ],
         },
       });
+
+    });
+
+
+  });
+
+  describe('Secure S3 Bucket :: Restrictions', () => {
+    let myapp: App;
+    let mystack: Stack;
+
+    beforeEach(() => {
+      // GIVEN
+      myapp = new App();
+      mystack = new Stack(myapp, 'mystack', {
+        env: {
+          account: '111111111111',
+          region: 'us-east-1',
+        },
+      });
+    });
+
+    test('restrict paths', () => {
+
+      // WHEN
+      new SecureBucket(mystack, 'secureBucket').bucketName('mybucket')
+        .restrictWritesToPaths(['main/*', 'main_$folder$/*'])
+        .assemble();
+
+      // THEN should have correct name
+      expect(mystack).toHaveResourceLike('AWS::S3::Bucket', {
+        BucketName: 'mybucket-111111111111-us-east-1',
+      });
+
+      // AND the resource restriction
+      let t = Template.fromStack(mystack);
+      let policies = t.findResources('AWS::S3::BucketPolicy');
+      let bucketPolicy = Object.values(policies)[0].Properties.PolicyDocument.Statement[1];
+      expect(bucketPolicy.Action).toEqual('s3:PutObject');
+      expect(bucketPolicy.Sid).toEqual('RestrictWrites');
+      expect(bucketPolicy.Effect).toEqual('Deny');
 
     });
 
