@@ -174,10 +174,12 @@ a unique identifier for the construct.
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#ez-constructs.SecureBucket.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#ez-constructs.SecureBucket.accessLogsBucket">accessLogsBucket</a></code> | Will enable the access logs to the given bucket. |
 | <code><a href="#ez-constructs.SecureBucket.assemble">assemble</a></code> | Creates the underlying S3 bucket. |
 | <code><a href="#ez-constructs.SecureBucket.bucketName">bucketName</a></code> | The name of the bucket. |
 | <code><a href="#ez-constructs.SecureBucket.moveToGlacierDeepArchive">moveToGlacierDeepArchive</a></code> | Use only for buckets that have archiving data. |
 | <code><a href="#ez-constructs.SecureBucket.moveToGlacierInstantRetrieval">moveToGlacierInstantRetrieval</a></code> | Use only for buckets that have archiving data. |
+| <code><a href="#ez-constructs.SecureBucket.nonCurrentObjectsExpireInDays">nonCurrentObjectsExpireInDays</a></code> | The number of days that non current version of object will be kept. |
 | <code><a href="#ez-constructs.SecureBucket.objectsExpireInDays">objectsExpireInDays</a></code> | The number of days that object will be kept. |
 | <code><a href="#ez-constructs.SecureBucket.overrideBucketProperties">overrideBucketProperties</a></code> | This function allows users to override the defaults calculated by this construct and is only recommended for advanced usecases. |
 | <code><a href="#ez-constructs.SecureBucket.restrictAccessToIpOrCidrs">restrictAccessToIpOrCidrs</a></code> | Adds access restrictions so that the access is allowed from the following IP ranges. |
@@ -192,6 +194,20 @@ public toString(): string
 ```
 
 Returns a string representation of this construct.
+
+##### `accessLogsBucket` <a name="accessLogsBucket" id="ez-constructs.SecureBucket.accessLogsBucket"></a>
+
+```typescript
+public accessLogsBucket(logsBucket: IBucket): SecureBucket
+```
+
+Will enable the access logs to the given bucket.
+
+###### `logsBucket`<sup>Required</sup> <a name="logsBucket" id="ez-constructs.SecureBucket.accessLogsBucket.parameter.logsBucket"></a>
+
+- *Type:* aws-cdk-lib.aws_s3.IBucket
+
+---
 
 ##### `assemble` <a name="assemble" id="ez-constructs.SecureBucket.assemble"></a>
 
@@ -246,6 +262,20 @@ Use only for buckets that have archiving data.
 ###### `move`<sup>Optional</sup> <a name="move" id="ez-constructs.SecureBucket.moveToGlacierInstantRetrieval.parameter.move"></a>
 
 - *Type:* boolean
+
+---
+
+##### `nonCurrentObjectsExpireInDays` <a name="nonCurrentObjectsExpireInDays" id="ez-constructs.SecureBucket.nonCurrentObjectsExpireInDays"></a>
+
+```typescript
+public nonCurrentObjectsExpireInDays(expiryInDays: number): SecureBucket
+```
+
+The number of days that non current version of object will be kept.
+
+###### `expiryInDays`<sup>Required</sup> <a name="expiryInDays" id="ez-constructs.SecureBucket.nonCurrentObjectsExpireInDays.parameter.expiryInDays"></a>
+
+- *Type:* number
 
 ---
 
