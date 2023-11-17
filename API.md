@@ -184,6 +184,7 @@ a unique identifier for the construct.
 | <code><a href="#ez-constructs.SecureBucket.overrideBucketProperties">overrideBucketProperties</a></code> | This function allows users to override the defaults calculated by this construct and is only recommended for advanced usecases. |
 | <code><a href="#ez-constructs.SecureBucket.restrictAccessToIpOrCidrs">restrictAccessToIpOrCidrs</a></code> | Adds access restrictions so that the access is allowed from the following IP ranges. |
 | <code><a href="#ez-constructs.SecureBucket.restrictAccessToVpcs">restrictAccessToVpcs</a></code> | Adds access restrictions so that the access is allowed from the following VPCs. |
+| <code><a href="#ez-constructs.SecureBucket.restrictWritesToPaths">restrictWritesToPaths</a></code> | Will only allow writes to the following path prefixes mentioned. |
 
 ---
 
@@ -336,6 +337,22 @@ Adds access restrictions so that the access is allowed from the following VPCs.
 ###### `vpcIds`<sup>Required</sup> <a name="vpcIds" id="ez-constructs.SecureBucket.restrictAccessToVpcs.parameter.vpcIds"></a>
 
 - *Type:* string[]
+
+---
+
+##### `restrictWritesToPaths` <a name="restrictWritesToPaths" id="ez-constructs.SecureBucket.restrictWritesToPaths"></a>
+
+```typescript
+public restrictWritesToPaths(dirs: string[]): SecureBucket
+```
+
+Will only allow writes to the following path prefixes mentioned.
+
+###### `dirs`<sup>Required</sup> <a name="dirs" id="ez-constructs.SecureBucket.restrictWritesToPaths.parameter.dirs"></a>
+
+- *Type:* string[]
+
+, a list of path prefixes to allow.
 
 ---
 
