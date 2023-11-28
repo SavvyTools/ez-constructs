@@ -1245,16 +1245,10 @@ Creates state machine from the given props.
 ##### `createStateMachineCloudWatchLogGroup` <a name="createStateMachineCloudWatchLogGroup" id="ez-constructs.SimpleServerlessSparkJob.createStateMachineCloudWatchLogGroup"></a>
 
 ```typescript
-public createStateMachineCloudWatchLogGroup(stateMachineName: string): LogGroup
+public createStateMachineCloudWatchLogGroup(): LogGroup
 ```
 
 creates bucket to store state machine logs.
-
-###### `stateMachineName`<sup>Required</sup> <a name="stateMachineName" id="ez-constructs.SimpleServerlessSparkJob.createStateMachineCloudWatchLogGroup.parameter.stateMachineName"></a>
-
-- *Type:* string
-
----
 
 ##### `createStateMachineRole` <a name="createStateMachineRole" id="ez-constructs.SimpleServerlessSparkJob.createStateMachineRole"></a>
 
@@ -1758,16 +1752,10 @@ Creates state machine from the given props.
 ##### `createStateMachineCloudWatchLogGroup` <a name="createStateMachineCloudWatchLogGroup" id="ez-constructs.SimpleStepFunction.createStateMachineCloudWatchLogGroup"></a>
 
 ```typescript
-public createStateMachineCloudWatchLogGroup(stateMachineName: string): LogGroup
+public createStateMachineCloudWatchLogGroup(): LogGroup
 ```
 
 creates bucket to store state machine logs.
-
-###### `stateMachineName`<sup>Required</sup> <a name="stateMachineName" id="ez-constructs.SimpleStepFunction.createStateMachineCloudWatchLogGroup.parameter.stateMachineName"></a>
-
-- *Type:* string
-
----
 
 ##### `createStateMachineRole` <a name="createStateMachineRole" id="ez-constructs.SimpleStepFunction.createStateMachineRole"></a>
 

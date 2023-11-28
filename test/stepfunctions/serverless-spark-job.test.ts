@@ -84,7 +84,7 @@ describe('SimpleServerlessSparkJob Construct', () => {
 
       // WITH logging to MyTestETLLogGroup
       expect(mystack).toHaveResourceLike('AWS::Logs::LogGroup', {
-        LogGroupName: 'MyTestETLLogGroup',
+        LogGroupName: '/aws/vendedlogs',
         RetentionInDays: 90,
       });
 
@@ -139,7 +139,6 @@ describe('SimpleServerlessSparkJob Construct', () => {
 
       // WITH logging to MyTestETLLogGroup
       expect(mystack).toHaveResourceLike('AWS::Logs::LogGroup', {
-        LogGroupName: 'MyMultiTestETLLogGroup',
         RetentionInDays: 90,
       });
 
