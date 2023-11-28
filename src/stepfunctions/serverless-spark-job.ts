@@ -1,15 +1,15 @@
-
 import { Arn, ArnFormat, RemovalPolicy, Stack, Token } from 'aws-cdk-lib';
 import { IRole, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Code, Runtime, SingletonFunction } from 'aws-cdk-lib/aws-lambda';
-import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { ILogGroup, LogGroup, LogRetention, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import {
   Choice,
   Condition,
   DefinitionBody,
   Errors,
-  Fail, IChainable,
+  Fail,
+  IChainable,
   IntegrationPattern,
   LogLevel,
   Pass,
@@ -252,16 +252,19 @@ export class SimpleStepFunction extends EzConstruct {
   /**
    * creates bucket to store state machine logs
    */
-  public createStateMachineCloudWatchLogGroup(): LogGroup {
-    return new LogGroup(this.scope, 'LogGroup', {
-      removalPolicy: RemovalPolicy.DESTROY,
+  public createStateMachineCloudWatchLogGroup(): ILogGroup {
+    let lr = new LogRetention(this.scope, 'LogGroupRetention', {
       retention: RetentionDays.THREE_MONTHS,
+      removalPolicy: RemovalPolicy.DESTROY,
       logGroupName: '/aws/vendedlogs',
     });
+
+    return LogGroup.fromLogGroupArn(this.scope, 'LogGroup', lr.logGroupArn);
+
   }
 
   public createDefaultStateMachineProps(stateMachineName: string, stateMachineRole: IRole,
-    definitionBody: DefinitionBody, logGroup: LogGroup): StateMachineProps {
+    definitionBody: DefinitionBody, logGroup: ILogGroup): StateMachineProps {
     return {
       definitionBody: definitionBody,
       stateMachineName: stateMachineName,
