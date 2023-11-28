@@ -1201,7 +1201,7 @@ Assembles the state machine.
 ##### `createDefaultStateMachineProps` <a name="createDefaultStateMachineProps" id="ez-constructs.SimpleServerlessSparkJob.createDefaultStateMachineProps"></a>
 
 ```typescript
-public createDefaultStateMachineProps(stateMachineName: string, stateMachineRole: IRole, definitionBody: DefinitionBody, logGroup: LogGroup): StateMachineProps
+public createDefaultStateMachineProps(stateMachineName: string, stateMachineRole: IRole, definitionBody: DefinitionBody, logGroup: ILogGroup): StateMachineProps
 ```
 
 ###### `stateMachineName`<sup>Required</sup> <a name="stateMachineName" id="ez-constructs.SimpleServerlessSparkJob.createDefaultStateMachineProps.parameter.stateMachineName"></a>
@@ -1224,7 +1224,7 @@ public createDefaultStateMachineProps(stateMachineName: string, stateMachineRole
 
 ###### `logGroup`<sup>Required</sup> <a name="logGroup" id="ez-constructs.SimpleServerlessSparkJob.createDefaultStateMachineProps.parameter.logGroup"></a>
 
-- *Type:* aws-cdk-lib.aws_logs.LogGroup
+- *Type:* aws-cdk-lib.aws_logs.ILogGroup
 
 ---
 
@@ -1245,7 +1245,7 @@ Creates state machine from the given props.
 ##### `createStateMachineCloudWatchLogGroup` <a name="createStateMachineCloudWatchLogGroup" id="ez-constructs.SimpleServerlessSparkJob.createStateMachineCloudWatchLogGroup"></a>
 
 ```typescript
-public createStateMachineCloudWatchLogGroup(): LogGroup
+public createStateMachineCloudWatchLogGroup(): ILogGroup
 ```
 
 creates bucket to store state machine logs.
@@ -1708,7 +1708,7 @@ Assembles the state machine.
 ##### `createDefaultStateMachineProps` <a name="createDefaultStateMachineProps" id="ez-constructs.SimpleStepFunction.createDefaultStateMachineProps"></a>
 
 ```typescript
-public createDefaultStateMachineProps(stateMachineName: string, stateMachineRole: IRole, definitionBody: DefinitionBody, logGroup: LogGroup): StateMachineProps
+public createDefaultStateMachineProps(stateMachineName: string, stateMachineRole: IRole, definitionBody: DefinitionBody, logGroup: ILogGroup): StateMachineProps
 ```
 
 ###### `stateMachineName`<sup>Required</sup> <a name="stateMachineName" id="ez-constructs.SimpleStepFunction.createDefaultStateMachineProps.parameter.stateMachineName"></a>
@@ -1731,7 +1731,7 @@ public createDefaultStateMachineProps(stateMachineName: string, stateMachineRole
 
 ###### `logGroup`<sup>Required</sup> <a name="logGroup" id="ez-constructs.SimpleStepFunction.createDefaultStateMachineProps.parameter.logGroup"></a>
 
-- *Type:* aws-cdk-lib.aws_logs.LogGroup
+- *Type:* aws-cdk-lib.aws_logs.ILogGroup
 
 ---
 
@@ -1752,7 +1752,7 @@ Creates state machine from the given props.
 ##### `createStateMachineCloudWatchLogGroup` <a name="createStateMachineCloudWatchLogGroup" id="ez-constructs.SimpleStepFunction.createStateMachineCloudWatchLogGroup"></a>
 
 ```typescript
-public createStateMachineCloudWatchLogGroup(): LogGroup
+public createStateMachineCloudWatchLogGroup(): ILogGroup
 ```
 
 creates bucket to store state machine logs.
