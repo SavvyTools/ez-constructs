@@ -223,7 +223,7 @@ export class SimpleStepFunction extends EzConstruct {
    */
   assemble(stateMachineProps?: StateMachineProps): SimpleStepFunction {
     this._stateMachineRole = this.createStateMachineRole(this._name);
-    let destination = this.createStateMachineCloudWatchLogGroup(this._name);
+    let destination = this.createStateMachineCloudWatchLogGroup();
 
     let defaults = this.createDefaultStateMachineProps(
       this._name,
@@ -252,11 +252,11 @@ export class SimpleStepFunction extends EzConstruct {
   /**
    * creates bucket to store state machine logs
    */
-  public createStateMachineCloudWatchLogGroup(stateMachineName: string): LogGroup {
+  public createStateMachineCloudWatchLogGroup(): LogGroup {
     return new LogGroup(this.scope, 'LogGroup', {
       removalPolicy: RemovalPolicy.DESTROY,
       retention: RetentionDays.THREE_MONTHS,
-      logGroupName: `${stateMachineName}LogGroup`,
+      logGroupName: '/aws/vendedlogs',
     });
   }
 
