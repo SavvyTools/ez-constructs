@@ -83,7 +83,7 @@ describe('SimpleServerlessSparkJob Construct', () => {
       expect(monitoringConfiguration.ManagedPersistenceMonitoringConfiguration.Enabled).toBeTruthy();
 
       // WITH logging to MyTestETLLogGroup
-      expect(mystack).toHaveResourceLike('AWS::Logs::LogGroup', {
+      expect(mystack).toHaveResourceLike('Custom::LogRetention', {
         LogGroupName: '/aws/vendedlogs',
         RetentionInDays: 90,
       });
@@ -138,7 +138,8 @@ describe('SimpleServerlessSparkJob Construct', () => {
       expect(monitoringConfiguration.ManagedPersistenceMonitoringConfiguration.Enabled).toBeTruthy();
 
       // WITH logging to MyTestETLLogGroup
-      expect(mystack).toHaveResourceLike('AWS::Logs::LogGroup', {
+      expect(mystack).toHaveResourceLike('Custom::LogRetention', {
+        LogGroupName: '/aws/vendedlogs',
         RetentionInDays: 90,
       });
 
