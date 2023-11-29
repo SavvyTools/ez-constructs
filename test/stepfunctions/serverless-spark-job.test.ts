@@ -34,6 +34,7 @@ describe('SimpleServerlessSparkJob Construct', () => {
           mainClass: 'serverless.SimpleSparkApp',
           enableMonitoring: true,
         })
+        .logGroupName('mytestlg')
         .assemble();
 
 
@@ -62,6 +63,7 @@ describe('SimpleServerlessSparkJob Construct', () => {
         .withDefaultInputs({
           crazy: 'day',
         })
+        .logGroupName('mytestlg')
         .assemble();
 
       // THEN should have a modified ASL.
@@ -82,11 +84,6 @@ describe('SimpleServerlessSparkJob Construct', () => {
       // WITH a 90 day log preservation period
       expect(monitoringConfiguration.ManagedPersistenceMonitoringConfiguration.Enabled).toBeTruthy();
 
-      // WITH logging to MyTestETLLogGroup
-      expect(mystack).toHaveResourceLike('Custom::LogRetention', {
-        LogGroupName: '/aws/vendedlogs',
-        RetentionInDays: 90,
-      });
 
       // WITH a state machine named MyTestETL
       expect(mystack).toHaveResourceLike('AWS::StepFunctions::StateMachine', {

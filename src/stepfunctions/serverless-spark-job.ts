@@ -36,7 +36,7 @@ export class SimpleStepFunction extends EzConstruct {
   /** @internal */ _stateDefinitionBody?: DefinitionBody;
   /** @internal */ _defaultInputs: any = {};
   /** @internal */ _grantee?: IRole;
-  /** @internal */ private _logGroupName: string = '';
+  /** @internal */ _logGroupName: string = '';
 
 
   private readonly _scope: Construct;
@@ -114,19 +114,14 @@ export class SimpleStepFunction extends EzConstruct {
     }
   }
 
-  /**
-   * Gets the logGroupName
-   */
-  get logGroupName(): string {
-    return this._logGroupName;
-  }
 
   /**
    * Sets the logGroupName
    * @param value - name of the log group
    */
-  set logGroupName(value: string) {
+  public logGroupName(value: string): SimpleStepFunction {
     this._logGroupName = value;
+    return this;
   }
 
   /**
@@ -273,7 +268,7 @@ export class SimpleStepFunction extends EzConstruct {
       new LogRetention(this.scope, 'LogGroupRetention', {
         retention: RetentionDays.THREE_MONTHS,
         removalPolicy: RemovalPolicy.DESTROY,
-        logGroupName: this.logGroupName,
+        logGroupName: this._logGroupName,
       });
     }
 
@@ -649,7 +644,6 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
     }));
 
   }
-
 
   /**
    * Will create replacements of text in %KEY%, with actual value of the KEY

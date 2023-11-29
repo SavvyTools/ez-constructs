@@ -1153,6 +1153,7 @@ new SimpleServerlessSparkJob(scope: Construct, id: string, stepFunctionName: str
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.createStateMachineRole">createStateMachineRole</a></code> | creates state machine role. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.generateDefaultStateMachinePermissions">generateDefaultStateMachinePermissions</a></code> | Will add default permisisons to the step function role. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.grantPassRole">grantPassRole</a></code> | Grants pass role permissions to the state machine role. |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.logGroupName">logGroupName</a></code> | Sets the logGroupName. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.modifyStateDefinition">modifyStateDefinition</a></code> | Modifies the supplied state definition string version of workflow defintion to include logging and tracing. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.usingChainableDefinition">usingChainableDefinition</a></code> | *No description.* |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.usingStringDefinition">usingStringDefinition</a></code> | *No description.* |
@@ -1283,6 +1284,22 @@ Grants pass role permissions to the state machine role.
 ###### `role`<sup>Required</sup> <a name="role" id="ez-constructs.SimpleServerlessSparkJob.grantPassRole.parameter.role"></a>
 
 - *Type:* aws-cdk-lib.aws_iam.IRole
+
+---
+
+##### `logGroupName` <a name="logGroupName" id="ez-constructs.SimpleServerlessSparkJob.logGroupName"></a>
+
+```typescript
+public logGroupName(value: string): SimpleStepFunction
+```
+
+Sets the logGroupName.
+
+###### `value`<sup>Required</sup> <a name="value" id="ez-constructs.SimpleServerlessSparkJob.logGroupName.parameter.value"></a>
+
+- *Type:* string
+
+name of the log group.
 
 ---
 
@@ -1456,7 +1473,6 @@ Any object.
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateDefinitionBody">stateDefinitionBody</a></code> | <code>aws-cdk-lib.aws_stepfunctions.DefinitionBody</code> | Returns the state definition body object. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.StateMachine</code> | The state machine instance created by this construct. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateMachineRole">stateMachineRole</a></code> | <code>aws-cdk-lib.aws_iam.IRole</code> | *No description.* |
-| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.logGroupName">logGroupName</a></code> | <code>string</code> | Gets the logGroupName Sets the logGroupName. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateDefinition">stateDefinition</a></code> | <code>string \| aws-cdk-lib.aws_stepfunctions.IChainable</code> | Sets the state definition, and if type of the value passed is a string, will also set the stateDefinition when it is a string. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.replacerLambdaFn">replacerLambdaFn</a></code> | <code>aws-cdk-lib.aws_lambda.SingletonFunction</code> | *No description.* |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.validatorLambdaFn">validatorLambdaFn</a></code> | <code>aws-cdk-lib.aws_lambda.SingletonFunction</code> | *No description.* |
@@ -1583,18 +1599,6 @@ public readonly stateMachineRole: IRole;
 
 ---
 
-##### `logGroupName`<sup>Required</sup> <a name="logGroupName" id="ez-constructs.SimpleServerlessSparkJob.property.logGroupName"></a>
-
-```typescript
-public readonly logGroupName: string;
-```
-
-- *Type:* string
-
-Gets the logGroupName Sets the logGroupName.
-
----
-
 ##### `stateDefinition`<sup>Required</sup> <a name="stateDefinition" id="ez-constructs.SimpleServerlessSparkJob.property.stateDefinition"></a>
 
 ```typescript
@@ -1677,6 +1681,7 @@ new SimpleStepFunction(scope: Construct, id: string, stepFunctionName: string)
 | <code><a href="#ez-constructs.SimpleStepFunction.createStateMachineRole">createStateMachineRole</a></code> | creates state machine role. |
 | <code><a href="#ez-constructs.SimpleStepFunction.generateDefaultStateMachinePermissions">generateDefaultStateMachinePermissions</a></code> | Will add default permisisons to the step function role. |
 | <code><a href="#ez-constructs.SimpleStepFunction.grantPassRole">grantPassRole</a></code> | Grants pass role permissions to the state machine role. |
+| <code><a href="#ez-constructs.SimpleStepFunction.logGroupName">logGroupName</a></code> | Sets the logGroupName. |
 | <code><a href="#ez-constructs.SimpleStepFunction.modifyStateDefinition">modifyStateDefinition</a></code> | Modifies the supplied state definition string version of workflow defintion to include logging and tracing. |
 | <code><a href="#ez-constructs.SimpleStepFunction.usingChainableDefinition">usingChainableDefinition</a></code> | *No description.* |
 | <code><a href="#ez-constructs.SimpleStepFunction.usingStringDefinition">usingStringDefinition</a></code> | *No description.* |
@@ -1806,6 +1811,22 @@ Grants pass role permissions to the state machine role.
 
 ---
 
+##### `logGroupName` <a name="logGroupName" id="ez-constructs.SimpleStepFunction.logGroupName"></a>
+
+```typescript
+public logGroupName(value: string): SimpleStepFunction
+```
+
+Sets the logGroupName.
+
+###### `value`<sup>Required</sup> <a name="value" id="ez-constructs.SimpleStepFunction.logGroupName.parameter.value"></a>
+
+- *Type:* string
+
+name of the log group.
+
+---
+
 ##### `modifyStateDefinition` <a name="modifyStateDefinition" id="ez-constructs.SimpleStepFunction.modifyStateDefinition"></a>
 
 ```typescript
@@ -1916,7 +1937,6 @@ Any object.
 | <code><a href="#ez-constructs.SimpleStepFunction.property.stateDefinitionBody">stateDefinitionBody</a></code> | <code>aws-cdk-lib.aws_stepfunctions.DefinitionBody</code> | Returns the state definition body object. |
 | <code><a href="#ez-constructs.SimpleStepFunction.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.StateMachine</code> | The state machine instance created by this construct. |
 | <code><a href="#ez-constructs.SimpleStepFunction.property.stateMachineRole">stateMachineRole</a></code> | <code>aws-cdk-lib.aws_iam.IRole</code> | *No description.* |
-| <code><a href="#ez-constructs.SimpleStepFunction.property.logGroupName">logGroupName</a></code> | <code>string</code> | Gets the logGroupName Sets the logGroupName. |
 | <code><a href="#ez-constructs.SimpleStepFunction.property.stateDefinition">stateDefinition</a></code> | <code>string \| aws-cdk-lib.aws_stepfunctions.IChainable</code> | Sets the state definition, and if type of the value passed is a string, will also set the stateDefinition when it is a string. |
 
 ---
@@ -2038,18 +2058,6 @@ public readonly stateMachineRole: IRole;
 ```
 
 - *Type:* aws-cdk-lib.aws_iam.IRole
-
----
-
-##### `logGroupName`<sup>Required</sup> <a name="logGroupName" id="ez-constructs.SimpleStepFunction.property.logGroupName"></a>
-
-```typescript
-public readonly logGroupName: string;
-```
-
-- *Type:* string
-
-Gets the logGroupName Sets the logGroupName.
 
 ---
 
