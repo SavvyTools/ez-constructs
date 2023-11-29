@@ -36,6 +36,7 @@ export class SimpleStepFunction extends EzConstruct {
   /** @internal */ _stateDefinitionBody?: DefinitionBody;
   /** @internal */ _defaultInputs: any = {};
   /** @internal */ _grantee?: IRole;
+  /** @internal */ private _logGroupName: string = '';
 
 
   private readonly _scope: Construct;
@@ -113,6 +114,20 @@ export class SimpleStepFunction extends EzConstruct {
     }
   }
 
+  /**
+   * Gets the logGroupName
+   */
+  get logGroupName(): string {
+    return this._logGroupName;
+  }
+
+  /**
+   * Sets the logGroupName
+   * @param value - name of the log group
+   */
+  set logGroupName(value: string) {
+    this._logGroupName = value;
+  }
 
   /**
    * Returns the state definition body object
@@ -253,13 +268,17 @@ export class SimpleStepFunction extends EzConstruct {
    * creates bucket to store state machine logs
    */
   public createStateMachineCloudWatchLogGroup(): ILogGroup {
-    let lr = new LogRetention(this.scope, 'LogGroupRetention', {
-      retention: RetentionDays.THREE_MONTHS,
-      removalPolicy: RemovalPolicy.DESTROY,
-      logGroupName: '/aws/vendedlogs',
-    });
+    if (Utils.isEmpty(this._logGroupName)) {
+      this._logGroupName = '/aws/vendedlogs';
+      new LogRetention(this.scope, 'LogGroupRetention', {
+        retention: RetentionDays.THREE_MONTHS,
+        removalPolicy: RemovalPolicy.DESTROY,
+        logGroupName: this.logGroupName,
+      });
+    }
 
-    return LogGroup.fromLogGroupArn(this.scope, 'LogGroup', lr.logGroupArn);
+    return LogGroup.fromLogGroupName(this.scope, 'LogGroup', this._logGroupName);
+
 
   }
 

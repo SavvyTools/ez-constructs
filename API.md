@@ -1456,6 +1456,7 @@ Any object.
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateDefinitionBody">stateDefinitionBody</a></code> | <code>aws-cdk-lib.aws_stepfunctions.DefinitionBody</code> | Returns the state definition body object. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.StateMachine</code> | The state machine instance created by this construct. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateMachineRole">stateMachineRole</a></code> | <code>aws-cdk-lib.aws_iam.IRole</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.logGroupName">logGroupName</a></code> | <code>string</code> | Gets the logGroupName Sets the logGroupName. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.stateDefinition">stateDefinition</a></code> | <code>string \| aws-cdk-lib.aws_stepfunctions.IChainable</code> | Sets the state definition, and if type of the value passed is a string, will also set the stateDefinition when it is a string. |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.replacerLambdaFn">replacerLambdaFn</a></code> | <code>aws-cdk-lib.aws_lambda.SingletonFunction</code> | *No description.* |
 | <code><a href="#ez-constructs.SimpleServerlessSparkJob.property.validatorLambdaFn">validatorLambdaFn</a></code> | <code>aws-cdk-lib.aws_lambda.SingletonFunction</code> | *No description.* |
@@ -1579,6 +1580,18 @@ public readonly stateMachineRole: IRole;
 ```
 
 - *Type:* aws-cdk-lib.aws_iam.IRole
+
+---
+
+##### `logGroupName`<sup>Required</sup> <a name="logGroupName" id="ez-constructs.SimpleServerlessSparkJob.property.logGroupName"></a>
+
+```typescript
+public readonly logGroupName: string;
+```
+
+- *Type:* string
+
+Gets the logGroupName Sets the logGroupName.
 
 ---
 
@@ -1903,6 +1916,7 @@ Any object.
 | <code><a href="#ez-constructs.SimpleStepFunction.property.stateDefinitionBody">stateDefinitionBody</a></code> | <code>aws-cdk-lib.aws_stepfunctions.DefinitionBody</code> | Returns the state definition body object. |
 | <code><a href="#ez-constructs.SimpleStepFunction.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.StateMachine</code> | The state machine instance created by this construct. |
 | <code><a href="#ez-constructs.SimpleStepFunction.property.stateMachineRole">stateMachineRole</a></code> | <code>aws-cdk-lib.aws_iam.IRole</code> | *No description.* |
+| <code><a href="#ez-constructs.SimpleStepFunction.property.logGroupName">logGroupName</a></code> | <code>string</code> | Gets the logGroupName Sets the logGroupName. |
 | <code><a href="#ez-constructs.SimpleStepFunction.property.stateDefinition">stateDefinition</a></code> | <code>string \| aws-cdk-lib.aws_stepfunctions.IChainable</code> | Sets the state definition, and if type of the value passed is a string, will also set the stateDefinition when it is a string. |
 
 ---
@@ -2024,6 +2038,18 @@ public readonly stateMachineRole: IRole;
 ```
 
 - *Type:* aws-cdk-lib.aws_iam.IRole
+
+---
+
+##### `logGroupName`<sup>Required</sup> <a name="logGroupName" id="ez-constructs.SimpleStepFunction.property.logGroupName"></a>
+
+```typescript
+public readonly logGroupName: string;
+```
+
+- *Type:* string
+
+Gets the logGroupName Sets the logGroupName.
 
 ---
 
