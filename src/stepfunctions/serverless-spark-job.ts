@@ -1,15 +1,15 @@
-
 import { Arn, ArnFormat, RemovalPolicy, Stack, Token } from 'aws-cdk-lib';
 import { IRole, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Code, Runtime, SingletonFunction } from 'aws-cdk-lib/aws-lambda';
-import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { ILogGroup, LogGroup, LogRetention, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import {
   Choice,
   Condition,
   DefinitionBody,
   Errors,
-  Fail, IChainable,
+  Fail,
+  IChainable,
   IntegrationPattern,
   LogLevel,
   Pass,
@@ -36,6 +36,7 @@ export class SimpleStepFunction extends EzConstruct {
   /** @internal */ _stateDefinitionBody?: DefinitionBody;
   /** @internal */ _defaultInputs: any = {};
   /** @internal */ _grantee?: IRole;
+  /** @internal */ private _logGroupName: string = '';
 
 
   private readonly _scope: Construct;
@@ -113,6 +114,20 @@ export class SimpleStepFunction extends EzConstruct {
     }
   }
 
+  /**
+   * Gets the logGroupName
+   */
+  get logGroupName(): string {
+    return this._logGroupName;
+  }
+
+  /**
+   * Sets the logGroupName
+   * @param value - name of the log group
+   */
+  set logGroupName(value: string) {
+    this._logGroupName = value;
+  }
 
   /**
    * Returns the state definition body object
@@ -252,16 +267,23 @@ export class SimpleStepFunction extends EzConstruct {
   /**
    * creates bucket to store state machine logs
    */
-  public createStateMachineCloudWatchLogGroup(): LogGroup {
-    return new LogGroup(this.scope, 'LogGroup', {
-      removalPolicy: RemovalPolicy.DESTROY,
-      retention: RetentionDays.THREE_MONTHS,
-      logGroupName: '/aws/vendedlogs',
-    });
+  public createStateMachineCloudWatchLogGroup(): ILogGroup {
+    if (Utils.isEmpty(this._logGroupName)) {
+      this._logGroupName = '/aws/vendedlogs';
+      new LogRetention(this.scope, 'LogGroupRetention', {
+        retention: RetentionDays.THREE_MONTHS,
+        removalPolicy: RemovalPolicy.DESTROY,
+        logGroupName: this.logGroupName,
+      });
+    }
+
+    return LogGroup.fromLogGroupName(this.scope, 'LogGroup', this._logGroupName);
+
+
   }
 
   public createDefaultStateMachineProps(stateMachineName: string, stateMachineRole: IRole,
-    definitionBody: DefinitionBody, logGroup: LogGroup): StateMachineProps {
+    definitionBody: DefinitionBody, logGroup: ILogGroup): StateMachineProps {
     return {
       definitionBody: definitionBody,
       stateMachineName: stateMachineName,
