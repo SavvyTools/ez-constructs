@@ -2,7 +2,7 @@ import { awscdk } from 'projen';
 const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Biju Joseph',
   authorAddress: 'biju.joseph@semanticbits.com',
-  cdkVersion: '2.92.0',
+  cdkVersion: '2.113.0',
   defaultReleaseBranch: 'main',
   name: 'ez-constructs',
   repositoryUrl: 'https://github.com/SavvyTools/ez-constructs.git',
