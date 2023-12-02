@@ -1,5 +1,6 @@
 import '@aws-cdk/assert/jest';
 import { App, Stack } from 'aws-cdk-lib';
+import { Classification } from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { FileUtils, Utils, SimpleServerlessSparkJob } from '../../src';
 
 
@@ -302,6 +303,40 @@ describe('SimpleServerlessSparkJob Construct', () => {
       let stateDef = Utils.fetchStepFuncitonStateDefinition(mystack);
       let replacerFn = stateDef.States.ReplacerFnInvoke;
       expect(replacerFn).toBeDefined();
+    });
+
+    test('job configuration template with application config overrides', () => {
+      // WHEN
+      new SimpleServerlessSparkJob(mystack, 'SingleFly', 'MyTestETL')
+        .jobRole('delegatedadmin/developer/blames-emr-serverless-job-role')
+        .applicationId('12345676')
+        .logBucket('mylogbucket')
+        .usingSparkJobTemplate({
+          jobName: 'mytestjob-%country%',
+          entryPoint: 's3://aws-cms-amg-qpp-costscoring-artifact-dev-222224444433-us-east-1/%commitId%/myspark-assembly.jar',
+          mainClass: 'serverless.SimpleSparkApp',
+          enableMonitoring: true,
+          applicationConfiguration: [
+            {
+              classification: new Classification('spark-driver-log4j2'),
+              properties: { 'rootLogger.level': 'error', 'logger.qpp.name': 'gov.cms.qpp', 'logger.qpp.level': 'error' },
+            },
+            {
+              classification: new Classification('spark-executor-log4j2'),
+              properties: { 'rootLogger.level': 'error', 'logger.qpp.name': 'gov.cms.qpp', 'logger.qpp.level': 'info' },
+            },
+          ],
+        })
+        .assemble();
+
+
+      // THEN should have a modified ASL.
+      let stateDef = Utils.fetchStepFuncitonStateDefinition(mystack);
+      let ac = stateDef.States.RunSparkJob.Parameters.ConfigurationOverrides.ApplicationConfiguration;
+      expect(ac[0].Classification).toEqual('spark-driver-log4j2');
+      expect(ac[0].Properties['logger.qpp.level']).toEqual('error');
+      expect(ac[1].Classification).toEqual('spark-executor-log4j2');
+      expect(ac[1].Properties['logger.qpp.level']).toEqual('info');
     });
 
   });

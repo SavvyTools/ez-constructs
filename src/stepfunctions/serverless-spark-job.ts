@@ -460,7 +460,13 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
       arnFormat: ArnFormat.SLASH_RESOURCE_SLASH_RESOURCE_NAME,
     }));
   }
-
+  private transformApplicationConfiguration(ac: ApplicationConfiguration): Object {
+    return {
+      Classification: ac.classification.classificationStatement,
+      Properties: ac.properties,
+      Configurations: ac.nestedConfig ? ac.nestedConfig.map(o => this.transformApplicationConfiguration(o)) : undefined,
+    };
+  }
   private mergeConfigOverrides(jobName: string, overrides: Object): Object {
     let defaults: any = {
       MonitoringConfiguration: {
@@ -473,7 +479,7 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
       },
     };
     if (this._singleSparkJobTemplate?.applicationConfiguration) {
-      defaults.ApplicationConfiguration = this._singleSparkJobTemplate.applicationConfiguration;
+      defaults.ApplicationConfiguration = this._singleSparkJobTemplate.applicationConfiguration.map(ac => this.transformApplicationConfiguration(ac));
     }
 
     return Object.assign({}, defaults, overrides);
