@@ -143,7 +143,7 @@ export class SimpleStepFunction extends EzConstruct {
   }
 
   /**
-   * Will add default permisisons to the step function role
+   * Will add default permissions to the step function role
    */
   generateDefaultStateMachinePermissions(): void {
     // do nothing
