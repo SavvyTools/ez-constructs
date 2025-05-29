@@ -32,12 +32,11 @@ const project = new awscdk.AwsCdkConstructLibrary({
     distName: 'ez-constructs',
     module: 'ez_constructs',
   },
-  deps: [
-    'cdk-nag',
-  ],
+
   bundledDeps: [
     'lodash',
     '@types/lodash',
+    'cdk-nag',
   ],
   devDeps: [
     'cdk-dia',
