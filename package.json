@@ -73,6 +73,7 @@
   },
   "bundledDependencies": [
     "@types/lodash",
+    "cdk-nag",
     "lodash"
   ],
   "keywords": [

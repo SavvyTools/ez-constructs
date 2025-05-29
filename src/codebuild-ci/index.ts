@@ -70,7 +70,7 @@ export class SimpleCodebuildProject extends EzConstruct {
   private _skipArtifacts = false;
   private _triggerOnGitEvent?: GitEvent;
   private _triggerOnSchedule?: Schedule;
-  private _triggerOnPushToBranches:Array<string> = [];
+  private _triggerOnPushToBranches: Array<string> = [];
   private _artifactBucket?: IBucket | string;
   private _computType: ComputeType = ComputeType.MEDIUM;
   private _vpcId?: string;
