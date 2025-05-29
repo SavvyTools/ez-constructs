@@ -17,13 +17,13 @@ import { Utils } from '../lib/utils';
 enum WorkerType {
   DRIVER = 'Spark_Driver',
   EXECUTOR = 'Spark_Executor',
-  NONE = ''
+  NONE = '',
 }
 
 enum AllocationType {
   PRE_INIT= 'PreInitCapacity',
   ON_DEMAND = 'OnDemandCapacity',
-  NONE= ''
+  NONE= '',
 }
 
 export class SimpleServerlessApplication extends EzConstruct {
