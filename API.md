@@ -1657,7 +1657,7 @@ new SimpleStepFunction(scope: Construct, id: string, stepFunctionName: string)
 | <code><a href="#ez-constructs.SimpleStepFunction.createStateMachine">createStateMachine</a></code> | Creates state machine from the given props. |
 | <code><a href="#ez-constructs.SimpleStepFunction.createStateMachineCloudWatchLogGroup">createStateMachineCloudWatchLogGroup</a></code> | creates bucket to store state machine logs. |
 | <code><a href="#ez-constructs.SimpleStepFunction.createStateMachineRole">createStateMachineRole</a></code> | creates state machine role. |
-| <code><a href="#ez-constructs.SimpleStepFunction.generateDefaultStateMachinePermissions">generateDefaultStateMachinePermissions</a></code> | Will add default permisisons to the step function role. |
+| <code><a href="#ez-constructs.SimpleStepFunction.generateDefaultStateMachinePermissions">generateDefaultStateMachinePermissions</a></code> | Will add default permissions to the step function role. |
 | <code><a href="#ez-constructs.SimpleStepFunction.grantPassRole">grantPassRole</a></code> | Grants pass role permissions to the state machine role. |
 | <code><a href="#ez-constructs.SimpleStepFunction.logGroupName">logGroupName</a></code> | Sets the logGroupName. |
 | <code><a href="#ez-constructs.SimpleStepFunction.modifyStateDefinition">modifyStateDefinition</a></code> | Modifies the supplied state definition string version of workflow defintion to include logging and tracing. |
@@ -1773,7 +1773,7 @@ creates state machine role.
 public generateDefaultStateMachinePermissions(): void
 ```
 
-Will add default permisisons to the step function role.
+Will add default permissions to the step function role.
 
 ##### `grantPassRole` <a name="grantPassRole" id="ez-constructs.SimpleStepFunction.grantPassRole"></a>
 
