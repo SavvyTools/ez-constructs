@@ -143,7 +143,7 @@ export class SimpleStepFunction extends EzConstruct {
   }
 
   /**
-   * Will add default permisisons to the step function role
+   * Will add default permissions to the step function role
    */
   generateDefaultStateMachinePermissions(): void {
     // do nothing
@@ -708,11 +708,14 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
               console.log('Received event:', JSON.stringify(event, null, 2));
               let errors = [];
               let args = event['entryArgs']['args'];
+              let regex = /%[^%]+%/;
               if (args) {
                   args.split(',').forEach(k=> {
                       let v = event[k];
                       if (!v) {
                           errors.push('Missing value for, ' + k);
+                      } else if (regex.test(v)) {
+                          errors.push('Not properly replaced variable found in ' + v + ' for: ' + k);
                       }
                   });
               }
