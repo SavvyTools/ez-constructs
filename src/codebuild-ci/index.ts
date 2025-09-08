@@ -479,7 +479,7 @@ export class SimpleCodebuildProject extends EzConstruct {
 
                                            EventAction.PUSH)
 
-                                 .AndActorAccountId(id);
+                                 .andActorAccountIs(id);
 
       fgList.push(actorFg);
 
