@@ -74,15 +74,10 @@ export class SimpleCodebuildProject extends EzConstruct {
   private _artifactBucket?: IBucket | string;
   private _computType: ComputeType = ComputeType.MEDIUM;
   private _vpcId?: string;
-  private _buildImage: IBuildImage = LinuxBuildImage.STANDARD_5_0;
-  private _envVariables: {
-    [name: string]: BuildEnvironmentVariable;
-  } = {};
-
-  // ==========================
-  // NEW: Trusted GitHub actor IDs support
-  // ==========================
+  private _buildImage: IBuildImage = LinuxBuildImage.STANDARD_6_0;
+  private _envVariables: { [name: string]: BuildEnvironmentVariable } = {};
   private _trustedActorIds?: string[];
+
 
   // @ts-ignore
   private _props: ProjectProps;
@@ -100,7 +95,7 @@ export class SimpleCodebuildProject extends EzConstruct {
   /**
    * Assign trusted GitHub actor IDs (from PR Base Stack)
    */
-  public setTrustedActorIds(ids: string[]): SimpleCodebuildProject {
+  public trustedActorIds(ids: string[]): SimpleCodebuildProject {
     this._trustedActorIds = ids;
     return this;
   }
@@ -484,7 +479,7 @@ export class SimpleCodebuildProject extends EzConstruct {
 
                                            EventAction.PUSH)
 
-                                 .andActorIs(...this._trustedActorIds);
+                                 ..actor_account_id(...this._trustedActorIds);
 
       fgList.push(actorFg);
 
