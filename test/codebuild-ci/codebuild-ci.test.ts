@@ -62,7 +62,7 @@ describe('SimpleCodebuildProject Construct', () => {
         },
         Environment: {
           ComputeType: 'BUILD_GENERAL1_MEDIUM',
-          Image: 'aws/codebuild/standard:5.0',
+          Image: 'aws/codebuild/standard:6.0',
         },
       });
 
@@ -282,7 +282,7 @@ describe('SimpleCodebuildProject Construct', () => {
         .gitBaseBranch('main')
         .assemble({
           environment: {
-            buildImage: LinuxBuildImage.STANDARD_5_0, // default to Amazon Linux 5.0
+            buildImage: LinuxBuildImage.STANDARD_6_0, // updated to Amazon Linux 6.0
             privileged: true,
             computeType: ComputeType.MEDIUM,
             environmentVariables: {
@@ -331,3 +331,4 @@ describe('SimpleCodebuildProject Construct', () => {
     });
   });
 });
+
