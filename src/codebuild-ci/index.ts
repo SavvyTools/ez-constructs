@@ -79,6 +79,11 @@ export class SimpleCodebuildProject extends EzConstruct {
     [name: string]: BuildEnvironmentVariable;
   } = {};
 
+  // ==========================
+  // NEW: Trusted GitHub actor IDs support
+  // ==========================
+  private _trustedActorIds?: string[];
+
   // @ts-ignore
   private _props: ProjectProps;
 
@@ -90,6 +95,14 @@ export class SimpleCodebuildProject extends EzConstruct {
     super(scope, id);
     this.scope = scope;
     this.id = id;
+  }
+
+  /**
+   * Assign trusted GitHub actor IDs (from PR Base Stack)
+   */
+  public setTrustedActorIds(ids: string[]): SimpleCodebuildProject {
+    this._trustedActorIds = ids;
+    return this;
   }
 
   /**
@@ -146,7 +159,6 @@ export class SimpleCodebuildProject extends EzConstruct {
     return this;
   }
 
-
   /**
    * The build image to use
    * @see https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html
@@ -167,7 +179,6 @@ export class SimpleCodebuildProject extends EzConstruct {
     let repo = Repository.fromRepositoryName(this.scope, 'ClaimsCodeBuildBaseImageRepository', ecrRepoName);
     return this.buildImage(LinuxBuildImage.fromEcrRepository(repo, imageTag));
   }
-
 
   /**
    * The vpc network interfaces to add to the codebuild
@@ -236,6 +247,7 @@ export class SimpleCodebuildProject extends EzConstruct {
     this._triggerOnPushToBranches.push(...branches);
     return this;
   }
+
   /**
    * The Github events that can trigger this build.
    * @param event
@@ -272,14 +284,13 @@ export class SimpleCodebuildProject extends EzConstruct {
     let defaults = {
       projectName,
       description,
-      grantReportGroupPermissions: this._grantReportGroupPermissions, // default to true
+      grantReportGroupPermissions: this._grantReportGroupPermissions,  // default to true
     };
 
-    // set the default environment if not provided.
     if (Utils.isEmpty(props.environment)) {
       // @ts-ignore
       defaults.environment = {
-        buildImage: this._buildImage ? this._buildImage : LinuxBuildImage.STANDARD_5_0, // default to Amazon Linux 5.0
+        buildImage: this._buildImage ? this._buildImage : LinuxBuildImage.STANDARD_6_0,
         privileged: this._privileged,
         computeType: this._computType,
         environmentVariables: this._envVariables,
@@ -298,7 +309,6 @@ export class SimpleCodebuildProject extends EzConstruct {
         },
       };
     }
-
     // create source if not provided in props
     if (Utils.isEmpty(props.source)) {
       // @ts-ignore
@@ -330,7 +340,6 @@ export class SimpleCodebuildProject extends EzConstruct {
 
     return this;
   }
-
 
   assemble(defaultProps?:ProjectProps): SimpleCodebuildProject {
     // create the default project properties
@@ -456,6 +465,30 @@ export class SimpleCodebuildProject extends EzConstruct {
     branches?.forEach(branch => {
       fgList.push(FilterGroup.inEventOf(EventAction.PUSH).andHeadRefIs(branch));
     });
+
+        // ==========================
+
+    // Apply trusted actor filter if set
+
+    // ==========================
+
+    if (this._trustedActorIds && this._trustedActorIds.length > 0) {
+
+      const actorFg = FilterGroup.inEventOf(EventAction.PULL_REQUEST_CREATED,
+
+                                           EventAction.PULL_REQUEST_UPDATED,
+
+                                           EventAction.PULL_REQUEST_REOPENED,
+
+                                           EventAction.PULL_REQUEST_MERGED,
+
+                                           EventAction.PUSH)
+
+                                 .andActorIs(...this._trustedActorIds);
+
+      fgList.push(actorFg);
+
+    }
 
     return fgList;
   }
