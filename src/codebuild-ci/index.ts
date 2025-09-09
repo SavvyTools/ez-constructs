@@ -78,6 +78,7 @@ export class SimpleCodebuildProject extends EzConstruct {
   private _envVariables: {
     [name: string]: BuildEnvironmentVariable;
   } = {};
+  private _githubUserIds?: number[];
 
   // @ts-ignore
   private _props: ProjectProps;
@@ -265,6 +266,15 @@ export class SimpleCodebuildProject extends EzConstruct {
     return this;
   }
 
+  /**
+   * Filter webhook events by GitHub user IDs
+   * @param userIds - array of GitHub user IDs
+   */
+  filterByGithubUserIds(userIds: number[]): SimpleCodebuildProject {
+    this._githubUserIds = userIds;
+    return this;
+  }
+
   public overrideProjectProps(props: ProjectProps): SimpleCodebuildProject {
     let projectName = this._projectName ? this._projectName : Utils.kebabCase(this.id);
     let description = this._projectDescription ? this._projectDescription : `Codebuild description for ${projectName}`;
@@ -387,12 +397,13 @@ export class SimpleCodebuildProject extends EzConstruct {
    * @param repoUrl - the url of the repo
    * @param base - the main or base branch used by the repo
    * @param gitEvent - the github events that can trigger builds
+   * @param branches - the branches to trigger on push
    * @private
    */
   private createSource(repoUrl: string, base?: string, gitEvent?: GitEvent, branches?:Array<string>): Source {
     let webhook = gitEvent && true;
     let repoDetails = Utils.parseGithubUrl(repoUrl);
-    let webhookFilter = this.createWebHookFilters(base, gitEvent, branches);
+    let webhookFilter = this.createWebHookFilters(base, gitEvent, branches, this._githubUserIds);
 
     if (repoDetails.enterprise == true) {
       return Source.gitHubEnterprise({
@@ -415,9 +426,11 @@ export class SimpleCodebuildProject extends EzConstruct {
    * Creates a webhook filter object
    * @param base - the base branch
    * @param gitEvent - the github event
+   * @param branches - the branches to trigger on push
+   * @param githubUserIds - optional GitHub user IDs to filter events by
    * @private
    */
-  private createWebHookFilters(base?: string, gitEvent?: GitEvent, branches?:Array<string>): FilterGroup[] | undefined {
+  private createWebHookFilters(base?: string, gitEvent?: GitEvent, branches?:Array<string>, githubUserIds?: number[]): FilterGroup[] | undefined {
     // @ts-ignore
     let fg1: FilterGroup = null;
     let fgList: FilterGroup[] = [];
@@ -432,6 +445,13 @@ export class SimpleCodebuildProject extends EzConstruct {
       if (base) {
         fg1 = fg1.andBaseBranchIs(base);
       }
+      // Add actor account ID filter if githubUserIds are provided
+      if (githubUserIds && githubUserIds.length > 0) {
+        // Apply each GitHub user ID individually to avoid spread operator issues
+        githubUserIds.forEach(userId => {
+          fg1 = fg1.andActorAccountIs(userId.toString());
+        });
+      }
     }
 
     if (gitEvent == GitEvent.PULL_REQUEST_MERGED) {
@@ -439,10 +459,24 @@ export class SimpleCodebuildProject extends EzConstruct {
       if (base) {
         fg1 = fg1.andBaseBranchIs(base);
       }
+      // Add actor account ID filter if githubUserIds are provided
+      if (githubUserIds && githubUserIds.length > 0) {
+        // Apply each GitHub user ID individually to avoid spread operator issues
+        githubUserIds.forEach(userId => {
+          fg1 = fg1.andActorAccountIs(userId.toString());
+        });
+      }
     }
 
     if (gitEvent == GitEvent.PUSH) {
       fg1 = FilterGroup.inEventOf(EventAction.PUSH);
+      // Add actor account ID filter if githubUserIds are provided
+      if (githubUserIds && githubUserIds.length > 0) {
+        // Apply each GitHub user ID individually to avoid spread operator issues
+        githubUserIds.forEach(userId => {
+          fg1 = fg1.andActorAccountIs(userId.toString());
+        });
+      }
     }
 
     if (gitEvent == GitEvent.ALL) {
@@ -451,10 +485,25 @@ export class SimpleCodebuildProject extends EzConstruct {
         EventAction.PULL_REQUEST_UPDATED,
         EventAction.PULL_REQUEST_REOPENED,
         EventAction.PULL_REQUEST_MERGED);
+      // Add actor account ID filter if githubUserIds are provided
+      if (githubUserIds && githubUserIds.length > 0) {
+        // Apply each GitHub user ID individually to avoid spread operator issues
+        githubUserIds.forEach(userId => {
+          fg1 = fg1.andActorAccountIs(userId.toString());
+        });
+      }
     }
     fgList.push(fg1);
     branches?.forEach(branch => {
-      fgList.push(FilterGroup.inEventOf(EventAction.PUSH).andHeadRefIs(branch));
+      let branchFg = FilterGroup.inEventOf(EventAction.PUSH).andHeadRefIs(branch);
+      // Add actor account ID filter if githubUserIds are provided
+      if (githubUserIds && githubUserIds.length > 0) {
+        // Apply each GitHub user ID individually to avoid spread operator issues
+        githubUserIds.forEach(userId => {
+          branchFg = branchFg.andActorAccountIs(userId.toString());
+        });
+      }
+      fgList.push(branchFg);
     });
 
     return fgList;
