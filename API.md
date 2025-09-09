@@ -457,6 +457,7 @@ new SimpleCodebuildProject(scope: Construct, id: string)
 | <code><a href="#ez-constructs.SimpleCodebuildProject.buildSpecPath">buildSpecPath</a></code> | The build spec file path. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.computeType">computeType</a></code> | The compute type to use. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.ecrBuildImage">ecrBuildImage</a></code> | The build image to use. |
+| <code><a href="#ez-constructs.SimpleCodebuildProject.filterByGithubUserIds">filterByGithubUserIds</a></code> | Filter webhook events by GitHub user IDs. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.gitBaseBranch">gitBaseBranch</a></code> | The main branch of the github project. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.gitRepoUrl">gitRepoUrl</a></code> | The github or enterprise github repository url. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.inVpc">inVpc</a></code> | The vpc network interfaces to add to the codebuild. |
@@ -612,6 +613,22 @@ the ecr repository name.
 - *Type:* string
 
 the image tag.
+
+---
+
+##### `filterByGithubUserIds` <a name="filterByGithubUserIds" id="ez-constructs.SimpleCodebuildProject.filterByGithubUserIds"></a>
+
+```typescript
+public filterByGithubUserIds(userIds: number[]): SimpleCodebuildProject
+```
+
+Filter webhook events by GitHub user IDs.
+
+###### `userIds`<sup>Required</sup> <a name="userIds" id="ez-constructs.SimpleCodebuildProject.filterByGithubUserIds.parameter.userIds"></a>
+
+- *Type:* number[]
+
+array of GitHub user IDs (not usernames, but id values).
 
 ---
 
