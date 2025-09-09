@@ -119,6 +119,7 @@ describe('SimpleCodebuildProject Construct', () => {
         .gitBaseBranch('main')
         .triggerBuildOnGitEvent(GitEvent.PULL_REQUEST)
         .triggerOnPushToBranches(['main', 'develop'])
+        .filterByGithubUserIds([9999, 8888, 77777])
         .assemble();
 
       // THEN should have a default project created
@@ -136,6 +137,18 @@ describe('SimpleCodebuildProject Construct', () => {
                 Pattern: 'refs/heads/main',
                 Type: 'BASE_REF',
               },
+              {
+                Pattern: '9999',
+                Type: 'ACTOR_ACCOUNT_ID',
+              },
+              {
+                Pattern: '8888',
+                Type: 'ACTOR_ACCOUNT_ID',
+              },
+              {
+                Pattern: '77777',
+                Type: 'ACTOR_ACCOUNT_ID',
+              },
             ],
             [
               {
@@ -146,6 +159,18 @@ describe('SimpleCodebuildProject Construct', () => {
                 Pattern: 'main',
                 Type: 'HEAD_REF',
               },
+              {
+                Pattern: '9999',
+                Type: 'ACTOR_ACCOUNT_ID',
+              },
+              {
+                Pattern: '8888',
+                Type: 'ACTOR_ACCOUNT_ID',
+              },
+              {
+                Pattern: '77777',
+                Type: 'ACTOR_ACCOUNT_ID',
+              },
             ], [
               {
                 Pattern: 'PUSH',
@@ -154,6 +179,18 @@ describe('SimpleCodebuildProject Construct', () => {
               {
                 Pattern: 'develop',
                 Type: 'HEAD_REF',
+              },
+              {
+                Pattern: '9999',
+                Type: 'ACTOR_ACCOUNT_ID',
+              },
+              {
+                Pattern: '8888',
+                Type: 'ACTOR_ACCOUNT_ID',
+              },
+              {
+                Pattern: '77777',
+                Type: 'ACTOR_ACCOUNT_ID',
               },
             ],
           ],
@@ -331,4 +368,3 @@ describe('SimpleCodebuildProject Construct', () => {
     });
   });
 });
-
