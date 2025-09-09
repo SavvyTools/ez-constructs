@@ -268,7 +268,7 @@ export class SimpleCodebuildProject extends EzConstruct {
 
   /**
    * Filter webhook events by GitHub user IDs
-   * @param userIds - array of GitHub user IDs
+   * @param userIds - array of GitHub user IDs (not usernames, but id values)
    */
   filterByGithubUserIds(userIds: number[]): SimpleCodebuildProject {
     this._githubUserIds = userIds;
