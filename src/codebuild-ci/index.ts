@@ -74,7 +74,7 @@ export class SimpleCodebuildProject extends EzConstruct {
   private _artifactBucket?: IBucket | string;
   private _computType: ComputeType = ComputeType.MEDIUM;
   private _vpcId?: string;
-  private _buildImage: IBuildImage = LinuxBuildImage.STANDARD_5_0;
+  private _buildImage: IBuildImage = LinuxBuildImage.STANDARD_6_0;
   private _envVariables: {
     [name: string]: BuildEnvironmentVariable;
   } = {};
@@ -279,7 +279,7 @@ export class SimpleCodebuildProject extends EzConstruct {
     if (Utils.isEmpty(props.environment)) {
       // @ts-ignore
       defaults.environment = {
-        buildImage: this._buildImage ? this._buildImage : LinuxBuildImage.STANDARD_5_0, // default to Amazon Linux 5.0
+        buildImage: this._buildImage ? this._buildImage : LinuxBuildImage.STANDARD_6_0, // default to Amazon Linux 6.0
         privileged: this._privileged,
         computeType: this._computType,
         environmentVariables: this._envVariables,
