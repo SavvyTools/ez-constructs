@@ -435,10 +435,10 @@ export class SimpleCodebuildProject extends EzConstruct {
 
     if (!gitEvent) return undefined;
 
-    // Helper function to create event filters for each user ID
+    // Helper function to create event filters with user IDs
     const createUserFilters = (baseEvents: EventAction[], isForBranch: boolean = false, branchName?: string) => {
       if (githubUserIds && githubUserIds.length > 0) {
-        // Create a separate filter group for each user (OR condition)
+        // Create a separate filter group for each user (implementing OR logic)
         githubUserIds.forEach(userId => {
           let fg = FilterGroup.inEventOf(...baseEvents);
           if (base && !isForBranch) {

@@ -128,6 +128,7 @@ describe('SimpleCodebuildProject Construct', () => {
         Triggers: {
           Webhook: true,
           FilterGroups: [
+            // Pull Request filters for each user
             [
               {
                 Pattern: 'PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED',
@@ -141,15 +142,36 @@ describe('SimpleCodebuildProject Construct', () => {
                 Pattern: '9999',
                 Type: 'ACTOR_ACCOUNT_ID',
               },
+            ],
+            [
+              {
+                Pattern: 'PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED',
+                Type: 'EVENT',
+              },
+              {
+                Pattern: 'refs/heads/main',
+                Type: 'BASE_REF',
+              },
               {
                 Pattern: '8888',
                 Type: 'ACTOR_ACCOUNT_ID',
+              },
+            ],
+            [
+              {
+                Pattern: 'PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED',
+                Type: 'EVENT',
+              },
+              {
+                Pattern: 'refs/heads/main',
+                Type: 'BASE_REF',
               },
               {
                 Pattern: '77777',
                 Type: 'ACTOR_ACCOUNT_ID',
               },
             ],
+            // Push to main filters for each user
             [
               {
                 Pattern: 'PUSH',
@@ -163,15 +185,37 @@ describe('SimpleCodebuildProject Construct', () => {
                 Pattern: '9999',
                 Type: 'ACTOR_ACCOUNT_ID',
               },
+            ],
+            [
+              {
+                Pattern: 'PUSH',
+                Type: 'EVENT',
+              },
+              {
+                Pattern: 'main',
+                Type: 'HEAD_REF',
+              },
               {
                 Pattern: '8888',
                 Type: 'ACTOR_ACCOUNT_ID',
+              },
+            ],
+            [
+              {
+                Pattern: 'PUSH',
+                Type: 'EVENT',
+              },
+              {
+                Pattern: 'main',
+                Type: 'HEAD_REF',
               },
               {
                 Pattern: '77777',
                 Type: 'ACTOR_ACCOUNT_ID',
               },
-            ], [
+            ],
+            // Push to develop filters for each user
+            [
               {
                 Pattern: 'PUSH',
                 Type: 'EVENT',
@@ -184,9 +228,29 @@ describe('SimpleCodebuildProject Construct', () => {
                 Pattern: '9999',
                 Type: 'ACTOR_ACCOUNT_ID',
               },
+            ],
+            [
+              {
+                Pattern: 'PUSH',
+                Type: 'EVENT',
+              },
+              {
+                Pattern: 'develop',
+                Type: 'HEAD_REF',
+              },
               {
                 Pattern: '8888',
                 Type: 'ACTOR_ACCOUNT_ID',
+              },
+            ],
+            [
+              {
+                Pattern: 'PUSH',
+                Type: 'EVENT',
+              },
+              {
+                Pattern: 'develop',
+                Type: 'HEAD_REF',
               },
               {
                 Pattern: '77777',
