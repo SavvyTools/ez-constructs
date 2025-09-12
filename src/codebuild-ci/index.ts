@@ -467,7 +467,7 @@ export class SimpleCodebuildProject extends EzConstruct {
       createUserFilters([
         EventAction.PULL_REQUEST_CREATED,
         EventAction.PULL_REQUEST_UPDATED,
-        EventAction.PULL_REQUEST_REOPENED
+        EventAction.PULL_REQUEST_REOPENED,
       ]);
     }
 
@@ -485,7 +485,7 @@ export class SimpleCodebuildProject extends EzConstruct {
         EventAction.PULL_REQUEST_CREATED,
         EventAction.PULL_REQUEST_UPDATED,
         EventAction.PULL_REQUEST_REOPENED,
-        EventAction.PULL_REQUEST_MERGED
+        EventAction.PULL_REQUEST_MERGED,
       ]);
     }
 
