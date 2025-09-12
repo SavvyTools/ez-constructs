@@ -111,7 +111,7 @@ describe('SimpleCodebuildProject Construct', () => {
 
 
     });
-    test('project Triggers On build', () => {
+    test('project Triggers On build with optimized filters', () => {
       // WHEN
       new SimpleCodebuildProject(mystack, 'myproject')
         .projectName('myproject')
@@ -122,13 +122,13 @@ describe('SimpleCodebuildProject Construct', () => {
         .filterByGithubUserIds([9999, 8888, 77777])
         .assemble();
 
-      // THEN should have a default project created
+      // THEN should have a default project created with consolidated filters
       expect(mystack).toHaveResourceLike('AWS::CodeBuild::Project', {
         Name: 'myproject',
         Triggers: {
           Webhook: true,
           FilterGroups: [
-            // Pull Request filters for each user
+            // Single PR filter group with combined user pattern
             [
               {
                 Pattern: 'PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED',
@@ -139,129 +139,95 @@ describe('SimpleCodebuildProject Construct', () => {
                 Type: 'BASE_REF',
               },
               {
-                Pattern: '9999',
+                Pattern: '9999|8888|77777',
                 Type: 'ACTOR_ACCOUNT_ID',
               },
             ],
-            [
-              {
-                Pattern: 'PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED',
-                Type: 'EVENT',
-              },
-              {
-                Pattern: 'refs/heads/main',
-                Type: 'BASE_REF',
-              },
-              {
-                Pattern: '8888',
-                Type: 'ACTOR_ACCOUNT_ID',
-              },
-            ],
-            [
-              {
-                Pattern: 'PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED',
-                Type: 'EVENT',
-              },
-              {
-                Pattern: 'refs/heads/main',
-                Type: 'BASE_REF',
-              },
-              {
-                Pattern: '77777',
-                Type: 'ACTOR_ACCOUNT_ID',
-              },
-            ],
-            // Push to main filters for each user
+            // Single push filter group with combined branch and user patterns
             [
               {
                 Pattern: 'PUSH',
                 Type: 'EVENT',
               },
               {
-                Pattern: 'main',
+                Pattern: 'main|develop',
                 Type: 'HEAD_REF',
               },
               {
-                Pattern: '9999',
-                Type: 'ACTOR_ACCOUNT_ID',
-              },
-            ],
-            [
-              {
-                Pattern: 'PUSH',
-                Type: 'EVENT',
-              },
-              {
-                Pattern: 'main',
-                Type: 'HEAD_REF',
-              },
-              {
-                Pattern: '8888',
-                Type: 'ACTOR_ACCOUNT_ID',
-              },
-            ],
-            [
-              {
-                Pattern: 'PUSH',
-                Type: 'EVENT',
-              },
-              {
-                Pattern: 'main',
-                Type: 'HEAD_REF',
-              },
-              {
-                Pattern: '77777',
-                Type: 'ACTOR_ACCOUNT_ID',
-              },
-            ],
-            // Push to develop filters for each user
-            [
-              {
-                Pattern: 'PUSH',
-                Type: 'EVENT',
-              },
-              {
-                Pattern: 'develop',
-                Type: 'HEAD_REF',
-              },
-              {
-                Pattern: '9999',
-                Type: 'ACTOR_ACCOUNT_ID',
-              },
-            ],
-            [
-              {
-                Pattern: 'PUSH',
-                Type: 'EVENT',
-              },
-              {
-                Pattern: 'develop',
-                Type: 'HEAD_REF',
-              },
-              {
-                Pattern: '8888',
-                Type: 'ACTOR_ACCOUNT_ID',
-              },
-            ],
-            [
-              {
-                Pattern: 'PUSH',
-                Type: 'EVENT',
-              },
-              {
-                Pattern: 'develop',
-                Type: 'HEAD_REF',
-              },
-              {
-                Pattern: '77777',
+                Pattern: '9999|8888|77777',
                 Type: 'ACTOR_ACCOUNT_ID',
               },
             ],
           ],
         },
-
       });
 
+    });
+
+    test('project with multiple event types and user filtering', () => {
+      // WHEN
+      new SimpleCodebuildProject(mystack, 'myproject')
+        .projectName('myproject')
+        .gitRepoUrl('https://github.cms.gov/qpp/qpp-integration-test-infrastructure-cdk.git')
+        .gitBaseBranch('main')
+        .triggerBuildOnGitEvent(GitEvent.ALL)
+        .filterByGithubUserIds([9999, 8888])
+        .assemble();
+
+      // THEN should have consolidated filter groups for each event type
+      expect(mystack).toHaveResourceLike('AWS::CodeBuild::Project', {
+        Name: 'myproject',
+        Triggers: {
+          Webhook: true,
+          FilterGroups: [
+            // PR events with combined user pattern
+            [
+              {
+                Pattern: 'PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED',
+                Type: 'EVENT',
+              },
+              {
+                Pattern: 'refs/heads/main',
+                Type: 'BASE_REF',
+              },
+              {
+                Pattern: '9999|8888',
+                Type: 'ACTOR_ACCOUNT_ID',
+              },
+            ],
+            // PR merge events with combined user pattern
+            [
+              {
+                Pattern: 'PULL_REQUEST_MERGED',
+                Type: 'EVENT',
+              },
+              {
+                Pattern: 'refs/heads/main',
+                Type: 'BASE_REF',
+              },
+              {
+                Pattern: '9999|8888',
+                Type: 'ACTOR_ACCOUNT_ID',
+              },
+            ],
+            // Push events with combined user pattern
+            [
+              {
+                Pattern: 'PUSH',
+                Type: 'EVENT',
+              },
+              {
+                Pattern: 'refs/heads/main',
+                Type: 'BASE_REF',
+              },
+              {
+                Pattern: '9999|8888',
+                Type: 'ACTOR_ACCOUNT_ID',
+              },
+            ],
+          ],
+        },
+      });
     });
 
     test('project PR merged build', () => {
