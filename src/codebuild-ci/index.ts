@@ -436,14 +436,14 @@ export class SimpleCodebuildProject extends EzConstruct {
     if (!gitEvent) return undefined;
 
     // Create a single combined user pattern
-    const userPattern = githubUserIds && githubUserIds.length > 0 
+    const userPattern = githubUserIds && githubUserIds.length > 0
       ? githubUserIds.join('|')
       : undefined;
 
     // Helper function to create a single filter group
     const createFilter = (baseEvents: EventAction[], isForBranch: boolean = false, branchName?: string) => {
       let fg = FilterGroup.inEventOf(...baseEvents);
-      
+
       if (base && !isForBranch) {
         fg = fg.andBaseBranchIs(base);
       }
@@ -453,7 +453,7 @@ export class SimpleCodebuildProject extends EzConstruct {
       if (userPattern) {
         fg = fg.andActorAccountIs(userPattern);
       }
-      
+
       fgList.push(fg);
     };
 
