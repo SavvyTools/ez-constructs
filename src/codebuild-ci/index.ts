@@ -78,7 +78,6 @@ export class SimpleCodebuildProject extends EzConstruct {
   private _envVariables: {
     [name: string]: BuildEnvironmentVariable;
   } = {};
-  private _trustedActorAccountIds?: string[];
   private _githubUserIds?: number[];
 
   // @ts-ignore
@@ -264,15 +263,6 @@ export class SimpleCodebuildProject extends EzConstruct {
    */
   artifactBucket(artifactBucket: IBucket | string): SimpleCodebuildProject {
     this._artifactBucket = artifactBucket;
-    return this;
-  }
-
-  /**
-   * Filter builds to only run for specific GitHub user IDs
-   * @param ids array of GitHub user IDs (can be numeric or string)
-   */
-  filterActorAccountIds(ids: (string | number)[]): SimpleCodebuildProject {
-    this._trustedActorAccountIds = ids.map(id => id.toString());
     return this;
   }
 
