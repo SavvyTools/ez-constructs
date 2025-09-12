@@ -122,13 +122,13 @@ describe('SimpleCodebuildProject Construct', () => {
         .filterByGithubUserIds([9999, 8888, 77777])
         .assemble();
 
-      // THEN should have a default project created
+      // THEN should have a default project created with optimized filter groups
       expect(mystack).toHaveResourceLike('AWS::CodeBuild::Project', {
         Name: 'myproject',
         Triggers: {
           Webhook: true,
           FilterGroups: [
-            // Pull Request filters for each user
+            // Single PR filter with combined user IDs
             [
               {
                 Pattern: 'PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED',
@@ -139,127 +139,27 @@ describe('SimpleCodebuildProject Construct', () => {
                 Type: 'BASE_REF',
               },
               {
-                Pattern: '9999',
+                Pattern: '9999|8888|77777',
                 Type: 'ACTOR_ACCOUNT_ID',
               },
             ],
-            [
-              {
-                Pattern: 'PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED',
-                Type: 'EVENT',
-              },
-              {
-                Pattern: 'refs/heads/main',
-                Type: 'BASE_REF',
-              },
-              {
-                Pattern: '8888',
-                Type: 'ACTOR_ACCOUNT_ID',
-              },
-            ],
-            [
-              {
-                Pattern: 'PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED',
-                Type: 'EVENT',
-              },
-              {
-                Pattern: 'refs/heads/main',
-                Type: 'BASE_REF',
-              },
-              {
-                Pattern: '77777',
-                Type: 'ACTOR_ACCOUNT_ID',
-              },
-            ],
-            // Push to main filters for each user
+            // Single push filter with combined branches and user IDs
             [
               {
                 Pattern: 'PUSH',
                 Type: 'EVENT',
               },
               {
-                Pattern: 'main',
+                Pattern: 'main|develop',
                 Type: 'HEAD_REF',
               },
               {
-                Pattern: '9999',
-                Type: 'ACTOR_ACCOUNT_ID',
-              },
-            ],
-            [
-              {
-                Pattern: 'PUSH',
-                Type: 'EVENT',
-              },
-              {
-                Pattern: 'main',
-                Type: 'HEAD_REF',
-              },
-              {
-                Pattern: '8888',
-                Type: 'ACTOR_ACCOUNT_ID',
-              },
-            ],
-            [
-              {
-                Pattern: 'PUSH',
-                Type: 'EVENT',
-              },
-              {
-                Pattern: 'main',
-                Type: 'HEAD_REF',
-              },
-              {
-                Pattern: '77777',
-                Type: 'ACTOR_ACCOUNT_ID',
-              },
-            ],
-            // Push to develop filters for each user
-            [
-              {
-                Pattern: 'PUSH',
-                Type: 'EVENT',
-              },
-              {
-                Pattern: 'develop',
-                Type: 'HEAD_REF',
-              },
-              {
-                Pattern: '9999',
-                Type: 'ACTOR_ACCOUNT_ID',
-              },
-            ],
-            [
-              {
-                Pattern: 'PUSH',
-                Type: 'EVENT',
-              },
-              {
-                Pattern: 'develop',
-                Type: 'HEAD_REF',
-              },
-              {
-                Pattern: '8888',
-                Type: 'ACTOR_ACCOUNT_ID',
-              },
-            ],
-            [
-              {
-                Pattern: 'PUSH',
-                Type: 'EVENT',
-              },
-              {
-                Pattern: 'develop',
-                Type: 'HEAD_REF',
-              },
-              {
-                Pattern: '77777',
+                Pattern: '9999|8888|77777',
                 Type: 'ACTOR_ACCOUNT_ID',
               },
             ],
           ],
         },
-
       });
 
     });
