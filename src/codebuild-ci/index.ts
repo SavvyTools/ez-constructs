@@ -435,64 +435,51 @@ export class SimpleCodebuildProject extends EzConstruct {
 
     if (!gitEvent) return undefined;
 
-    // Helper function to create event filters with user IDs
-    const createUserFilters = (baseEvents: EventAction[], isForBranch: boolean = false, branchName?: string) => {
-      if (githubUserIds && githubUserIds.length > 0) {
-        // Create a separate filter group for each user (implementing OR logic)
-        githubUserIds.forEach(userId => {
-          let fg = FilterGroup.inEventOf(...baseEvents);
-          if (base && !isForBranch) {
-            fg = fg.andBaseBranchIs(base);
-          }
-          if (isForBranch && branchName) {
-            fg = fg.andHeadRefIs(branchName);
-          }
-          fg = fg.andActorAccountIs(userId.toString());
-          fgList.push(fg);
-        });
-      } else {
-        // No user filtering
-        let fg = FilterGroup.inEventOf(...baseEvents);
-        if (base && !isForBranch) {
-          fg = fg.andBaseBranchIs(base);
-        }
-        if (isForBranch && branchName) {
-          fg = fg.andHeadRefIs(branchName);
-        }
-        fgList.push(fg);
+    // Create a single combined user pattern
+    const userPattern = githubUserIds && githubUserIds.length > 0 
+      ? githubUserIds.join('|')
+      : undefined;
+
+    // Helper function to create a single filter group
+    const createFilter = (baseEvents: EventAction[], isForBranch: boolean = false, branchName?: string) => {
+      let fg = FilterGroup.inEventOf(...baseEvents);
+      
+      if (base && !isForBranch) {
+        fg = fg.andBaseBranchIs(base);
       }
+      if (isForBranch && branchName) {
+        fg = fg.andHeadRefIs(branchName);
+      }
+      if (userPattern) {
+        fg = fg.andActorAccountIs(userPattern);
+      }
+      
+      fgList.push(fg);
     };
 
-    if (gitEvent == GitEvent.PULL_REQUEST) {
-      createUserFilters([
+    // Handle PR events (created/updated/reopened)
+    if (gitEvent === GitEvent.PULL_REQUEST || gitEvent === GitEvent.ALL) {
+      createFilter([
         EventAction.PULL_REQUEST_CREATED,
         EventAction.PULL_REQUEST_UPDATED,
         EventAction.PULL_REQUEST_REOPENED,
       ]);
     }
 
-    if (gitEvent == GitEvent.PULL_REQUEST_MERGED) {
-      createUserFilters([EventAction.PULL_REQUEST_MERGED]);
+    // Handle PR merge events
+    if (gitEvent === GitEvent.PULL_REQUEST_MERGED || gitEvent === GitEvent.ALL) {
+      createFilter([EventAction.PULL_REQUEST_MERGED]);
     }
 
-    if (gitEvent == GitEvent.PUSH) {
-      createUserFilters([EventAction.PUSH]);
+    // Handle push events
+    if (gitEvent === GitEvent.PUSH || gitEvent === GitEvent.ALL) {
+      createFilter([EventAction.PUSH]);
     }
 
-    if (gitEvent == GitEvent.ALL) {
-      createUserFilters([
-        EventAction.PUSH,
-        EventAction.PULL_REQUEST_CREATED,
-        EventAction.PULL_REQUEST_UPDATED,
-        EventAction.PULL_REQUEST_REOPENED,
-        EventAction.PULL_REQUEST_MERGED,
-      ]);
+    // Handle branch-specific push events with combined pattern
+    if (branches && branches.length > 0) {
+      createFilter([EventAction.PUSH], true, branches.join('|'));
     }
-
-    // Handle branch-specific filters
-    branches?.forEach(branch => {
-      createUserFilters([EventAction.PUSH], true, branch);
-    });
 
     return fgList;
   }
