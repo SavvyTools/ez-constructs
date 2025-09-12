@@ -431,79 +431,67 @@ export class SimpleCodebuildProject extends EzConstruct {
    * @private
    */
   private createWebHookFilters(base?: string, gitEvent?: GitEvent, branches?:Array<string>, githubUserIds?: number[]): FilterGroup[] | undefined {
-    // @ts-ignore
-    let fg1: FilterGroup = null;
     let fgList: FilterGroup[] = [];
-
 
     if (!gitEvent) return undefined;
 
+    // Helper function to create event filters with user IDs
+    const createUserFilters = (baseEvents: EventAction[], isForBranch: boolean = false, branchName?: string) => {
+      if (githubUserIds && githubUserIds.length > 0) {
+        // Create a separate filter group for each user (implementing OR logic)
+        githubUserIds.forEach(userId => {
+          let fg = FilterGroup.inEventOf(...baseEvents);
+          if (base && !isForBranch) {
+            fg = fg.andBaseBranchIs(base);
+          }
+          if (isForBranch && branchName) {
+            fg = fg.andHeadRefIs(branchName);
+          }
+          fg = fg.andActorAccountIs(userId.toString());
+          fgList.push(fg);
+        });
+      } else {
+        // No user filtering
+        let fg = FilterGroup.inEventOf(...baseEvents);
+        if (base && !isForBranch) {
+          fg = fg.andBaseBranchIs(base);
+        }
+        if (isForBranch && branchName) {
+          fg = fg.andHeadRefIs(branchName);
+        }
+        fgList.push(fg);
+      }
+    };
+
     if (gitEvent == GitEvent.PULL_REQUEST) {
-      fg1 = FilterGroup.inEventOf(EventAction.PULL_REQUEST_CREATED,
-        EventAction.PULL_REQUEST_UPDATED,
-        EventAction.PULL_REQUEST_REOPENED);
-      if (base) {
-        fg1 = fg1.andBaseBranchIs(base);
-      }
-      // Add actor account ID filter if githubUserIds are provided
-      if (githubUserIds && githubUserIds.length > 0) {
-        // Apply each GitHub user ID individually to avoid spread operator issues
-        githubUserIds.forEach(userId => {
-          fg1 = fg1.andActorAccountIs(userId.toString());
-        });
-      }
-    }
-
-    if (gitEvent == GitEvent.PULL_REQUEST_MERGED) {
-      fg1 = FilterGroup.inEventOf(EventAction.PULL_REQUEST_MERGED);
-      if (base) {
-        fg1 = fg1.andBaseBranchIs(base);
-      }
-      // Add actor account ID filter if githubUserIds are provided
-      if (githubUserIds && githubUserIds.length > 0) {
-        // Apply each GitHub user ID individually to avoid spread operator issues
-        githubUserIds.forEach(userId => {
-          fg1 = fg1.andActorAccountIs(userId.toString());
-        });
-      }
-    }
-
-    if (gitEvent == GitEvent.PUSH) {
-      fg1 = FilterGroup.inEventOf(EventAction.PUSH);
-      // Add actor account ID filter if githubUserIds are provided
-      if (githubUserIds && githubUserIds.length > 0) {
-        // Apply each GitHub user ID individually to avoid spread operator issues
-        githubUserIds.forEach(userId => {
-          fg1 = fg1.andActorAccountIs(userId.toString());
-        });
-      }
-    }
-
-    if (gitEvent == GitEvent.ALL) {
-      fg1 = FilterGroup.inEventOf(EventAction.PUSH,
+      createUserFilters([
         EventAction.PULL_REQUEST_CREATED,
         EventAction.PULL_REQUEST_UPDATED,
         EventAction.PULL_REQUEST_REOPENED,
-        EventAction.PULL_REQUEST_MERGED);
-      // Add actor account ID filter if githubUserIds are provided
-      if (githubUserIds && githubUserIds.length > 0) {
-        // Apply each GitHub user ID individually to avoid spread operator issues
-        githubUserIds.forEach(userId => {
-          fg1 = fg1.andActorAccountIs(userId.toString());
-        });
-      }
+      ]);
     }
-    fgList.push(fg1);
+
+    if (gitEvent == GitEvent.PULL_REQUEST_MERGED) {
+      createUserFilters([EventAction.PULL_REQUEST_MERGED]);
+    }
+
+    if (gitEvent == GitEvent.PUSH) {
+      createUserFilters([EventAction.PUSH]);
+    }
+
+    if (gitEvent == GitEvent.ALL) {
+      createUserFilters([
+        EventAction.PUSH,
+        EventAction.PULL_REQUEST_CREATED,
+        EventAction.PULL_REQUEST_UPDATED,
+        EventAction.PULL_REQUEST_REOPENED,
+        EventAction.PULL_REQUEST_MERGED,
+      ]);
+    }
+
+    // Handle branch-specific filters
     branches?.forEach(branch => {
-      let branchFg = FilterGroup.inEventOf(EventAction.PUSH).andHeadRefIs(branch);
-      // Add actor account ID filter if githubUserIds are provided
-      if (githubUserIds && githubUserIds.length > 0) {
-        // Apply each GitHub user ID individually to avoid spread operator issues
-        githubUserIds.forEach(userId => {
-          branchFg = branchFg.andActorAccountIs(userId.toString());
-        });
-      }
-      fgList.push(branchFg);
+      createUserFilters([EventAction.PUSH], true, branch);
     });
 
     return fgList;
