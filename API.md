@@ -1017,8 +1017,7 @@ public readonly application: CfnApplication;
 
 This construct will create a Step function workflow that can submit spark job.
 
-If you utilize the @see SandardSparkSubmitJobTemplate, the workflow generated will consist of a single spark job.
-If you need a much elaborate workflow, you can provide a string version of the state definition, while initializing the construct.
+If you utilize the
 
 > [StandardSparkSubmitJobTemplate. *  The `usingDefinition` method will take care of capturing variables, like `entryPoint`, `mainClass` etc .
 By default the step function during execution utilize those variable values as default.
@@ -1097,7 +1096,7 @@ new SimpleServerlessSparkJob(mystackObj, 'MultiFly')
 *Example*
 
 ```typescript
- There are many instances where an ETL job may only have a single spark job. In such cases, you can use the
+There are many instances where an ETL job may only have a single spark job. In such cases, you can use the
 ```
 
 
