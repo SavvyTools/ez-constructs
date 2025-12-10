@@ -661,7 +661,7 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
       uuid: '86323b0e-2faf-5a68-a6c1-7da4b4e3c3e5',
       lambdaPurpose: 'replace',
       functionName: Utils.kebabCase(`${this._name}-Replacer`),
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_22_X,
       handler: 'index.handler',
       code: Code.fromInline(`
         function isObject(obj) {
@@ -701,7 +701,7 @@ export class SimpleServerlessSparkJob extends SimpleStepFunction {
       uuid: '93243b0e-6fbf-4a68-a6c1-6da4b4e3c3e4',
       lambdaPurpose: 'validation',
       functionName: Utils.kebabCase(`${this._name}-EntryArgsValidator`),
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_22_X,
       handler: 'index.handler',
       code: Code.fromInline(`
           exports.handler = async (event, context) => {
