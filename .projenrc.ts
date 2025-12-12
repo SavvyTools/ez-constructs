@@ -27,7 +27,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '/tmp',
     'coverage',
   ],
-  releaseToNpm: true,
+  releaseToNpm: false,
   publishToPypi: {
     distName: 'ez-constructs',
     module: 'ez_constructs',
