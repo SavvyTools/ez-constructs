@@ -7,7 +7,6 @@ queue_rules:
       - "#approved-reviews-by>=1"
       - -label~=(do-not-merge)
       - status-success=build
-      - status-success=package-js
       - status-success=package-python
     merge_method: squash
     commit_message_template: |-
@@ -24,5 +23,4 @@ pull_request_rules:
       - "#approved-reviews-by>=1"
       - -label~=(do-not-merge)
       - status-success=build
-      - status-success=package-js
       - status-success=package-python
