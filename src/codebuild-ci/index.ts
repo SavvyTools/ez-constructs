@@ -412,15 +412,32 @@ export class SimpleCodebuildProject extends EzConstruct {
    * @private
    */
   private createSource(repoUrl: string, base?: string, gitEvent?: GitEvent, branches?:Array<string>): Source {
-    if (!this._codeConnectionArn) {
-      throw new Error('A CodeConnection ARN must be provided for GitHub authentication.');
-    }
     const repoDetails = Utils.parseGithubUrl(repoUrl);
-    // Use CodeConnections as the single standard
-    return Source.codeCommit({
-      repository: repoDetails.repo,
-      connectionArn: this._codeConnectionArn,
-      branchOrRef: base || 'main',
+    const webhook = gitEvent && true;
+    const webhookFilter = this.createWebHookFilters(base, gitEvent, branches, this._githubUserIds);
+
+    if (this._codeConnectionArn) {
+      // Use CodeConnections if ARN is provided
+      return Source.connection(repoUrl, this._codeConnectionArn, {
+        webhook,
+        webhookFilters: webhookFilter,
+        branch: base || 'main',
+      });
+    }
+
+    // Fallback to legacy GitHub or GitHub Enterprise
+    if (repoDetails.enterprise === true) {
+      return Source.gitHubEnterprise({
+        httpsCloneUrl: repoUrl,
+        webhook,
+        webhookFilters: webhookFilter,
+      });
+    }
+    return Source.gitHub({
+      owner: repoDetails.owner,
+      repo: repoDetails.repo,
+      webhook,
+      webhookFilters: webhookFilter,
     });
   }
 
