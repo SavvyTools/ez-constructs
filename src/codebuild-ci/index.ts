@@ -1,6 +1,7 @@
 import {
   Artifacts,
   BuildSpec,
+  BuildEnvironmentVariable,
   ComputeType,
   EventAction,
   FilterGroup,
@@ -9,8 +10,8 @@ import {
   Project,
   ProjectProps,
   Source,
+  CfnProject,
 } from 'aws-cdk-lib/aws-codebuild';
-import { BuildEnvironmentVariable } from 'aws-cdk-lib/aws-codebuild/lib/project';
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
@@ -66,14 +67,6 @@ export class SimpleCodebuildProject extends EzConstruct {
   private _gitBaseBranch: string = 'develop';
   private _buildSpecPath?: string;
   private _codeConnectionArn?: string;
-    /**
-     * The CodeConnection ARN for GitHub authentication (AWS CodeStar Connections)
-     * @param arn - The ARN of the CodeConnection
-     */
-    codeConnectionArn(arn: string): SimpleCodebuildProject {
-      this._codeConnectionArn = arn;
-      return this;
-    }
   private _grantReportGroupPermissions = true;
   private _privileged = false;
   private _skipArtifacts = false;
@@ -239,6 +232,33 @@ export class SimpleCodebuildProject extends EzConstruct {
   }
 
   /**
+   * Set the AWS CodeConnection ARN for GitHub authentication.
+   *
+   * **RECOMMENDED**: This is the standard method for GitHub authentication in CodeBuild.
+   * AWS CodeConnections (formerly CodeStar Connections) provides secure, token-free integration
+   * with GitHub without requiring Personal Access Tokens (PATs).
+   *
+   * Benefits:
+   * - No PAT management required
+   * - Better security posture (no token exposure)
+   * - AWS IAM-based authentication
+   * - Full CloudTrail audit logging
+   *
+   * To create a CodeConnection:
+   * 1. Navigate to AWS Console → Developer Tools → Connections
+   * 2. Create a new connection to GitHub
+   * 3. Complete the OAuth authorization flow
+   * 4. Copy the Connection ARN
+   *
+   * @param arn - The ARN of the CodeConnection (e.g., arn:aws:codeconnections:us-east-1:123456789012:connection/abc-123)
+   * @see https://docs.aws.amazon.com/dtconsole/latest/userguide/welcome-connections.html
+   */
+  codeConnectionArn(arn: string): SimpleCodebuildProject {
+    this._codeConnectionArn = arn;
+    return this;
+  }
+
+  /**
    * Triggers build on push to specified branches
    * @param branches
    */
@@ -358,6 +378,15 @@ export class SimpleCodebuildProject extends EzConstruct {
     // create a codebuild project
     let project = new Project(this.scope, 'Project', this._props);
 
+    // Apply CodeConnections via escape hatch if ARN is provided
+    if (this._codeConnectionArn) {
+      const cfnProject = project.node.defaultChild as CfnProject;
+      cfnProject.addPropertyOverride('Source.Auth', {
+        Type: 'CODECONNECTIONS',
+        Resource: this._codeConnectionArn,
+      });
+    }
+
     // run above project on a schedule ?
     if (this._triggerOnSchedule) {
       new Rule(this.scope, 'ScheduleRule', {
@@ -402,7 +431,17 @@ export class SimpleCodebuildProject extends EzConstruct {
   }
 
   /**
-   * Creates a Github or Enterprise Githb repo source object
+   * Creates a GitHub or Enterprise GitHub repo source object with authentication.
+   *
+   * Authentication Hierarchy (in order of preference):
+   * 1. **AWS CodeConnections** (RECOMMENDED): If codeConnectionArn is provided, uses secure OAuth-based connection
+   *    (applied via CloudFormation escape hatch in assemble() method)
+   * 2. **GitHub Enterprise PAT** (LEGACY): For enterprise GitHub URLs, uses Personal Access Token
+   * 3. **GitHub PAT** (LEGACY): For public GitHub, uses Personal Access Token
+   *
+   * Note: PAT-based methods are maintained for backward compatibility during migration.
+   * New projects should use CodeConnections via the codeConnectionArn() method.
+   *
    * @param repoUrl - the url of the repo
    * @param base - the main or base branch used by the repo
    * @param gitEvent - the github events that can trigger builds
@@ -414,19 +453,12 @@ export class SimpleCodebuildProject extends EzConstruct {
     const webhook = gitEvent && true;
     const webhookFilter = this.createWebHookFilters(base, gitEvent, branches, this._githubUserIds);
 
-    if (this._codeConnectionArn) {
-      // Use CodeConnections if ARN is provided
-      return Source.codeStarConnection(repoUrl, this._codeConnectionArn, {
-        webhook,
-        webhookFilters: webhookFilter,
-        branch: base || 'main',
-      });
-    }
-
-    // Fallback to legacy GitHub or GitHub Enterprise
+    // Create GitHub or GitHub Enterprise source
+    // If CodeConnection ARN is provided, auth will be overridden via escape hatch in assemble()
     if (repoDetails.enterprise === true) {
       return Source.gitHubEnterprise({
         httpsCloneUrl: repoUrl,
+        branchOrRef: base,
         webhook,
         webhookFilters: webhookFilter,
       });
@@ -434,6 +466,7 @@ export class SimpleCodebuildProject extends EzConstruct {
     return Source.gitHub({
       owner: repoDetails.owner,
       repo: repoDetails.repo,
+      branchOrRef: base,
       webhook,
       webhookFilters: webhookFilter,
     });

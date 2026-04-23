@@ -455,6 +455,7 @@ new SimpleCodebuildProject(scope: Construct, id: string)
 | <code><a href="#ez-constructs.SimpleCodebuildProject.assemble">assemble</a></code> | *No description.* |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.buildImage">buildImage</a></code> | The build image to use. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.buildSpecPath">buildSpecPath</a></code> | The build spec file path. |
+| <code><a href="#ez-constructs.SimpleCodebuildProject.codeConnectionArn">codeConnectionArn</a></code> | Set the AWS CodeConnection ARN for GitHub authentication. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.computeType">computeType</a></code> | The compute type to use. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.ecrBuildImage">ecrBuildImage</a></code> | The build image to use. |
 | <code><a href="#ez-constructs.SimpleCodebuildProject.filterByGithubUserIds">filterByGithubUserIds</a></code> | Filter webhook events by GitHub user IDs. |
@@ -573,6 +574,40 @@ The build spec file path.
 - *Type:* string
 
 relative location of the build spec file.
+
+---
+
+##### `codeConnectionArn` <a name="codeConnectionArn" id="ez-constructs.SimpleCodebuildProject.codeConnectionArn"></a>
+
+```typescript
+public codeConnectionArn(arn: string): SimpleCodebuildProject
+```
+
+Set the AWS CodeConnection ARN for GitHub authentication.
+
+**RECOMMENDED**: This is the standard method for GitHub authentication in CodeBuild.
+AWS CodeConnections (formerly CodeStar Connections) provides secure, token-free integration
+with GitHub without requiring Personal Access Tokens (PATs).
+
+Benefits:
+- No PAT management required
+- Better security posture (no token exposure)
+- AWS IAM-based authentication
+- Full CloudTrail audit logging
+
+To create a CodeConnection:
+1. Navigate to AWS Console → Developer Tools → Connections
+2. Create a new connection to GitHub
+3. Complete the OAuth authorization flow
+4. Copy the Connection ARN
+
+> [https://docs.aws.amazon.com/dtconsole/latest/userguide/welcome-connections.html](https://docs.aws.amazon.com/dtconsole/latest/userguide/welcome-connections.html)
+
+###### `arn`<sup>Required</sup> <a name="arn" id="ez-constructs.SimpleCodebuildProject.codeConnectionArn.parameter.arn"></a>
+
+- *Type:* string
+
+The ARN of the CodeConnection (e.g., arn:aws:codeconnections:us-east-1:123456789012:connection/abc-123).
 
 ---
 

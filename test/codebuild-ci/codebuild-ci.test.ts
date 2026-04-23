@@ -303,6 +303,87 @@ describe('SimpleCodebuildProject Construct', () => {
     });
   });
 
+  describe('CodeConnections (Recommended)', () => {
+    let myapp: App;
+    let mystack: Stack;
+
+    beforeEach(() => {
+      myapp = new App();
+      mystack = new Stack(myapp, 'mystack', {
+        env: {
+          account: '111111111111',
+          region: 'us-east-1',
+        },
+      });
+    });
+
+    test('project with CodeConnection ARN for GitHub authentication', () => {
+      // WHEN
+      new SimpleCodebuildProject(mystack, 'myproject')
+        .projectName('myproject')
+        .gitRepoUrl('https://github.com/myorg/myrepo.git')
+        .gitBaseBranch('main')
+        .codeConnectionArn('arn:aws:codeconnections:us-east-1:111111111111:connection/abc-123-def')
+        .triggerBuildOnGitEvent(GitEvent.PULL_REQUEST)
+        .assemble();
+
+      // THEN should have CodeConnections auth configured
+      expect(mystack).toHaveResourceLike('AWS::CodeBuild::Project', {
+        Name: 'myproject',
+        Source: {
+          Type: 'GITHUB',
+          Location: 'https://github.com/myorg/myrepo.git',
+          Auth: {
+            Type: 'CODECONNECTIONS',
+            Resource: 'arn:aws:codeconnections:us-east-1:111111111111:connection/abc-123-def',
+          },
+        },
+      });
+    });
+
+    test('project with CodeConnection for GitHub Enterprise', () => {
+      // WHEN
+      new SimpleCodebuildProject(mystack, 'myproject')
+        .projectName('myproject-enterprise')
+        .gitRepoUrl('https://github.cms.gov/qpp/qpp-integration-test.git')
+        .gitBaseBranch('develop')
+        .codeConnectionArn('arn:aws:codeconnections:us-east-1:111111111111:connection/xyz-789')
+        .triggerBuildOnGitEvent(GitEvent.PULL_REQUEST)
+        .assemble();
+
+      // THEN should have CodeConnections auth configured for Enterprise
+      expect(mystack).toHaveResourceLike('AWS::CodeBuild::Project', {
+        Name: 'myproject-enterprise',
+        Source: {
+          Type: 'GITHUB_ENTERPRISE',
+          Auth: {
+            Type: 'CODECONNECTIONS',
+            Resource: 'arn:aws:codeconnections:us-east-1:111111111111:connection/xyz-789',
+          },
+        },
+      });
+    });
+
+    test('project without CodeConnection falls back to PAT authentication', () => {
+      // WHEN - No codeConnectionArn provided
+      new SimpleCodebuildProject(mystack, 'myproject')
+        .projectName('myproject-legacy')
+        .gitRepoUrl('https://github.com/myorg/myrepo.git')
+        .gitBaseBranch('main')
+        .triggerBuildOnGitEvent(GitEvent.PULL_REQUEST)
+        .assemble();
+
+      // THEN should use default GitHub authentication (PAT-based)
+      expect(mystack).toHaveResourceLike('AWS::CodeBuild::Project', {
+        Name: 'myproject-legacy',
+        Source: {
+          Type: 'GITHUB',
+          // Auth property should be undefined/not set for PAT-based auth
+        },
+      });
+    });
+  });
+
 
   describe('Nagging Rules', () => {
     test('should not have nag errors', () => {
