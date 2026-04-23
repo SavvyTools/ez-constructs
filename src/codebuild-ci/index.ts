@@ -9,8 +9,6 @@ import {
   Project,
   ProjectProps,
   Source,
-  GitHubSourceProps,
-  CodePipelineSource,
 } from 'aws-cdk-lib/aws-codebuild';
 import { BuildEnvironmentVariable } from 'aws-cdk-lib/aws-codebuild/lib/project';
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
@@ -418,7 +416,7 @@ export class SimpleCodebuildProject extends EzConstruct {
 
     if (this._codeConnectionArn) {
       // Use CodeConnections if ARN is provided
-      return Source.connection(repoUrl, this._codeConnectionArn, {
+      return Source.codeStarConnection(repoUrl, this._codeConnectionArn, {
         webhook,
         webhookFilters: webhookFilter,
         branch: base || 'main',
