@@ -9,6 +9,8 @@ import {
   Project,
   ProjectProps,
   Source,
+  GitHubSourceProps,
+  CodePipelineSource,
 } from 'aws-cdk-lib/aws-codebuild';
 import { BuildEnvironmentVariable } from 'aws-cdk-lib/aws-codebuild/lib/project';
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
@@ -65,6 +67,15 @@ export class SimpleCodebuildProject extends EzConstruct {
   private _gitRepoUrl?: string;
   private _gitBaseBranch: string = 'develop';
   private _buildSpecPath?: string;
+  private _codeConnectionArn?: string;
+    /**
+     * The CodeConnection ARN for GitHub authentication (AWS CodeStar Connections)
+     * @param arn - The ARN of the CodeConnection
+     */
+    codeConnectionArn(arn: string): SimpleCodebuildProject {
+      this._codeConnectionArn = arn;
+      return this;
+    }
   private _grantReportGroupPermissions = true;
   private _privileged = false;
   private _skipArtifacts = false;
@@ -401,25 +412,16 @@ export class SimpleCodebuildProject extends EzConstruct {
    * @private
    */
   private createSource(repoUrl: string, base?: string, gitEvent?: GitEvent, branches?:Array<string>): Source {
-    let webhook = gitEvent && true;
-    let repoDetails = Utils.parseGithubUrl(repoUrl);
-    let webhookFilter = this.createWebHookFilters(base, gitEvent, branches, this._githubUserIds);
-
-    if (repoDetails.enterprise == true) {
-      return Source.gitHubEnterprise({
-        httpsCloneUrl: repoUrl,
-        webhook,
-        webhookFilters: webhookFilter,
-      });
+    if (!this._codeConnectionArn) {
+      throw new Error('A CodeConnection ARN must be provided for GitHub authentication.');
     }
-
-    return Source.gitHub({
-      owner: repoDetails.owner,
-      repo: repoDetails.repo,
-      webhook,
-      webhookFilters: webhookFilter,
+    const repoDetails = Utils.parseGithubUrl(repoUrl);
+    // Use CodeConnections as the single standard
+    return Source.codeCommit({
+      repository: repoDetails.repo,
+      connectionArn: this._codeConnectionArn,
+      branchOrRef: base || 'main',
     });
-
   }
 
   /**
