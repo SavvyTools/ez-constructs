@@ -1,5 +1,6 @@
 import {
   Artifacts,
+  BuildEnvironmentVariable,
   BuildSpec,
   ComputeType,
   EventAction,
@@ -10,7 +11,6 @@ import {
   ProjectProps,
   Source,
 } from 'aws-cdk-lib/aws-codebuild';
-import { BuildEnvironmentVariable } from 'aws-cdk-lib/aws-codebuild/lib/project';
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
